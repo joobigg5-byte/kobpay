@@ -21,6 +21,7 @@ import toast, { Toaster } from 'react-hot-toast';
 // --- HYDRATION SHIELD ---
 const useIsMounted = () => {
   const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   return mounted;
 };
 
