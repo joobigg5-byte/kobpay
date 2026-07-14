@@ -1,12 +1,5 @@
-// app/page.tsx
-import dynamicLoader from 'next/dynamic';
-
-export const dynamic = 'force-dynamic';
-
-const ClientDashboard = dynamicLoader(() => import('./dashboard/ClientDashboard'), {
-  ssr: false,
-});
+import DashboardLoader from './dashboard/DashboardLoader';
 
 export default function Page() {
-  return <ClientDashboard />;
+  return <DashboardLoader />;
 }
