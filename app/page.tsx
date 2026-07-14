@@ -1,7 +1,9 @@
 // app/page.tsx
-import dynamic from 'next/dynamic';
+import dynamicLoader from 'next/dynamic';
 
-const ClientDashboard = dynamic(() => import('./dashboard/ClientDashboard'), {
+export const dynamic = 'force-dynamic';
+
+const ClientDashboard = dynamicLoader(() => import('./dashboard/ClientDashboard'), {
   ssr: false,
 });
 
