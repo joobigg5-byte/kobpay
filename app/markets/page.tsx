@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, TrendingUp, Activity, BarChart2 } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function MarketsPage() {
   const pairs = [
@@ -14,6 +15,7 @@ export default function MarketsPage() {
 
   return (
     <div className="min-h-screen bg-[#0A0E14] text-white p-6 lg:p-10 font-sans">
+      <Toaster position="top-center" />
       <div className="max-w-[1200px] mx-auto">
         <div className="flex items-center gap-4 mb-10">
           <Link href="/" className="text-[#94A3B8] hover:text-[#10B981] p-3 bg-[#111827] rounded-xl border border-[#1F2937]"><ArrowLeft size={20} /></Link>
@@ -25,7 +27,14 @@ export default function MarketsPage() {
             <div>Trading Pair</div><div>Live Price</div><div>24h Change</div><div className="text-right">Volume</div>
           </div>
           {pairs.map((p, i) => (
-            <div key={i} className="grid grid-cols-4 gap-4 p-5 items-center border-b border-[#1F2937]/50 hover:bg-[#1F2937]/30 rounded-xl transition-all cursor-pointer">
+            <div
+              key={i}
+              onClick={() => toast(`${p.pair} detail view coming soon`, {
+                icon: '📊',
+                style: { background: '#111827', color: '#fff', border: '1px solid #10B981', fontSize: '12px', fontFamily: 'monospace' }
+              })}
+              className="grid grid-cols-4 gap-4 p-5 items-center border-b border-[#1F2937]/50 hover:bg-[#1F2937]/30 rounded-xl transition-all cursor-pointer"
+            >
               <div className="font-bold text-white font-mono">{p.pair}</div>
               <div className="text-white font-mono">{p.price}</div>
               <div className={`font-mono ${p.chart}`}>{p.change}</div>

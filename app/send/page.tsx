@@ -49,9 +49,16 @@ export default function SendPage() {
         <h1 className="text-3xl font-black uppercase tracking-widest mb-2 text-white">
           Send Assets
         </h1>
-        <p className="text-xs font-mono text-[#94A3B8] tracking-widest uppercase mb-8">
+        <p className="text-xs font-mono text-[#94A3B8] tracking-widest uppercase mb-4">
           Execute peer-to-peer settlement on the Sovereign Rail.
         </p>
+
+        <div className="bg-[#FDB813]/10 border border-[#FDB813]/30 p-4 rounded-xl flex items-start gap-3 mb-6">
+          <AlertCircle className="text-[#FDB813] shrink-0" size={18} />
+          <p className="text-[10px] font-mono text-[#FDB813] leading-relaxed uppercase">
+            This sends real native network currency (ETH/MATIC, depending on your connected chain) — not the $1 KPC token. Double-check the recipient address and amount before confirming.
+          </p>
+        </div>
 
         {!isConnected ? (
           <div className="bg-[#EF4444]/10 border border-[#EF4444]/30 p-6 rounded-xl flex items-start gap-4 mb-6">

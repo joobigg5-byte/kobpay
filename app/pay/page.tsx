@@ -123,7 +123,13 @@ export default function PayTerminal() {
                     <div className="w-full bg-[#0A0E14] border border-[#FDB813]/30 p-4 rounded-xl flex flex-col gap-3">
                       <span className="text-[9px] font-mono text-[#FDB813] tracking-widest uppercase">Target Address Detected</span>
                       <span className="font-mono text-xs text-white truncate">{scanResult}</span>
-                      <button className="w-full py-3 bg-[#FDB813] text-[#0A0E14] font-black font-mono text-[10px] uppercase rounded-lg shadow-lg hover:bg-[#F59E0B] transition-all flex items-center justify-center gap-2">
+                      <button
+                        onClick={() => toast('Payment execution is not yet live — this is a preview build.', {
+                          icon: '🚧',
+                          style: { background: '#111827', color: '#fff', border: '1px solid #FDB813', fontSize: '12px', fontFamily: 'monospace' }
+                        })}
+                        className="w-full py-3 bg-[#FDB813] text-[#0A0E14] font-black font-mono text-[10px] uppercase rounded-lg shadow-lg hover:bg-[#F59E0B] transition-all flex items-center justify-center gap-2"
+                      >
                         Proceed to Payment <Zap size={14} />
                       </button>
                     </div>

@@ -138,7 +138,21 @@ export default function TradePage() {
             </div>
           </div>
 
-          <button className="w-full py-5 bg-[#22D3EE] text-[#0A0E14] font-black font-mono text-[11px] uppercase tracking-[0.4em] rounded-2xl hover:shadow-[0_0_40px_rgba(34,211,238,0.4)] transition-all active:scale-[0.98]">
+          <button
+            onClick={() => {
+              if (!fromAmount || Number(fromAmount) <= 0) {
+                toast.error('Enter an amount to swap first', {
+                  style: { background: '#111827', color: '#fff', border: '1px solid #EF4444', fontSize: '12px', fontFamily: 'monospace' }
+                });
+                return;
+              }
+              toast('Swap execution is not yet live — this is a preview build.', {
+                icon: '🚧',
+                style: { background: '#111827', color: '#fff', border: '1px solid #22D3EE', fontSize: '12px', fontFamily: 'monospace' }
+              });
+            }}
+            className="w-full py-5 bg-[#22D3EE] text-[#0A0E14] font-black font-mono text-[11px] uppercase tracking-[0.4em] rounded-2xl hover:shadow-[0_0_40px_rgba(34,211,238,0.4)] transition-all active:scale-[0.98]"
+          >
             Authorize Settlement
           </button>
         </div>
@@ -229,15 +243,21 @@ export default function TradePage() {
                     <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest px-10 leading-relaxed">
                       Token not found in local registry. Paste contract address to import to Sovereign Rail.
                     </p>
-                    <button className="text-[10px] font-black text-[#22D3EE] uppercase tracking-[0.3em] flex items-center gap-2 mx-auto hover:underline">
+                    <Link href="/explorer" className="text-[10px] font-black text-[#22D3EE] uppercase tracking-[0.3em] flex items-center gap-2 mx-auto hover:underline">
                       View on Explorer <ExternalLink size={12} />
-                    </button>
+                    </Link>
                   </div>
                 )}
               </div>
               
               <div className="p-6 bg-[#0A0E14]/50 border-t border-[#1F2937]">
-                <button className="w-full py-4 border border-[#374151] rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-[#94A3B8] hover:text-white hover:border-white transition-all">
+                <button
+                  onClick={() => toast('Custom token list management is coming soon.', {
+                    icon: 'ℹ️',
+                    style: { background: '#111827', color: '#fff', border: '1px solid #374151', fontSize: '12px', fontFamily: 'monospace' }
+                  })}
+                  className="w-full py-4 border border-[#374151] rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-[#94A3B8] hover:text-white hover:border-white transition-all"
+                >
                   Manage Global Token Lists
                 </button>
               </div>

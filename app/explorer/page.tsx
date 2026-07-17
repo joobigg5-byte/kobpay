@@ -111,6 +111,23 @@ export default function ExplorerProtocol() {
     return () => clearInterval(interval);
   }, []);
 
+  // Filter blocks/transactions client-side based on the search query
+  const query = searchQuery.trim().toLowerCase();
+  const filteredBlocks = query
+    ? blocks.filter(b =>
+        b.number.toString().includes(query) ||
+        b.hash.toLowerCase().includes(query) ||
+        b.miner.toLowerCase().includes(query)
+      )
+    : blocks;
+  const filteredTransactions = query
+    ? transactions.filter(tx =>
+        tx.hash.toLowerCase().includes(query) ||
+        tx.from.toLowerCase().includes(query) ||
+        tx.to.toLowerCase().includes(query)
+      )
+    : transactions;
+
   return (
     <div className="min-h-screen bg-[#0A0E14] text-white p-4 lg:p-10 font-sans">
       <div className="max-w-[1400px] mx-auto">
@@ -128,7 +145,7 @@ export default function ExplorerProtocol() {
               <div className="flex items-center gap-2 mt-1.5">
                 <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-[#10B981] animate-pulse' : 'bg-[#EF4444]'}`} />
                 <span className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.2em]">
-                  {isConnected ? 'Mainnet Live • Syncing' : 'RPC Disconnected'}
+                  {isConnected ? 'Ethereum Mainnet Reference Feed • Live' : 'RPC Disconnected'}
                 </span>
               </div>
             </div>
@@ -181,7 +198,7 @@ export default function ExplorerProtocol() {
             </div>
             <div className="p-2 flex-1 overflow-y-auto max-h-[600px] custom-scrollbar">
               <AnimatePresence>
-                {blocks.map((block) => (
+                {filteredBlocks.map((block) => (
                   <motion.div 
                     key={block.number}
                     initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
@@ -216,6 +233,11 @@ export default function ExplorerProtocol() {
                   Syncing with Sovereign Node...
                 </div>
               )}
+              {blocks.length > 0 && filteredBlocks.length === 0 && (
+                <div className="p-10 text-center text-[#94A3B8] font-mono text-xs uppercase">
+                  No blocks match "{searchQuery}"
+                </div>
+              )}
             </div>
           </div>
 
@@ -228,7 +250,7 @@ export default function ExplorerProtocol() {
             </div>
             <div className="p-2 flex-1 overflow-y-auto max-h-[600px] custom-scrollbar">
               <AnimatePresence>
-                {transactions.map((tx, idx) => (
+                {filteredTransactions.map((tx, idx) => (
                   <motion.div 
                     key={tx.hash + idx}
                     initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
@@ -249,7 +271,7 @@ export default function ExplorerProtocol() {
                     </div>
                     <div className="text-left sm:text-right w-full sm:w-auto bg-[#0A0E14] sm:bg-transparent p-3 sm:p-0 rounded-lg shrink-0">
                       <p className="text-[11px] font-black font-mono text-white">
-                        {tx.value} <span className="text-[#94A3B8]">KPC</span>
+                        {tx.value} <span className="text-[#94A3B8]">ETH</span>
                       </p>
                     </div>
                   </motion.div>
@@ -258,6 +280,11 @@ export default function ExplorerProtocol() {
                {transactions.length === 0 && !error && (
                 <div className="p-10 text-center text-[#94A3B8] font-mono text-xs uppercase animate-pulse">
                   Listening for mempool events...
+                </div>
+              )}
+              {transactions.length > 0 && filteredTransactions.length === 0 && (
+                <div className="p-10 text-center text-[#94A3B8] font-mono text-xs uppercase">
+                  No transactions match "{searchQuery}"
                 </div>
               )}
             </div>

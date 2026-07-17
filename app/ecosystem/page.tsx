@@ -7,6 +7,7 @@ import {
   ArrowLeft, Layers, Plus, Bot, Gamepad2, 
   Store, Home, Zap, X, Code, Rocket, LucideIcon 
 } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 
 // --- TYPE DEFINITION ---
 interface DApp {
@@ -43,11 +44,15 @@ export default function EcosystemPage() {
     setDapps([...dapps, newApp]);
     setNewAppName("");
     setIsAdminOpen(false);
+    toast.success(`${newApp.name} added to this session`, {
+      style: { background: '#10B981', color: '#0A0E14', fontWeight: 'bold', fontSize: '12px', fontFamily: 'monospace' }
+    });
   };
 
   return (
     <div className="min-h-screen bg-[#0A0E14] text-white p-6 lg:p-10 font-sans relative">
-      
+      <Toaster position="top-center" />
+
       {/* --- HEADER SECTION --- */}
       <div className="max-w-[1400px] mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
@@ -104,7 +109,13 @@ export default function EcosystemPage() {
                     <span className="text-[9px] font-mono text-[#10B981] flex items-center gap-1.5 uppercase tracking-widest">
                       <Zap size={10} className="fill-[#10B981]" /> Live
                     </span>
-                    <button className="text-[9px] font-mono font-bold text-[#FDB813] uppercase tracking-[0.2em] group-hover:underline">
+                    <button
+                      onClick={() => toast(`${app.name} isn't connected yet — launch coming soon.`, {
+                        icon: '🚧',
+                        style: { background: '#111827', color: '#fff', border: '1px solid #FDB813', fontSize: '12px', fontFamily: 'monospace' }
+                      })}
+                      className="text-[9px] font-mono font-bold text-[#FDB813] uppercase tracking-[0.2em] group-hover:underline"
+                    >
                       Launch App
                     </button>
                   </div>
@@ -155,7 +166,7 @@ export default function EcosystemPage() {
                 
                 <div className="p-6 bg-[#0A0E14] border border-dashed border-[#374151] rounded-2xl">
                   <p className="text-[9px] font-mono text-[#94A3B8] uppercase leading-relaxed tracking-widest">
-                    Registering a new dApp will instantly propagate it across all Sovereign Dashboard instances globally.
+                    This adds a preview card to your current session only. It is not yet submitted anywhere or visible to other users.
                   </p>
                 </div>
 
