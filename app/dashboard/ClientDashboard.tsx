@@ -17,6 +17,8 @@ import {
 } from 'recharts';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import toast, { Toaster } from 'react-hot-toast';
+import BuyKpcModal from '../components/BuyKpcModal';
+import { supabase } from '../lib/supabaseClient';
 
 // --- HYDRATION SHIELD ---
 const useIsMounted = () => {
@@ -85,6 +87,16 @@ const drawerContent: Record<string, any> = {
 export default function KPCSovereignDashboard() {
   const mounted = useIsMounted();
   const pathname = usePathname(); 
+  const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<{ id: string; email: string } | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) {
+        setCurrentUser({ id: data.user.id, email: data.user.email ?? '' });
+      }
+    });
+  }, []);
   
   const [liveChartData, setLiveChartData] = useState(initialChartData);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -332,7 +344,13 @@ export default function KPCSovereignDashboard() {
               <div className="relative z-10 w-full max-w-xl aspect-video rounded-xl overflow-hidden border border-[#FDB813]/30 bg-black shadow-[0_0_50px_rgba(253,184,19,0.1)]"><video src="/kpc-video.mp4" autoPlay loop muted playsInline className="w-full h-full object-cover scale-105" /></div>
               <div className="relative z-10 flex gap-4 w-full justify-center max-w-md">
                 <motion.button 
-                  onClick={() => setActiveDrawer("buy")} 
+                  onClick={() => {
+                    if (!currentUser) {
+                      window.location.href = '/auth?redirect_uri=' + encodeURIComponent(window.location.href);
+                      return;
+                    }
+                    setIsBuyModalOpen(true);
+                  }}
                   whileHover={{ scale: 1.03 }} 
                   whileTap={{ scale: 0.95 }} 
                   animate={{ boxShadow: ["0px 0px 15px rgba(244, 208, 104, 0.4)", "0px 0px 45px rgba(255, 240, 168, 0.8)", "0px 0px 15px rgba(244, 208, 104, 0.4)"] }} 
@@ -441,6 +459,13 @@ export default function KPCSovereignDashboard() {
       </AnimatePresence>
 
       <KobBotChat />
+      {isBuyModalOpen && currentUser && (
+  <BuyKpcModal
+    userId={currentUser.id}
+    userEmail={currentUser.email}
+    onClose={() => setIsBuyModalOpen(false)}
+  />
+)}
     </div>
   );
 }
