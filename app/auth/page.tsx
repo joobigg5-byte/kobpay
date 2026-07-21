@@ -5,10 +5,15 @@ import { useSearchParams } from "next/navigation";
 import { supabase } from "../lib/supabaseClient";
 import { Phone, ShieldCheck, Loader2 } from "lucide-react";
 
+// Only these origins are allowed to receive a session handoff.
+// This prevents an attacker from crafting a redirect_uri that steals
+// a user's tokens by pointing at a phishing site.
 const ALLOWED_REDIRECT_ORIGINS = [
   "https://www.playgity.app",
   "https://playgity.app",
   "https://app.kobpay.app",
+  // Add each new app's real domain here as you connect it.
+  // For local testing, also add: "http://localhost:3000" (or whatever port)
 ];
 
 function isAllowedRedirect(redirectUri: string | null): redirectUri is string {
@@ -71,8 +76,27 @@ function AuthForm() {
       return;
     }
 
+    // If a valid external app sent us here, get a signed cross-app proof
+    // token (works even if that app uses a completely different Supabase
+    // project/backend) and hand off via URL fragment — never sent to any
+    // server, browser-only. Otherwise, this was just a direct login on
+    // kobpay.app itself.
     if (redirectIsValid) {
-      const handoffUrl = `${redirectUri}#access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
+      const signRes = await fetch("/api/auth/sign-sso-token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accessToken: session.access_token }),
+      });
+
+      const signData = await signRes.json();
+
+      if (!signRes.ok) {
+        setError(signData.error || "Failed to complete cross-app sign-in");
+        setIsLoading(false);
+        return;
+      }
+
+      const handoffUrl = `${redirectUri}#kobpay_token=${signData.ssoToken}`;
       window.location.href = handoffUrl;
     } else {
       window.location.href = "/wallet";
