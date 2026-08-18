@@ -88,12 +88,16 @@ export default function KPCSovereignDashboard() {
   const mounted = useIsMounted();
   const pathname = usePathname(); 
   const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState<{ id: string; email: string } | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ id: string; email: string; accessToken: string } | null>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) {
-        setCurrentUser({ id: data.user.id, email: data.user.email ?? '' });
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        setCurrentUser({
+          id: data.session.user.id,
+          email: data.session.user.email ?? '',
+          accessToken: data.session.access_token,
+        });
       }
     });
   }, []);
@@ -461,8 +465,7 @@ export default function KPCSovereignDashboard() {
       <KobBotChat />
       {isBuyModalOpen && currentUser && (
   <BuyKpcModal
-    userId={currentUser.id}
-    userEmail={currentUser.email}
+    accessToken={currentUser.accessToken}
     onClose={() => setIsBuyModalOpen(false)}
   />
 )}

@@ -5,12 +5,11 @@ import { X, Loader2, ShieldCheck } from "lucide-react";
 import { KPC_PEG_USD } from "../lib/kpcPeg";
 
 interface BuyKpcModalProps {
-  userId: string;
-  userEmail: string;
+  accessToken: string;
   onClose: () => void;
 }
 
-export default function BuyKpcModal({ userId, userEmail, onClose }: BuyKpcModalProps) {
+export default function BuyKpcModal({ accessToken, onClose }: BuyKpcModalProps) {
   const [amountUsd, setAmountUsd] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +28,7 @@ export default function BuyKpcModal({ userId, userEmail, onClose }: BuyKpcModalP
       const res = await fetch("/api/payments/initialize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, email: userEmail, amountUsd: amount }),
+        body: JSON.stringify({ accessToken, amountUsd: amount }),
       });
 
       const data = await res.json();
