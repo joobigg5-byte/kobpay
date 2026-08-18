@@ -1,50 +1,69 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
-// This uses the anon key just to verify the access_token is genuinely valid —
-// it does NOT need the service role key for this specific check.
-const supabase = createClient(
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+const supabaseAuth = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-// Server-side-only secret, shared with every partner app's verification
-// function. NEVER expose this as a NEXT_PUBLIC_ variable — it must never
-// reach browser JavaScript, or anyone could forge a "logged in" token.
-const KOBPAY_SSO_SECRET = process.env.KOBPAY_SSO_SECRET!;
-
 export async function POST(req: Request) {
   try {
-    const { accessToken } = await req.json();
+    const { accessToken, redirectUri } = await req.json();
 
-    if (!accessToken) {
-      return NextResponse.json({ error: "Missing accessToken" }, { status: 400 });
+    if (!accessToken || !redirectUri) {
+      return NextResponse.json({ error: "Missing accessToken or redirectUri" }, { status: 400 });
     }
 
-    // Verify this access token is genuinely a real, currently-valid Supabase
-    // session — not something the client made up. This is the check that
-    // makes the whole bridge trustworthy.
-    const { data, error } = await supabase.auth.getUser(accessToken);
-
-    if (error || !data.user) {
+    const { data: authData, error: authError } = await supabaseAuth.auth.getUser(accessToken);
+    if (authError || !authData.user) {
       return NextResponse.json({ error: "Invalid or expired session" }, { status: 401 });
     }
 
-    // Sign a short-lived proof-of-login token any partner app can verify
-    // using the shared secret, without needing access to this Supabase project.
-    const ssoToken = jwt.sign(
-      {
-        kobpay_user_id: data.user.id,
-        phone: data.user.phone,
-      },
-      KOBPAY_SSO_SECRET,
-      { expiresIn: "5m", issuer: "kobpay.app" }
-    );
+    let origin: string;
+    try {
+      origin = new URL(redirectUri).origin;
+    } catch {
+      return NextResponse.json({ error: "Invalid redirectUri" }, { status: 400 });
+    }
 
-    return NextResponse.json({ ssoToken });
+    // Which registered app does this redirect belong to? This replaces
+    // the old hardcoded ALLOWED_REDIRECT_ORIGINS array — origins now
+    // live in the database, one row per app. Adding a new app no longer
+    // requires editing or redeploying this file.
+    const { data: app, error: appError } = await supabaseAdmin
+      .from("apps")
+      .select("id, is_active, allowed_origins")
+      .contains("allowed_origins", [origin])
+      .eq("is_active", true)
+      .maybeSingle();
+
+    if (appError || !app) {
+      return NextResponse.json(
+        { error: "This app isn't registered (or isn't active) — sign-in stays on kobpay.app" },
+        { status: 403 }
+      );
+    }
+
+    const token = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 minutes
+
+    const { error: insertError } = await supabaseAdmin.from("sso_handoff_tokens").insert({
+      token,
+      user_id: authData.user.id,
+      app_id: app.id,
+      expires_at: expiresAt,
+    });
+
+    if (insertError) throw insertError;
+
+    return NextResponse.json({ ssoToken: token });
   } catch (err) {
-    console.error("SSO token signing error:", err);
-    return NextResponse.json({ error: "Failed to sign SSO token" }, { status: 500 });
+    console.error("SSO token issuance error:", err);
+    return NextResponse.json({ error: "Failed to issue SSO token" }, { status: 500 });
   }
 }

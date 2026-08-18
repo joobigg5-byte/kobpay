@@ -5,31 +5,9 @@ import { useSearchParams } from "next/navigation";
 import { supabase } from "../lib/supabaseClient";
 import { Phone, ShieldCheck, Loader2 } from "lucide-react";
 
-// Only these origins are allowed to receive a session handoff.
-// This prevents an attacker from crafting a redirect_uri that steals
-// a user's tokens by pointing at a phishing site.
-const ALLOWED_REDIRECT_ORIGINS = [
-  "https://www.playgity.app",
-  "https://playgity.app",
-  "https://app.kobpay.app",
-  // Add each new app's real domain here as you connect it.
-  // For local testing, also add: "http://localhost:3000" (or whatever port)
-];
-
-function isAllowedRedirect(redirectUri: string | null): redirectUri is string {
-  if (!redirectUri) return false;
-  try {
-    const origin = new URL(redirectUri).origin;
-    return ALLOWED_REDIRECT_ORIGINS.includes(origin);
-  } catch {
-    return false;
-  }
-}
-
 function AuthForm() {
   const searchParams = useSearchParams();
   const redirectUri = searchParams.get("redirect_uri");
-  const redirectIsValid = isAllowedRedirect(redirectUri);
 
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
@@ -76,16 +54,13 @@ function AuthForm() {
       return;
     }
 
-    // If a valid external app sent us here, get a signed cross-app proof
-    // token (works even if that app uses a completely different Supabase
-    // project/backend) and hand off via URL fragment — never sent to any
-    // server, browser-only. Otherwise, this was just a direct login on
-    // kobpay.app itself.
-    if (redirectIsValid) {
+    if (redirectUri) {
+      // Validation now happens server-side, against the apps table —
+      // not a hardcoded list checked before the user even signs in.
       const signRes = await fetch("/api/auth/sign-sso-token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ accessToken: session.access_token }),
+        body: JSON.stringify({ accessToken: session.access_token, redirectUri }),
       });
 
       const signData = await signRes.json();
@@ -108,14 +83,8 @@ function AuthForm() {
       <div className="w-full max-w-sm bg-[#111827] border border-[#1F2937] rounded-[2rem] p-8 shadow-2xl">
         <div className="flex items-center gap-2 mb-8 text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]">
           <ShieldCheck size={14} className="text-[#FDB813]" />
-          {redirectIsValid ? `Signing in to continue to ${new URL(redirectUri!).hostname}` : "Sign in to KobPay"}
+          {redirectUri ? `Signing in to continue to ${new URL(redirectUri).hostname}` : "Sign in to KobPay"}
         </div>
-
-        {redirectUri && !redirectIsValid && (
-          <div className="text-[10px] font-mono text-[#EF4444] uppercase tracking-widest mb-6">
-            This app isn't on our allowed list — sign-in will stay on kobpay.app only, as a precaution.
-          </div>
-        )}
 
         {step === "phone" ? (
           <>
