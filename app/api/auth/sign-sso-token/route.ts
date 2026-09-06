@@ -21,6 +21,7 @@ export async function POST(req: Request) {
 
     const { data: authData, error: authError } = await supabaseAuth.auth.getUser(accessToken);
     if (authError || !authData.user) {
+      console.error("sign-sso-token: getUser failed —", authError?.message, authError?.status);
       return NextResponse.json({ error: "Invalid or expired session" }, { status: 401 });
     }
 
