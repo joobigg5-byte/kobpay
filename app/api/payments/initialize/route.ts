@@ -5,15 +5,14 @@ import crypto from "crypto";
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY!;
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://kobpay.app";
 
-// The currency this Paystack account is actually enabled for. A Ghana-
-// registered merchant is usually GHS-only, a Nigerian one NGN-only.
+// PAYSTACK_CURRENCY is deliberately gone. One environment variable deciding
+// the currency for every customer made the whole app Ghanaian; for an app
+// meant to work anywhere, the currency belongs to the customer.
 //
-// Setting this is now safe. It did not used to be: the amount sent was
-// Math.round(amountUsd * 100) whatever the currency, so switching this to GHS
-// made Paystack read cents as pesewas and charge about an eighth of the right
-// amount — silently, because the webhook checked the number and not the
-// currency. Conversion now happens in fx_quote and the webhook compares both.
-const PAYSTACK_CURRENCY = (process.env.PAYSTACK_CURRENCY || "USD").toUpperCase();
+// It now comes from their profile — derived from their phone's dial code at
+// signup and changeable in settings — and what the processor can actually
+// take lives in public.payment_providers, so adding a second PSP is a row
+// rather than a deploy. Remove PAYSTACK_CURRENCY from Vercel once this ships.
 
 export async function POST(req: Request) {
   try {
@@ -51,33 +50,43 @@ export async function POST(req: Request) {
 
     const reference = `kpc_buy_${userId}_${crypto.randomBytes(8).toString("hex")}`;
 
-    // Price it in the database. fx_quote owns the rate, the margin, the
-    // currency's real number of decimal places, and the integer the processor
-    // is given. Nothing here multiplies by anything — a hardcoded 100 is wrong
-    // for JPY (0 decimals) and KWD (3), and was wrong for GHS in practice.
+    // Price it in the database, for THIS customer. One call works out their
+    // currency, checks a live processor can actually take it, checks the rate
+    // is fresh, and returns the exact integer the processor wants.
     //
-    // It refuses rather than guessing when the rate is missing or stale, so a
-    // failure here means no charge was attempted, which is the safe direction.
-    const { data: quote, error: quoteError } = await supabaseAdmin.rpc("fx_quote", {
-      p_currency: PAYSTACK_CURRENCY,
-      p_usd: amountUsd,
-      p_side: "deposit",
-    });
+    // Nothing here multiplies by anything. A hardcoded 100 is wrong for JPY
+    // (0 decimals) and KWD (3), and was wrong for GHS in practice.
+    const { data: priced, error: quoteError } = await supabaseAdmin.rpc(
+      "payment_quote_for_user",
+      { p_user: userId, p_usd: amountUsd }
+    );
 
-    if (quoteError || !quote) {
-      console.error("FX quote failed:", quoteError?.message);
+    if (quoteError || !priced) {
+      console.error("Pricing call failed:", quoteError?.message);
+      return NextResponse.json({ error: "Cannot price this payment right now." }, { status: 503 });
+    }
+
+    // Not an error — a normal answer. The customer's currency is one we cannot
+    // charge in yet, so tell them and hand back the ones we can, for the app to
+    // offer as a choice rather than a dead end.
+    if (!priced.ok) {
+      const unsupported = priced.reason === "currency_unsupported";
+      if (!unsupported) console.error("Pricing refused:", priced.reason, priced.detail);
       return NextResponse.json(
         {
-          error:
-            "Cannot price this payment right now. The exchange rate is missing or out of date.",
+          error: priced.message,
+          reason: priced.reason,
+          yourCurrency: priced.your_currency ?? null,
+          supported: priced.supported ?? [],
         },
-        { status: 503 }
+        { status: unsupported ? 409 : 503 }
       );
     }
 
+    const quote = priced.quote;
     const amountInSubunits: number = Number(quote.amount_minor);
     if (!Number.isFinite(amountInSubunits) || amountInSubunits <= 0) {
-      console.error("FX quote returned an unusable amount:", quote);
+      console.error("Quote returned an unusable amount:", quote);
       return NextResponse.json({ error: "Cannot price this payment right now." }, { status: 503 });
     }
 
@@ -90,7 +99,9 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         email,
         amount: amountInSubunits,
-        currency: PAYSTACK_CURRENCY,
+        // The currency the quote was actually priced in, so the charge, the
+        // deposit row and the webhook's check can never disagree.
+        currency: String(quote.currency),
         reference,
         callback_url: `${APP_URL}/wallet`,
         metadata: { userId },
