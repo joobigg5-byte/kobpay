@@ -159,6 +159,18 @@ export default function SendPage() {
                 <span className="text-[10px] font-mono uppercase tracking-widest">{error}</span>
               </div>
             )}
+
+            {/* The moment of hesitation is here, right above the button, not
+                buried in a menu. A plain send stays plain; the people who need
+                protection are the ones already pausing. */}
+            <Link
+              href="/safe"
+              className="block text-center pt-2 text-[9px] font-mono uppercase tracking-[0.2em] text-[#4B5563] hover:text-[#10B981] transition-colors leading-relaxed"
+            >
+              Paying someone you don&apos;t know?
+              <br />
+              <span className="text-[#10B981]">Hold it until it arrives &rarr;</span>
+            </Link>
           </form>
         )}
       </div>
