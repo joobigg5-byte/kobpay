@@ -119,6 +119,31 @@ export async function POST(req: Request) {
       .update({ status: "succeeded", transaction_group_id: groupId })
       .eq("id", idempotencyRowId);
 
+    // Rewards, AFTER the money has moved and the charge is recorded as
+    // succeeded. Deliberately not awaited into the response path and
+    // deliberately unable to fail it: a customer whose payment worked must
+    // never see an error because the cashback maths tripped.
+    //
+    // cashback_on is idempotent per transaction group, so a retry of this
+    // whole handler cannot pay twice. qualify_referral pays the referrer once,
+    // the first time this customer moves enough money to count.
+    try {
+      await Promise.all([
+        supabaseAdmin.rpc("cashback_on", {
+          p_user: kobpayUserId,
+          p_entry_type: "app_charge",
+          p_amount_kpc: amount,
+          p_group: groupId,
+        }),
+        supabaseAdmin.rpc("qualify_referral", {
+          p_user: kobpayUserId,
+          p_amount_kpc: amount,
+        }),
+      ]);
+    } catch (rewardError) {
+      console.error("Rewards failed on an otherwise good charge:", rewardError);
+    }
+
     return NextResponse.json({ success: true, transactionGroupId: groupId });
   } catch (error) {
     console.error("App charge error:", error);
