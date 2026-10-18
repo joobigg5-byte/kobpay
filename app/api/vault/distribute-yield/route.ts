@@ -1,10 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { supabaseAdmin } from "@/app/lib/supabaseServer";
 
 // Deliberately NOT exposed to any user-facing flow. This moves money out
 // of the treasury reserve across every vault at once, so it's gated by a
