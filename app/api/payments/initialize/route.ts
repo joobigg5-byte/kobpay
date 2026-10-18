@@ -5,14 +5,15 @@ import crypto from "crypto";
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY!;
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://kobpay.app";
 
-// NOTE: confirm this matches a currency your Paystack account is actually
-// enabled for. Many Paystack merchant accounts registered in Ghana/Nigeria
-// are only enabled for GHS/NGN, not USD — if "USD" gets rejected, switch
-// this to "GHS" (or whichever currency Paystack approved for your business)
-// and convert amountUsd with a real exchange rate before charging, since
-// KPC itself stays hard-pegged to USD regardless of what currency the
-// card was charged in.
-const PAYSTACK_CURRENCY = process.env.PAYSTACK_CURRENCY || "USD";
+// The currency this Paystack account is actually enabled for. A Ghana-
+// registered merchant is usually GHS-only, a Nigerian one NGN-only.
+//
+// Setting this is now safe. It did not used to be: the amount sent was
+// Math.round(amountUsd * 100) whatever the currency, so switching this to GHS
+// made Paystack read cents as pesewas and charge about an eighth of the right
+// amount — silently, because the webhook checked the number and not the
+// currency. Conversion now happens in fx_quote and the webhook compares both.
+const PAYSTACK_CURRENCY = (process.env.PAYSTACK_CURRENCY || "USD").toUpperCase();
 
 export async function POST(req: Request) {
   try {
@@ -49,7 +50,36 @@ export async function POST(req: Request) {
     }
 
     const reference = `kpc_buy_${userId}_${crypto.randomBytes(8).toString("hex")}`;
-    const amountInSubunits = Math.round(amountUsd * 100);
+
+    // Price it in the database. fx_quote owns the rate, the margin, the
+    // currency's real number of decimal places, and the integer the processor
+    // is given. Nothing here multiplies by anything — a hardcoded 100 is wrong
+    // for JPY (0 decimals) and KWD (3), and was wrong for GHS in practice.
+    //
+    // It refuses rather than guessing when the rate is missing or stale, so a
+    // failure here means no charge was attempted, which is the safe direction.
+    const { data: quote, error: quoteError } = await supabaseAdmin.rpc("fx_quote", {
+      p_currency: PAYSTACK_CURRENCY,
+      p_usd: amountUsd,
+      p_side: "deposit",
+    });
+
+    if (quoteError || !quote) {
+      console.error("FX quote failed:", quoteError?.message);
+      return NextResponse.json(
+        {
+          error:
+            "Cannot price this payment right now. The exchange rate is missing or out of date.",
+        },
+        { status: 503 }
+      );
+    }
+
+    const amountInSubunits: number = Number(quote.amount_minor);
+    if (!Number.isFinite(amountInSubunits) || amountInSubunits <= 0) {
+      console.error("FX quote returned an unusable amount:", quote);
+      return NextResponse.json({ error: "Cannot price this payment right now." }, { status: 503 });
+    }
 
     const paystackRes = await fetch("https://api.paystack.co/transaction/initialize", {
       method: "POST",
@@ -80,10 +110,16 @@ export async function POST(req: Request) {
     // payment has nothing to match against and silently fails to credit.
     const { error: depositError } = await supabaseAdmin.from("deposits").insert({
       user_id: userId,
+      // KPC is pegged to USD, so this is the USD figure whatever we charged in.
       amount_kpc: amountUsd,
-      amount_fiat: amountUsd,
-      fiat_currency: "USD",
-      exchange_rate: 1.0,
+      // What the customer is actually charged, in the currency it is charged
+      // in, at the rate used. These three were hardcoded to amountUsd / "USD"
+      // / 1.0, which made every non-USD deposit unreconcilable after the fact.
+      amount_fiat: Number(quote.amount),
+      fiat_currency: String(quote.currency),
+      exchange_rate: Number(quote.effective_rate),
+      // The exact integer handed to Paystack. The webhook compares against it.
+      amount_minor: amountInSubunits,
       payment_method: "paystack",
       external_reference: reference,
       status: "pending",

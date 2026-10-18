@@ -36,7 +36,7 @@ export async function POST(req: Request) {
 }
 
 async function handleChargeSuccess(data: any) {
-  const { reference, amount, metadata } = data;
+  const { reference, amount, currency, metadata } = data;
   const userId = metadata?.userId;
 
   if (!userId) {
@@ -60,9 +60,33 @@ async function handleChargeSuccess(data: any) {
       return NextResponse.json({ received: true, note: "Already processed, skipping duplicate" });
     }
 
-    const expectedSubunits = Math.round(deposit.amount_fiat * 100);
-    if (amount !== expectedSubunits) {
-      console.error(`Amount mismatch on ${reference}: expected ${expectedSubunits}, got ${amount}`);
+    // CURRENCY FIRST. Checking only the number is how a Ghana account charged
+    // in pesewas passes a check written for cents: a 100 KPC purchase asks for
+    // 10000 "units", Paystack takes GHS 100 (about $8), the numbers agree, and
+    // the customer is credited $100. The amount is meaningless without this.
+    if (!currency || !deposit.fiat_currency ||
+        String(currency).toUpperCase() !== String(deposit.fiat_currency).toUpperCase()) {
+      console.error(
+        `Currency mismatch on ${reference}: quoted ${deposit.fiat_currency}, charged ${currency}`
+      );
+      await supabaseAdmin.from("deposits").update({ status: "failed" }).eq("id", deposit.id);
+      return NextResponse.json({ error: "Currency mismatch" }, { status: 400 });
+    }
+
+    // Compare against the exact integer we handed Paystack, which fx_quote
+    // produced and initialize stored. Recomputing it here would mean two
+    // places that must agree about minor units — and minor units are 0 for
+    // JPY and 3 for KWD, so any hardcoded 100 is wrong somewhere.
+    if (deposit.amount_minor === null || deposit.amount_minor === undefined) {
+      console.error(`Deposit ${reference} predates amount_minor; refusing to credit on a guess`);
+      await supabaseAdmin.from("deposits").update({ status: "failed" }).eq("id", deposit.id);
+      return NextResponse.json({ error: "Deposit missing charge amount" }, { status: 400 });
+    }
+
+    if (Number(amount) !== Number(deposit.amount_minor)) {
+      console.error(
+        `Amount mismatch on ${reference}: asked for ${deposit.amount_minor} ${deposit.fiat_currency}, got ${amount}`
+      );
       await supabaseAdmin.from("deposits").update({ status: "failed" }).eq("id", deposit.id);
       return NextResponse.json({ error: "Amount mismatch" }, { status: 400 });
     }
