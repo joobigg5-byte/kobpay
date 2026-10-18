@@ -9,6 +9,7 @@ import {
   Send,
   ArrowDownToLine,
   PlusCircle,
+  PiggyBank,
   Phone,
   AlertCircle,
 } from "lucide-react";
@@ -132,7 +133,7 @@ export default function WalletPage() {
             </div>
 
             {/* Quick actions */}
-            <div className="grid grid-cols-3 gap-3 pt-2">
+            <div className="grid grid-cols-4 gap-2 pt-2">
               <Link
                 href="/send"
                 className="flex flex-col items-center justify-center gap-2 py-4 bg-[#1F2937] hover:bg-[#FDB813]/10 border border-[#374151] hover:border-[#FDB813]/50 transition-all rounded-xl"
@@ -158,6 +159,17 @@ export default function WalletPage() {
                 <PlusCircle size={18} className="text-[#FDB813]" />
                 <span className="text-[9px] font-mono uppercase tracking-widest text-[#94A3B8]">
                   Buy KPC
+                </span>
+              </Link>
+              {/* Savings earns money sitting still, so it gets the green of the
+                  savings page rather than the gold of the spending actions. */}
+              <Link
+                href="/savings"
+                className="flex flex-col items-center justify-center gap-2 py-4 bg-[#1F2937] hover:bg-[#10B981]/10 border border-[#374151] hover:border-[#10B981]/50 transition-all rounded-xl"
+              >
+                <PiggyBank size={18} className="text-[#10B981]" />
+                <span className="text-[9px] font-mono uppercase tracking-widest text-[#94A3B8]">
+                  Save
                 </span>
               </Link>
             </div>
