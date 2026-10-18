@@ -12,6 +12,7 @@ import {
   PiggyBank,
   Users,
   Receipt,
+  Store,
   Phone,
   AlertCircle,
 } from "lucide-react";
@@ -197,6 +198,19 @@ export default function WalletPage() {
                 </span>
               </Link>
             </div>
+
+            {/* Not a seventh tile. Taking payments is a different mode from
+                spending, and a merchant visits this once then lives on that
+                page — it should not compete with Send for attention. */}
+            <Link
+              href="/merchant"
+              className="mt-3 flex items-center justify-center gap-2 py-3 bg-[#1F2937] hover:bg-[#FDB813]/10 border border-[#374151] hover:border-[#FDB813]/50 transition-all rounded-lg"
+            >
+              <Store size={14} className="text-[#FDB813]" />
+              <span className="text-[9px] font-mono uppercase tracking-widest text-[#94A3B8]">
+                Take payments
+              </span>
+            </Link>
 
             <button
               onClick={handleSignOut}
