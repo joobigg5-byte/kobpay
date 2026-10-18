@@ -11,6 +11,7 @@ import {
   PlusCircle,
   PiggyBank,
   Users,
+  Receipt,
   Phone,
   AlertCircle,
 } from "lucide-react";
@@ -134,7 +135,7 @@ export default function WalletPage() {
             </div>
 
             {/* Quick actions */}
-            <div className="grid grid-cols-5 gap-1.5 pt-2">
+            <div className="grid grid-cols-3 gap-2 pt-2">
               <Link
                 href="/send"
                 className="flex flex-col items-center justify-center gap-2 py-4 bg-[#1F2937] hover:bg-[#FDB813]/10 border border-[#374151] hover:border-[#FDB813]/50 transition-all rounded-xl"
@@ -159,7 +160,7 @@ export default function WalletPage() {
               >
                 <PlusCircle size={18} className="text-[#FDB813]" />
                 <span className="text-[9px] font-mono uppercase tracking-widest text-[#94A3B8]">
-                  Buy
+                  Buy KPC
                 </span>
               </Link>
               {/* Savings earns money sitting still, so it gets the green of the
@@ -182,6 +183,17 @@ export default function WalletPage() {
                 <Users size={18} className="text-[#FDB813]" />
                 <span className="text-[9px] font-mono uppercase tracking-widest text-[#94A3B8]">
                   Circles
+                </span>
+              </Link>
+              {/* Every movement of their money, and the only route to raising
+                  a dispute. */}
+              <Link
+                href="/activity"
+                className="flex flex-col items-center justify-center gap-2 py-4 bg-[#1F2937] hover:bg-[#FDB813]/10 border border-[#374151] hover:border-[#FDB813]/50 transition-all rounded-xl"
+              >
+                <Receipt size={18} className="text-[#FDB813]" />
+                <span className="text-[9px] font-mono uppercase tracking-widest text-[#94A3B8]">
+                  Activity
                 </span>
               </Link>
             </div>
