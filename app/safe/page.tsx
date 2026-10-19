@@ -273,7 +273,7 @@ function NewForm({
       {/* Not decoration: this is the sentence both sides argue over later, and
           the one a staff decision gets made against. */}
       <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.15em] -mt-2 leading-relaxed">
-        Be specific. If something goes wrong, this is what gets compared.
+        Be specific — this is what we compare if you ever need to raise a question.
       </p>
 
       <div className="grid grid-cols-2 gap-3">
@@ -422,7 +422,7 @@ function Card({
           <p className="text-[10px] font-mono text-[#EF4444] leading-relaxed uppercase">
             An issue was raised{s.issue_reason ? `: ${s.issue_reason.replace(/_/g, " ")}` : ""}.
             <br />
-            The clock has stopped. Someone will look at it.
+            We have paused the clock, and someone is looking at it.
           </p>
         </div>
       )}

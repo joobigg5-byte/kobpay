@@ -44,6 +44,7 @@ export default function LoansPage() {
   const [amount, setAmount] = useState("");
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
+  const [showWhy, setShowWhy] = useState(false);
 
   const load = useCallback(() => {
     supabase.rpc("my_loans").then(({ data: d, error }) => {
@@ -147,7 +148,7 @@ export default function LoansPage() {
                   {busy ? "Working..." : `Pay off ${money(current.outstanding)} KPC`}
                 </button>
                 <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.12em] mt-3 leading-relaxed">
-                  We also take what is owed from your wallet automatically on the due date.
+                  On the due date we take what is owed from your wallet automatically, so you do not have to remember.
                 </p>
               </div>
             ) : offer.eligible && offer.offer ? (
@@ -185,19 +186,47 @@ export default function LoansPage() {
                 </button>
               </div>
             ) : (
-              /* Declined, with the actual reasons rather than a shrug. */
+              /* NOT A LIST OF EVERYTHING WRONG WITH YOU.
+                 This used to print every reason as a bullet, so somebody
+                 could open it and read three sentences about why they were
+                 turned down. Nobody comes back to a screen that does that.
+                 It now leads with "not yet", gives the single most useful
+                 next step, and keeps the detail behind a tap for whoever
+                 actually wants it — which is also what the regulators
+                 expect: a reason available, not a reason shoved at you. */
               <div className="bg-[#111827] border border-[#1F2937] rounded-2xl p-6 mb-4">
-                <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-3">
-                  Not available yet
+                <p className="text-sm font-black mb-2">
+                  You can&apos;t borrow just yet
                 </p>
-                {(offer.reasons ?? []).map((r, i) => (
-                  <p key={i} className="text-[11px] font-bold mb-2 flex gap-2">
-                    <span className="text-[#4B5563]">•</span> {r}
+                <p className="text-[11px] text-[#94A3B8] leading-relaxed mb-4">
+                  Keep using KobPay — send, save, pay, join a circle — and borrowing
+                  opens up as your score grows.
+                </p>
+                <div className="bg-[#FDB813]/5 border border-[#FDB813]/30 rounded-xl p-4">
+                  <p className="text-[9px] font-mono text-[#FDB813] uppercase tracking-[0.2em] mb-1">
+                    Do this next
                   </p>
-                ))}
-                <p className="text-[10px] font-mono text-[#FDB813] uppercase tracking-[0.12em] mt-4 pt-4 border-t border-[#1F2937] leading-relaxed">
-                  {offer.improve}
-                </p>
+                  <p className="text-sm font-bold">{offer.improve}</p>
+                </div>
+                {(offer.reasons ?? []).length > 0 && (
+                  <>
+                    <button
+                      onClick={() => setShowWhy((v) => !v)}
+                      className="w-full mt-4 pt-4 border-t border-[#1F2937] text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] text-left hover:text-white"
+                    >
+                      {showWhy ? "Hide the detail" : "What counts towards this?"}
+                    </button>
+                    {showWhy && (
+                      <div className="mt-3">
+                        {(offer.reasons ?? []).map((r, i) => (
+                          <p key={i} className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.12em] leading-relaxed mb-1.5">
+                            {r}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             )}
 
@@ -235,8 +264,9 @@ export default function LoansPage() {
             )}
 
             <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.12em] leading-relaxed mt-5 text-center">
-              Borrowing costs a one-off charge, shown above before you agree. Not paying
-              it back is recorded and affects what you can borrow later.
+              The charge is shown above before you agree, and it never changes. Paying back
+              on time builds your score and unlocks larger loans. Missed repayments are
+              recorded too.
             </p>
           </>
         )}

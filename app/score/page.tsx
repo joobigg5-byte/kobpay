@@ -31,7 +31,7 @@ const BANDS: Record<string, { label: string; color: string; ring: string }> = {
   good: { label: "Good", color: "#22D3EE", ring: "#22D3EE" },
   fair: { label: "Fair", color: "#FDB813", ring: "#FDB813" },
   building: { label: "Building", color: "#94A3B8", ring: "#94A3B8" },
-  "needs work": { label: "Needs work", color: "#EF4444", ring: "#EF4444" },
+  "needs work": { label: "Starting out", color: "#94A3B8", ring: "#94A3B8" },
 };
 
 export default function ScorePage() {

@@ -54,7 +54,7 @@ function SendForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Transfer failed");
+        throw new Error(data.error || "That did not go through. Check the details and try again.");
       }
 
       setSuccess(true);

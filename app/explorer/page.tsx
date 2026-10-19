@@ -312,7 +312,7 @@ export default function ExplorerPage() {
                 <div className="bg-[#1F2937]/40 border border-[#374151] rounded-2xl p-5 flex gap-3">
                   <Info size={16} className="text-[#94A3B8] shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-[11px] font-bold mb-1">Self-reported, not audited</p>
+                    <p className="text-[11px] font-bold mb-1">How these numbers are checked</p>
                     <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.12em] leading-relaxed">
                       {reserve.assurance_note}
                     </p>

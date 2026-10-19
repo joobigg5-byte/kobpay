@@ -85,7 +85,7 @@ export default function WithdrawPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Withdrawal failed");
+        throw new Error(data.error || "That did not go through. Your money has not left your wallet.");
       }
 
       setSuccess(true);

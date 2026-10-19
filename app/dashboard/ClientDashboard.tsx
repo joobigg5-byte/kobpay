@@ -759,7 +759,7 @@ function KobBotChat() {
     } catch (error) {
       console.error(error);
       toast.error("KobBot connection lost.");
-      setMessages(prev => [...prev, { role: 'model', content: "[SYSTEM ERROR] Connection to AI Core failed." }]);
+      setMessages(prev => [...prev, { role: 'model', content: "I could not reach my brain just then. Try asking again." }]);
     } finally {
       setIsLoading(false);
     }

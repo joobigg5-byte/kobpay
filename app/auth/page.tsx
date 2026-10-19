@@ -117,7 +117,7 @@ function AuthForm() {
       const signData = await signRes.json();
 
       if (!signRes.ok) {
-        setError(signData.error || "Failed to complete cross-app sign-in");
+        setError(signData.error || "We could not finish signing you in. Please try again.");
         setIsLoading(false);
         return;
       }

@@ -114,7 +114,7 @@ export default function SavingsPage() {
       await load();
       return true;
     } catch {
-      toast.error("Network error — please try again");
+      toast.error("That did not reach us. Please try again.");
       return false;
     } finally {
       setBusy(null);
@@ -149,7 +149,7 @@ export default function SavingsPage() {
 
         <h1 className="text-3xl font-black uppercase tracking-widest mb-1">Savings</h1>
         <p className="text-[10px] font-mono text-[#94A3B8] tracking-widest uppercase mb-8">
-          Break a plan early and you forfeit interest — never your money
+          Put money aside and earn on it. Your balance stays yours.
         </p>
 
         {checkingSession ? (
@@ -418,7 +418,7 @@ function OpenPlan({
         <div className="flex gap-2 bg-[#FDB813]/10 border border-[#FDB813]/30 rounded-lg p-3">
           <AlertTriangle size={14} className="text-[#FDB813] shrink-0 mt-0.5" />
           <p className="text-[10px] font-mono text-[#FDB813] leading-relaxed">
-            Breaking this early forfeits {(product.break_fee_bps / 100).toFixed(0)}% of the interest
+            End it early and you keep every KPC you put in — you just earn {(100 - product.break_fee_bps / 100).toFixed(0)}% of the interest
             you have earned. Your deposit always comes back in full.
           </p>
         </div>
@@ -565,7 +565,7 @@ function PlanCard({
                 onClick={() => setConfirmBreak(true)}
                 className="flex-1 flex items-center justify-center gap-1.5 bg-[#1F2937] hover:bg-[#EF4444]/20 border border-[#374151] hover:border-[#EF4444]/40 text-[#94A3B8] hover:text-[#EF4444] font-mono uppercase tracking-widest text-[10px] py-2.5 rounded-lg transition-colors"
               >
-                <Lock size={12} /> Break
+                <Lock size={12} /> End early
               </button>
             ) : (
               <button
@@ -624,7 +624,7 @@ function PlanCard({
       {confirmBreak && (
         <div className="mt-4 bg-[#0A0E14] border border-[#EF4444]/40 rounded-xl p-4">
           <p className="text-[11px] font-mono text-white uppercase tracking-widest mb-3">
-            Break this lock?
+            End this plan early?
           </p>
           <div className="space-y-1.5 text-[10px] font-mono mb-4">
             <Row label="Your deposit, returned in full" value={`${principal.toLocaleString()} KPC`} tone="#10B981" />
@@ -634,7 +634,7 @@ function PlanCard({
               tone="#10B981"
             />
             <Row
-              label="Interest forfeited"
+              label="Interest not earned"
               value={`${breakCost.toLocaleString(undefined, { maximumFractionDigits: 4 })} KPC`}
               tone="#EF4444"
             />
@@ -663,7 +663,7 @@ function PlanCard({
               disabled={busy === plan.id + ":out"}
               className="flex-1 bg-[#EF4444] hover:bg-[#DC2626] disabled:opacity-40 text-white font-black uppercase tracking-widest text-[10px] py-2.5 rounded-lg transition-colors"
             >
-              Break it
+              End it
             </button>
           </div>
         </div>

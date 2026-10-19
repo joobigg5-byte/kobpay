@@ -34,7 +34,7 @@ export default function BuyKpcModal({ accessToken, onClose }: BuyKpcModalProps) 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Failed to start payment");
+        throw new Error(data.error || "We could not start that payment. Nothing has been charged.");
       }
 
       window.location.href = data.authorizationUrl;
