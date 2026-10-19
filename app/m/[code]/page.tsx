@@ -73,7 +73,7 @@ export default function PayLinkPage() {
   const short = userId !== null && payable > num(balance);
 
   return (
-    <div className="min-h-screen bg-[#0A0E14] text-white font-sans selection:bg-[#AA771C]/30 relative overflow-hidden flex items-center justify-center p-5">
+    <div className="min-h-[100dvh] bg-[#0A0E14] text-white font-sans selection:bg-[#AA771C]/30 relative overflow-hidden flex items-center justify-center p-5">
       <Toaster position="top-center" reverseOrder={false} />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-gradient-to-br from-[#FDB813]/5 to-transparent rounded-full blur-[120px] pointer-events-none" />
 

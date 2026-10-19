@@ -126,7 +126,7 @@ export default function SavingsPage() {
   const totalInterest = plans.reduce((s, p) => s + num(p.interest_waiting), 0);
 
   return (
-    <div className="min-h-screen bg-[#0A0E14] text-white font-sans selection:bg-[#AA771C]/30 relative overflow-hidden">
+    <div className="min-h-[100dvh] bg-[#0A0E14] text-white font-sans selection:bg-[#AA771C]/30 relative overflow-hidden">
       <Toaster position="top-center" reverseOrder={false} />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-gradient-to-br from-[#10B981]/5 to-transparent rounded-full blur-[120px] pointer-events-none" />
 

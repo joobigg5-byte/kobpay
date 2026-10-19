@@ -50,7 +50,7 @@ export default function EcosystemPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0E14] text-white p-6 lg:p-10 font-sans relative">
+    <div className="min-h-[100dvh] bg-[#0A0E14] text-white p-4 lg:p-6 lg:p-10 font-sans relative">
       <Toaster position="top-center" />
 
       {/* --- HEADER SECTION --- */}

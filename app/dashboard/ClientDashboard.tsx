@@ -264,7 +264,7 @@ export default function KPCSovereignDashboard() {
     setActiveDrawer(null); 
   };
 
-  if (!mounted) return <div className="min-h-screen bg-[#0A0E14]" />;
+  if (!mounted) return <div className="min-h-[100dvh] bg-[#0A0E14]" />;
   const activeDrawerData = activeDrawer ? drawerContent[activeDrawer] : null;
 
   return (
@@ -288,7 +288,6 @@ export default function KPCSovereignDashboard() {
                 /wallet, which orphaned Savings, Invest, Circles, Safe Send,
                 Activity and Take Payments behind a single page. */}
             <NavItem icon={<LayoutDashboard size={18} />} label={t.dashboard} href="/" active={pathname === '/'} onClick={() => setIsMobileMenuOpen(false)} />
-            <NavItem icon={<Search size={18} />} label={t.explorer} href="/explorer" active={pathname === '/explorer'} onClick={() => setIsMobileMenuOpen(false)} />
 
             <NavGroup label="Money" />
             <NavItem icon={<Wallet size={18} />} label={t.wallet} href="/wallet" active={pathname === '/wallet'} onClick={() => setIsMobileMenuOpen(false)} />
@@ -306,8 +305,7 @@ export default function KPCSovereignDashboard() {
 
             <NavGroup label="Network" />
             <NavItem icon={<TrendingUp size={18} />} label={t.markets} href="/markets" active={pathname === '/markets'} onClick={() => setIsMobileMenuOpen(false)} />
-            <NavItem icon={<BarChart2 size={18} />} label={t.trade} href="/trade" active={pathname === '/trade'} onClick={() => setIsMobileMenuOpen(false)} />
-            <NavItem icon={<Layers size={18} />} label={t.ecosystem} href="/ecosystem" active={pathname === '/ecosystem'} onClick={() => setIsMobileMenuOpen(false)} />
+            <NavItem icon={<Activity size={18} />} label="Ledger" href="/explorer" active={pathname === '/explorer'} onClick={() => setIsMobileMenuOpen(false)} />
 
             {/* Only rendered for staff. am_i_staff() is the same gate the
                 admin readers use, so this cannot show a door that will not

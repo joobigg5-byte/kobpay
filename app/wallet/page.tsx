@@ -64,7 +64,7 @@ export default function WalletPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0E14] text-white flex flex-col items-center justify-center p-8 font-sans selection:bg-[#AA771C]/30 relative overflow-hidden">
+    <div className="min-h-[100dvh] bg-[#0A0E14] text-white flex flex-col items-center justify-center p-5 lg:p-8 font-sans selection:bg-[#AA771C]/30 relative overflow-hidden">
       {/* Background ambient glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-br from-[#FDB813]/5 to-transparent rounded-full blur-[100px] pointer-events-none" />
 

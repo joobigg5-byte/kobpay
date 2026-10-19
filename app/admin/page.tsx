@@ -10,6 +10,7 @@ import {
   ShieldAlert,
   Vault,
   UserCheck,
+  Siren,
   Percent,
   Check,
   Loader2,
@@ -48,6 +49,7 @@ type Ops = { fx: Row[]; jobs: Row[] };
 type Reserve = { health: Row; economics: Row; deployments: Row[] };
 type Rates = { rates: Row[]; yields: Row[]; history: Row[] };
 type Kyc = { queue: Row[]; tiers: Row[] };
+type Risk = { queue: Row[]; recent: Row[] };
 
 const n = (v: unknown) => (typeof v === "number" ? v : Number(v ?? 0));
 const money = (v: unknown) =>
@@ -82,13 +84,14 @@ const until = (iso: string) => {
 
 export default function AdminPage() {
   const [staff, setStaff] = useState<boolean | null>(null);
-  const [tab, setTab] = useState<"disputes" | "kyc" | "money" | "reserve" | "rates" | "ops">("disputes");
+  const [tab, setTab] = useState<"disputes" | "kyc" | "risk" | "money" | "reserve" | "rates" | "ops">("disputes");
   const [disputes, setDisputes] = useState<Disputes | null>(null);
   const [moneyData, setMoneyData] = useState<Money | null>(null);
   const [ops, setOps] = useState<Ops | null>(null);
   const [reserve, setReserve] = useState<Reserve | null>(null);
   const [rates, setRates] = useState<Rates | null>(null);
   const [kyc, setKyc] = useState<Kyc | null>(null);
+  const [risk, setRisk] = useState<Risk | null>(null);
   const [working, setWorking] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -96,13 +99,14 @@ export default function AdminPage() {
     setStaff(Boolean(isStaff));
     if (!isStaff) return;
 
-    const [d, m, o, rv, rt, ky] = await Promise.all([
+    const [d, m, o, rv, rt, ky, rk] = await Promise.all([
       supabase.rpc("admin_disputes"),
       supabase.rpc("admin_money"),
       supabase.rpc("admin_ops"),
       supabase.rpc("admin_reserve"),
       supabase.rpc("admin_rates"),
       supabase.rpc("admin_kyc"),
+      supabase.rpc("admin_risk"),
     ]);
     if (d.data) setDisputes(d.data as Disputes);
     if (m.data) setMoneyData(m.data as Money);
@@ -110,11 +114,34 @@ export default function AdminPage() {
     if (rv.data) setReserve(rv.data as Reserve);
     if (rt.data) setRates(rt.data as Rates);
     if (ky.data) setKyc(ky.data as Kyc);
+    if (rk.data) setRisk(rk.data as Risk);
   }, []);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  const decideRisk = async (id: string, status: "cleared" | "escalated") => {
+    const note = window.prompt(
+      status === "cleared"
+        ? "Why is this fine? This is the record if anyone asks later."
+        : "What are you escalating, and to whom?",
+    );
+    if (!note || !note.trim()) return;
+    setWorking(id);
+    const { error } = await supabase.rpc("resolve_risk", {
+      p_event: id,
+      p_status: status,
+      p_note: note.trim(),
+    });
+    setWorking(null);
+    if (error) {
+      toast.error(error.message.replace(/^.*?:\s*/, ""));
+      return;
+    }
+    toast.success(status === "cleared" ? "Cleared" : "Escalated");
+    load();
+  };
 
   const decideKyc = async (id: string, decision: "approved" | "more_info" | "rejected") => {
     let note: string | null = null;
@@ -220,6 +247,7 @@ export default function AdminPage() {
           [
             ["disputes", "Disputes", Scale],
             ["kyc", "Identity", UserCheck],
+            ["risk", "Risk", Siren],
             ["money", "Money", Coins],
             ["reserve", "Reserve", Vault],
             ["rates", "Rates", Percent],
@@ -237,6 +265,11 @@ export default function AdminPage() {
           >
             <Icon size={13} />
             {label}
+            {key === "risk" && risk && risk.queue.length > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 rounded bg-[#EF4444] text-white font-black">
+                {risk.queue.length}
+              </span>
+            )}
             {key === "kyc" && kyc && kyc.queue.length > 0 && (
               <span className="ml-1 px-1.5 py-0.5 rounded bg-[#FDB813] text-[#0A0E14] font-black">
                 {kyc.queue.length}
@@ -458,6 +491,72 @@ export default function AdminPage() {
               />
             ))}
           </Panel>
+        </div>
+      )}
+
+      {tab === "risk" && risk && (
+        <div className="space-y-3">
+          {risk.queue.length === 0 ? (
+            <Empty>Nothing flagged</Empty>
+          ) : (
+            risk.queue.map((r, i) => (
+              <div
+                key={i}
+                className={`bg-[#111827] border rounded-xl p-4 ${
+                  r.severity === "high" ? "border-[#EF4444]/50" : "border-[#1F2937]"
+                }`}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <p className="text-sm font-bold capitalize">
+                      {String(r.kind).replace(/_/g, " ")}
+                    </p>
+                    <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mt-0.5">
+                      {String(r.full_name ?? "unknown")} · {String(r.phone ?? "—")} ·{" "}
+                      {String(r.kyc_tier ?? "—")}
+                    </p>
+                  </div>
+                  <span
+                    className={`text-[9px] font-mono uppercase tracking-[0.15em] px-2 py-1 rounded ${
+                      r.severity === "high"
+                        ? "bg-[#EF4444]/15 text-[#EF4444]"
+                        : "bg-[#1F2937] text-[#94A3B8]"
+                    }`}
+                  >
+                    {String(r.severity)}
+                  </span>
+                </div>
+
+                <p className="text-[10px] font-mono text-[#94A3B8] leading-relaxed mb-3">
+                  {String(r.detail)}
+                </p>
+
+                {/* Nothing here froze anybody. A flag is a question for a
+                    person, and these two buttons are the answer. */}
+                <div className="grid grid-cols-2 gap-2">
+                  <Act onClick={() => decideRisk(String(r.id), "cleared")} busy={working === r.id} tone="good">
+                    Looks fine
+                  </Act>
+                  <Act onClick={() => decideRisk(String(r.id), "escalated")} busy={working === r.id} tone="bad">
+                    Escalate
+                  </Act>
+                </div>
+              </div>
+            ))
+          )}
+
+          {risk.recent.length > 0 && (
+            <Panel title="Recently closed">
+              {risk.recent.map((r, i) => (
+                <KV
+                  key={i}
+                  k={String(r.kind).replace(/_/g, " ")}
+                  v={`${String(r.status)} · ${String(r.note ?? "")}`.slice(0, 48)}
+                  bad={r.status === "escalated"}
+                />
+              ))}
+            </Panel>
+          )}
         </div>
       )}
 
@@ -697,7 +796,7 @@ export default function AdminPage() {
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#0A0E14] text-white font-sans p-5 selection:bg-[#AA771C]/30">
+    <div className="min-h-[100dvh] bg-[#0A0E14] text-white font-sans p-5 selection:bg-[#AA771C]/30">
       <div className="max-w-xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
           <Link

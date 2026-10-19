@@ -139,7 +139,7 @@ function AuthForm() {
       : null;
 
   return (
-    <div className="min-h-screen bg-[#0A0E14] text-white flex items-center justify-center p-6">
+    <div className="min-h-[100dvh] bg-[#0A0E14] text-white flex items-center justify-center p-4 lg:p-6">
       <div className="w-full max-w-sm bg-[#111827] border border-[#1F2937] rounded-[2rem] p-8 shadow-2xl">
         <div className="flex items-center gap-2 mb-8 text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]">
           <ShieldCheck size={14} className="text-[#FDB813]" />
@@ -258,7 +258,7 @@ function AuthForm() {
 
 export default function AuthPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#0A0E14]" />}>
+    <Suspense fallback={<div className="min-h-[100dvh] bg-[#0A0E14]" />}>
       <AuthForm />
     </Suspense>
   );

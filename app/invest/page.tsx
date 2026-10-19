@@ -147,7 +147,7 @@ export default function InvestPage() {
   const pending = redemptions.filter((r) => r.status === "pending");
 
   return (
-    <div className="min-h-screen bg-[#0A0E14] text-white font-sans p-5 selection:bg-[#AA771C]/30">
+    <div className="min-h-[100dvh] bg-[#0A0E14] text-white font-sans p-5 selection:bg-[#AA771C]/30">
       <Toaster position="top-center" />
       <div className="max-w-xl mx-auto">
         <div className="flex items-center gap-3 mb-6">

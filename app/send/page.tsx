@@ -67,7 +67,7 @@ function SendForm() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0E14] text-white flex flex-col items-center justify-center p-8 font-sans selection:bg-[#AA771C]/30 relative overflow-hidden">
+    <div className="min-h-[100dvh] bg-[#0A0E14] text-white flex flex-col items-center justify-center p-5 lg:p-8 font-sans selection:bg-[#AA771C]/30 relative overflow-hidden">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-tr from-[#10B981]/5 via-transparent to-[#FDB813]/5 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="bg-[#111827]/80 backdrop-blur-xl border border-[#1F2937] p-8 lg:p-10 rounded-[2rem] shadow-[0_0_80px_rgba(0,0,0,0.8)] max-w-lg w-full relative z-10">
@@ -187,7 +187,7 @@ function SendForm() {
 
 export default function SendPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#0A0E14]" />}>
+    <Suspense fallback={<div className="min-h-[100dvh] bg-[#0A0E14]" />}>
       <SendForm />
     </Suspense>
   );

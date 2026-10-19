@@ -143,7 +143,7 @@ export default function PayTerminal() {
     }
   };
 
-  if (!mounted) return <div className="min-h-screen bg-[#0A0E14]" />;
+  if (!mounted) return <div className="min-h-[100dvh] bg-[#0A0E14]" />;
 
   return (
     <div className="min-h-[100dvh] bg-[#0A0E14] text-[#F9FAFB] font-sans selection:bg-[#AA771C]/30 flex flex-col">
