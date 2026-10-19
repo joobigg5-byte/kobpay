@@ -535,23 +535,52 @@ export default function AdminPage() {
 
       {tab === "ops" && ops && (
         <div className="space-y-5">
+          {/* Only the currencies that are actually switched on. Listing all
+              96 put 94 red "off" lines on the screen for currencies nobody
+              has enabled, which buried the one line that matters: an active
+              rate going stale. fx_rate() fails closed, so a stale rate stops
+              payments in that currency. */}
           <Panel title="Exchange rates">
-            {ops.fx.map((f, i) => (
-              <KV
-                key={i}
-                k={`${f.code}`}
-                v={`${n(f.units_per_usd).toLocaleString()} / $ · ${
-                  f.state === "the peg"
-                    ? "pegged"
-                    : f.state === "switched off"
-                      ? "off"
-                      : `${Math.round(n(f.age_minutes) / 60)}h old`
-                }`}
-                /* fx_rate() fails closed, so a stale rate stops payments in
-                   that currency. A day old is the point to care. */
-                bad={f.state === "switched off" || (f.state === "usable" && n(f.age_minutes) > 60 * 24)}
-              />
-            ))}
+            {ops.fx
+              .filter((f) => f.state !== "switched off")
+              .map((f, i) => {
+                const hours = Math.round(n(f.age_minutes) / 60);
+                const pegged = f.state === "the peg";
+                // 48h is where fx_rate() refuses. Warn with a day to spare.
+                const stale = !pegged && hours >= 24;
+                return (
+                  <KV
+                    key={i}
+                    k={String(f.code)}
+                    v={`${n(f.units_per_usd).toLocaleString()} / $ · ${
+                      pegged ? "pegged" : `${hours}h old`
+                    }`}
+                    bad={stale}
+                  />
+                );
+              })}
+            {(() => {
+              const off = ops.fx.filter((f) => f.state === "switched off").length;
+              const stale = ops.fx.filter(
+                (f) => f.state === "usable" && n(f.age_minutes) >= 24 * 60,
+              ).length;
+              return (
+                <>
+                  {stale > 0 && (
+                    <p className="text-[9px] font-mono text-[#EF4444] uppercase tracking-[0.12em] mt-3 pt-3 border-t border-[#1F2937] leading-relaxed">
+                      {stale} rate{stale === 1 ? "" : "s"} over a day old. At 48 hours
+                      payments in {stale === 1 ? "that currency" : "those currencies"}{" "}
+                      stop.
+                    </p>
+                  )}
+                  {off > 0 && (
+                    <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.12em] mt-3 pt-3 border-t border-[#1F2937]">
+                      {off} other currencies not switched on
+                    </p>
+                  )}
+                </>
+              );
+            })()}
           </Panel>
 
           <Panel title="Nightly jobs">
