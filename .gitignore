@@ -43,3 +43,5 @@ next-env.d.ts
 _routes.txt
 _audit.txt
 _schema.sql
+
+*.bak-*
