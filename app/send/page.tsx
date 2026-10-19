@@ -1,15 +1,22 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { ArrowLeft, Send, Zap, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import { useKpcBalance } from "../lib/useKpcBalance";
 
-export default function SendPage() {
+// Renamed so the default export can wrap it in Suspense. useSearchParams
+// forces a client bailout without one, and Next fails the build rather than
+// shipping a page that cannot prerender.
+function SendForm() {
   const [currentUser, setCurrentUser] = useState<{ id: string; accessToken: string } | null>(null);
-  const [recipientPhone, setRecipientPhone] = useState("");
-  const [amount, setAmount] = useState("");
+  // Filled in by a scanned QR: /send?to=233244123456&amount=50. The payer
+  // still sees and confirms both before anything moves.
+  const params = useSearchParams();
+  const [recipientPhone, setRecipientPhone] = useState(params.get("to") ?? "");
+  const [amount, setAmount] = useState(params.get("amount") ?? "");
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -175,5 +182,13 @@ export default function SendPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function SendPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0A0E14]" />}>
+      <SendForm />
+    </Suspense>
   );
 }
