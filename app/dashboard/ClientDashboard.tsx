@@ -59,13 +59,25 @@ const initialTxns = [
   { id: "tx5", hash: "0x5e...cc77", from: "0x44...aa55", to: "0x11...bb66", amount: 8900, type: "TRANSFER", app: "Direct", time: "12s ago" },
 ];
 
-const tickerItems = [
-  "⚡ KobBot 2.0 — 2,341 active today",
-  "🎮 KobPlay — 45,230 KC earned",
-  "🛒 Ready Markets — 1,204 KPC escrow",
-  "📊 Axiom Oracle — 892 users today",
-  "🏆 RANKR LIVE — 12,450 rankings",
-  "🌐 AegisProp — 14,000 KPC settled"
+// Was six invented products carrying invented metrics, scrolling across the
+// top of a live payments site:
+//
+//   KobBot 2.0 — 2,341 active today      Axiom Oracle — 892 users today
+//   KobPlay — 45,230 KC earned           RANKR LIVE — 12,450 rankings
+//   Ready Markets — 1,204 KPC escrow     AegisProp — 14,000 KPC settled
+//
+// None of those apps exist. Two apps are registered on the rail, and neither
+// is named there. A regulator reading that banner alongside the ledger finds
+// six products and ~76,000 KPC of activity that cannot be reconciled to
+// anything — which is a representation, not decoration.
+//
+// Replaced with facts the ledger can produce. Anything still at zero is left
+// out rather than printed as "0 countries", so the banner is short before
+// launch and grows on its own.
+const staticTickerItems = [
+  "⚡ 1 KPC = $1.00, always",
+  "💸 Sending KPC is free",
+  "🔍 Reserve published on the Ledger page",
 ];
 
 const drawerContent: Record<string, any> = {
@@ -119,8 +131,12 @@ export default function KPCSovereignDashboard() {
   const [activeDrawer, setActiveDrawer] = useState<string | null>(null);
   const [liveTxns, setLiveTxns] = useState(initialTxns);
 
-  const [latestBlock, setLatestBlock] = useState("Syncing...");
-  const [isNetworkLive, setIsNetworkLive] = useState(false);
+  // Was: the latest Ethereum block height, polled from a public RPC and
+  // printed as "MAINNET: #26227870" — a number from a chain KobPay does not
+  // run, has no account on, and settles nothing through. "NETWORK: OFFLINE"
+  // meant that RPC was unreachable, which said nothing about whether KobPay
+  // was up. Now it reports whether our own ledger answered.
+  const [ledgerLive, setLedgerLive] = useState<boolean | null>(null);
   // These were hardcoded: 84,210 holders, $12.4M volume, 142,850 daily
   // transactions, 54 corridors, 23 apps, 450 merchants. The ledger said 2
   // profiles and 2 apps. Published figures a regulator can test against the
@@ -137,14 +153,16 @@ export default function KPCSovereignDashboard() {
     holders: 0,
     circulating: 0,
     corridors: 0,
-    stability: 100,
+    countries: 0,
+    transferFeeBps: 0,
     activeApps: 0,
     merchants: 0
   });
 
   useEffect(() => {
     supabase.rpc("public_stats").then(({ data }) => {
-      if (!data) return;
+      if (!data) { setLedgerLive(false); return; }
+      setLedgerLive(true);
       const d = data as Record<string, number>;
       setNetworkStats((prev) => ({
         ...prev,
@@ -155,49 +173,65 @@ export default function KPCSovereignDashboard() {
         txnsToday: Number(d.transactions_24h ?? 0),
         holders: Number(d.holders ?? 0),
         circulating: Number(d.in_circulation ?? 0),
-        // "Corridors" only honestly means currencies we can price a payment
-        // in. Anything else is a number with no definition behind it.
-        corridors: Number(d.currencies_supported ?? 0),
+        // The "Send Globally" card was reading currencies_supported, which
+        // counts what you can FUND an account in — one provider, Paystack,
+        // GHS, so: 1. Sending has nothing to do with Paystack; KPC moves on
+        // our own ledger between two phone numbers. currencies_priced is the
+        // number that belongs under a claim about sending. (033)
+        corridors: Number(d.currencies_priced ?? d.currencies_supported ?? 0),
+        countries: Number(d.countries ?? 0),
+        transferFeeBps: Number(d.transfer_fee_bps ?? 0),
         activeApps: Number(d.apps ?? 0),
         merchants: Number(d.merchants ?? 0),
       }));
     });
   }, []);
 
+  // Only facts with a number behind them. A zero is dropped, not printed.
+  const tickerItems = React.useMemo(() => {
+    const live: string[] = [];
+    if (networkStats.countries > 0) live.push(`🌍 ${networkStats.countries} countries`);
+    if (networkStats.corridors > 0) live.push(`💱 ${networkStats.corridors} currencies priced`);
+    if (networkStats.holders > 0) live.push(`👥 ${networkStats.holders.toLocaleString()} wallets holding KPC`);
+    if (networkStats.activeApps > 0) live.push(`📱 ${networkStats.activeApps} apps on the rail`);
+    if (networkStats.merchants > 0) live.push(`🛒 ${networkStats.merchants} businesses accepting KPC`);
+    return [...staticTickerItems, ...live];
+  }, [networkStats]);
+
   const [currentLang, setCurrentLang] = useState<LanguageCode>('en');
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const t = translations[currentLang];
 
+  // REMOVED: a 12-second poll of a public Ethereum RPC that, on every tick,
+  // did this to the figures 025 had just made honest —
+  //
+  //   txnsToday: prev.txnsToday + Math.floor(Math.random() * 5),
+  //   holders:   prev.holders   + (blockNum % 5 === 0 ? 1 : 0),
+  //   volume:    prev.volume    + (Math.random() * 500)
+  //
+  // So the counts came from the ledger and were then walked upward by random
+  // numbers, every twelve seconds, for as long as the tab stayed open. Leave
+  // the page open an hour and it invents roughly 150,000 KPC of volume and
+  // several hundred payments that never happened. That is the exact thing
+  // 025 was written to stop, and it was undoing it on the client.
+  //
+  // Nothing replaces it. The figures move when the ledger moves.
   useEffect(() => {
-    const fetchLiveBlock = async () => {
-      try {
-        const res = await fetch("https://ethereum-rpc.publicnode.com", {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ jsonrpc: "2.0", method: "eth_blockNumber", params: [], id: 1 })
-        });
-        const data = await res.json();
-        
-        if (data.result) {
-          const blockNum = parseInt(data.result, 16);
-          setLatestBlock(blockNum.toString());
-          setIsNetworkLive(true);
-
-          setNetworkStats(prev => ({
-            ...prev,
-            txnsToday: prev.txnsToday + Math.floor(Math.random() * 5),
-            holders: prev.holders + (blockNum % 5 === 0 ? 1 : 0),
-            volume: prev.volume + (Math.random() * 500)
-          }));
-        }
-      } catch (err) {
-        setIsNetworkLive(false);
-      }
-    };
-
-    fetchLiveBlock();
-    const networkInterval = setInterval(fetchLiveBlock, 12000);
-    return () => clearInterval(networkInterval);
+    const refresh = setInterval(() => {
+      supabase.rpc("public_stats").then(({ data }) => {
+        if (!data) return;
+        const d = data as Record<string, number>;
+        setNetworkStats((prev) => ({
+          ...prev,
+          volume: Number(d.volume_24h ?? prev.volume),
+          txnsToday: Number(d.transactions_24h ?? prev.txnsToday),
+          holders: Number(d.holders ?? prev.holders),
+          circulating: Number(d.in_circulation ?? prev.circulating),
+          marketCap: Number(d.total_supply ?? prev.marketCap),
+        }));
+      });
+    }, 60000);
+    return () => clearInterval(refresh);
   }, []);
 
   useEffect(() => {
@@ -322,16 +356,16 @@ export default function KPCSovereignDashboard() {
       </aside>
 
       <div className="flex-1 flex flex-col relative h-full overflow-y-auto [&::-webkit-scrollbar]:hidden">
-        <header className="h-20 border-b border-[#1F2937] bg-[#111827]/80 backdrop-blur-xl sticky top-0 z-30 flex items-center justify-between px-8 shrink-0">
-          <div className="flex items-center gap-6">
+        <header className="h-16 sm:h-20 border-b border-[#1F2937] bg-[#111827]/80 backdrop-blur-xl sticky top-0 z-30 flex items-center justify-between px-4 sm:px-8 shrink-0">
+          <div className="flex items-center gap-3 sm:gap-6 min-w-0">
             <div className="hidden sm:flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest bg-[#1F2937]/50 px-4 py-2 rounded-full border border-[#1F2937]"><span className="text-[#FDB813]">1 KPC</span><span className="text-[#94A3B8]">=</span><span className="text-white">$1.00 USD</span></div>
-            <div className="flex items-center gap-2 text-[10px] font-mono tracking-widest text-[#94A3B8] uppercase">
-              <div className={`w-2 h-2 rounded-full shadow-[0_0_8px_#10b981] ${isNetworkLive ? 'bg-[#10B981] animate-pulse' : 'bg-[#EF4444]'}`} />
-              <span>{isNetworkLive ? `Mainnet: #${latestBlock}` : 'Connecting...'}</span>
+            <div className="flex items-center gap-2 text-[9px] sm:text-[10px] font-mono tracking-widest text-[#94A3B8] uppercase whitespace-nowrap">
+              <div className={`w-2 h-2 rounded-full shadow-[0_0_8px_#10b981] ${ledgerLive === true ? 'bg-[#10B981] animate-pulse' : ledgerLive === false ? 'bg-[#EF4444]' : 'bg-[#94A3B8]'}`} />
+              <span>{ledgerLive === true ? 'Ledger live' : ledgerLive === false ? 'Ledger unreachable' : 'Checking...'}</span>
             </div>
           </div>
           
-          <div className="flex items-center gap-4 z-10">
+          <div className="flex items-center gap-2 sm:gap-4 z-10 shrink-0">
            <div className="relative">
               <button 
                 onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
@@ -372,7 +406,7 @@ export default function KPCSovereignDashboard() {
                     {(() => {
                       if (!connected) {
                         return (
-                          <button onClick={openConnectModal} className="text-[10px] font-mono font-bold tracking-[0.2em] bg-[#FDB813] text-[#0A0E14] px-6 py-2 rounded uppercase shadow-[0_0_15px_rgba(253,184,19,0.3)] hover:bg-[#F59E0B] transition-colors">
+                          <button onClick={openConnectModal} className="text-[9px] sm:text-[10px] font-mono font-bold tracking-[0.1em] sm:tracking-[0.2em] bg-[#FDB813] text-[#0A0E14] px-3 sm:px-6 py-2 rounded uppercase whitespace-nowrap shadow-[0_0_15px_rgba(253,184,19,0.3)] hover:bg-[#F59E0B] transition-colors">
                             Launch Wallet
                           </button>
                         );
@@ -402,19 +436,19 @@ export default function KPCSovereignDashboard() {
         </header>
 
         <div className="w-full bg-[#FDB813] text-[#0A0E14] py-2 overflow-hidden flex items-center whitespace-nowrap z-20 border-b border-[#F59E0B]">
-          <motion.div animate={{ x: ["0%", "-50%"] }} transition={{ repeat: Infinity, ease: "linear", duration: 30 }} className="flex gap-16 text-[11px] font-mono font-black tracking-widest uppercase">
+          <motion.div animate={{ x: ["0%", "-50%"] }} transition={{ repeat: Infinity, ease: "linear", duration: 30 }} className="flex gap-8 sm:gap-16 text-[10px] sm:text-[11px] font-mono font-black tracking-widest uppercase">
             {[...tickerItems, ...tickerItems].map((item, i) => <span key={i}>{item}</span>)}
           </motion.div>
         </div>
 
-        <main className="p-8 lg:px-12 lg:py-10 relative z-10 flex-1">
-          <div className="max-w-[1800px] mx-auto space-y-10">
+        <main className="p-4 sm:p-6 lg:px-12 lg:py-10 relative z-10 flex-1">
+          <div className="max-w-[1800px] mx-auto space-y-6 lg:space-y-10">
             
-            <div className="bg-[#0A0E14]/80 backdrop-blur-xl border border-[#1F2937] rounded-3xl p-8 relative overflow-hidden group shadow-[0_0_80px_rgba(0,0,0,0.8)] max-w-4xl mt-2 flex flex-col items-center justify-center gap-5 text-center mx-auto">
+            <div className="bg-[#0A0E14]/80 backdrop-blur-xl border border-[#1F2937] rounded-2xl sm:rounded-3xl p-5 sm:p-8 relative overflow-hidden group shadow-[0_0_80px_rgba(0,0,0,0.8)] max-w-4xl mt-0 sm:mt-2 flex flex-col items-center justify-center gap-4 sm:gap-5 text-center mx-auto">
               <div className="absolute top-1/2 left-1/2 w-full lg:w-[80%] h-64 -translate-y-1/2 -translate-x-1/2 bg-gradient-to-r from-[#AA771C]/20 via-[#AA771C]/5 to-transparent blur-[100px]" />
-              <div className="relative z-10 inline-flex items-center gap-3 px-4 py-2 border border-[#FDB813]/30 rounded-full bg-[#0A0E14]/60"><Shield size={12} className="text-[#FDB813]" /><span className="text-[10px] font-mono tracking-[0.2em] text-[#FDB813] uppercase font-bold">The Sovereign Payment Rail</span></div>
+              <div className="relative z-10 inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 border border-[#FDB813]/30 rounded-full bg-[#0A0E14]/60"><Shield size={12} className="text-[#FDB813] shrink-0" /><span className="text-[9px] sm:text-[10px] font-mono tracking-[0.12em] sm:tracking-[0.2em] text-[#FDB813] uppercase font-bold">The Sovereign Payment Rail</span></div>
               <div className="relative z-10 w-full max-w-xl aspect-video rounded-xl overflow-hidden border border-[#FDB813]/30 bg-black shadow-[0_0_50px_rgba(253,184,19,0.1)]"><video src="/kpc-video.mp4" autoPlay loop muted playsInline className="w-full h-full object-cover scale-105" /></div>
-              <div className="relative z-10 flex gap-4 w-full justify-center max-w-md">
+              <div className="relative z-10 flex gap-3 sm:gap-4 w-full justify-center max-w-md">
                 <motion.button 
                   onClick={() => {
                     if (!currentUser) {
@@ -427,12 +461,12 @@ export default function KPCSovereignDashboard() {
                   whileTap={{ scale: 0.95 }} 
                   animate={{ boxShadow: ["0px 0px 15px rgba(244, 208, 104, 0.4)", "0px 0px 45px rgba(255, 240, 168, 0.8)", "0px 0px 15px rgba(244, 208, 104, 0.4)"] }} 
                   transition={{ duration: 2, repeat: Infinity }} 
-                  className="relative overflow-hidden w-1/2 px-6 py-4 bg-gradient-to-r from-[#AA771C] via-[#FFF0A8] to-[#AA771C] bg-[length:200%_auto] text-[#0A0E14] rounded-lg cursor-pointer border border-[#FFF0A8]/60 font-mono font-black tracking-[0.2em] text-[11px] uppercase flex items-center justify-center gap-2"
+                  className="relative overflow-hidden w-1/2 px-2 sm:px-6 py-3.5 sm:py-4 bg-gradient-to-r from-[#AA771C] via-[#FFF0A8] to-[#AA771C] bg-[length:200%_auto] text-[#0A0E14] rounded-lg cursor-pointer border border-[#FFF0A8]/60 font-mono font-black tracking-[0.06em] sm:tracking-[0.2em] text-[10px] sm:text-[11px] uppercase whitespace-nowrap flex items-center justify-center gap-1.5 sm:gap-2"
                 >
                   <motion.div className="absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white/70 to-transparent skew-x-[-20deg]" initial={{ left: '-100%' }} animate={{ left: '200%' }} transition={{ repeat: Infinity, duration: 2.5, ease: "linear", repeatDelay: 1 }} />
                   Buy KPC <Zap size={14} className="animate-pulse" />
                 </motion.button>
-                <button onClick={() => handleFeatureClick('Explorer')} className="w-1/2 px-6 py-4 bg-[#111827] text-[#F9FAFB] border border-[#1F2937] font-mono font-bold tracking-[0.2em] text-[11px] uppercase hover:border-[#FDB813]/50 rounded-lg flex items-center justify-center transition-all">Explore Network</button>
+                <button onClick={() => handleFeatureClick('Explorer')} className="w-1/2 px-2 sm:px-6 py-3.5 sm:py-4 bg-[#111827] text-[#F9FAFB] border border-[#1F2937] font-mono font-bold tracking-[0.06em] sm:tracking-[0.2em] text-[10px] sm:text-[11px] uppercase whitespace-nowrap hover:border-[#FDB813]/50 rounded-lg flex items-center justify-center transition-all">Explore Network</button>
               </div>
             </div>
 
@@ -442,28 +476,33 @@ export default function KPCSovereignDashboard() {
               <StatCard label="Market Cap" value={networkStats.marketCap} prefix="$" isShort onClick={() => setActiveDrawer("market_cap")} />
               <StatCard label="Txns Today" value={networkStats.txnsToday} onClick={() => setActiveDrawer("txns")} />
               <StatCard label="Holders" value={networkStats.holders} onClick={() => setActiveDrawer("holders")} />
-              <StatCard label="Network" customValue={<span className={isNetworkLive ? "text-[#10B981]" : "text-[#EF4444]"}>{isNetworkLive ? "🟢 LIVE" : "🔴 OFFLINE"}</span>} onClick={() => setActiveDrawer("network")} />
-              <StatCard label="Avg Fee" value={0.001} prefix="$" decimals={3} onClick={() => setActiveDrawer("fee")} />
+              {/* Was "Network LIVE/OFFLINE", meaning a public Ethereum RPC
+                  answered. Countries is a fact about KobPay. */}
+              <StatCard label="Countries" value={networkStats.countries} onClick={() => setActiveDrawer("global")} />
+              {/* Was a hardcoded $0.001 of Ethereum gas. transfer_fee_bps is
+                  0, so sending really is free, and a true zero is worth more
+                  than an invented fraction. */}
+              <StatCard label="Send Fee" customValue={<span className="text-[#10B981]">{networkStats.transferFeeBps === 0 ? "FREE" : `${(networkStats.transferFeeBps / 100).toFixed(2)}%`}</span>} onClick={() => setActiveDrawer("fee")} />
               <StatCard label="Circulating" value={networkStats.circulating} suffix="M KPC" decimals={1} onClick={() => setActiveDrawer("circulating")} />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-8 bg-[#111827]/80 backdrop-blur-xl border border-[#1F2937] rounded-[2rem] p-10 flex flex-col shadow-2xl">
-                <div className="flex justify-between items-center mb-8">
-                  <div><h3 className="text-xl font-black uppercase tracking-widest mb-2 flex items-center gap-3"><Activity className="text-[#FDB813]" size={20} /> Fiat Depreciation</h3><p className="text-[10px] font-mono text-[#94A3B8] tracking-widest uppercase">While currencies lose value, KPC holds $1.00.</p></div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-8">
+              <div className="lg:col-span-8 bg-[#111827]/80 backdrop-blur-xl border border-[#1F2937] rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 lg:p-10 flex flex-col shadow-2xl">
+                <div className="flex justify-between items-center mb-5 sm:mb-8">
+                  <div><h3 className="text-base sm:text-xl font-black uppercase tracking-widest mb-2 flex items-center gap-2 sm:gap-3"><Activity className="text-[#FDB813]" size={20} /> Fiat Depreciation</h3><p className="text-[10px] font-mono text-[#94A3B8] tracking-widest uppercase">While currencies lose value, KPC holds $1.00.</p></div>
                 </div>
-                <div className="h-[350px] w-full font-mono text-[10px]">
+                <div className="h-[240px] sm:h-[300px] lg:h-[350px] w-full font-mono text-[9px] sm:text-[10px]">
                   <ResponsiveContainer width="100%" height="100%"><LineChart data={liveChartData}><CartesianGrid strokeDasharray="3 3" stroke="#1F2937" vertical={false} /><XAxis dataKey="month" stroke="#94A3B8" /><YAxis stroke="#94A3B8" tickFormatter={(val: number) => `${(val * 100).toFixed(0)}%`} /><Tooltip contentStyle={{ backgroundColor: '#0A0E14', border: '1px solid #1F2937' }} /><Legend /><Line type="monotone" dataKey="KPC" name="🪙 KPC" stroke="#FDB813" strokeWidth={3} dot={false} /><Line type="monotone" dataKey="GHS" name="🇬🇭 GHS" stroke="#EF4444" strokeWidth={2} strokeOpacity={0.6} dot={false} /><Line type="monotone" dataKey="NGN" name="🇳🇬 NGN" stroke="#22D3EE" strokeWidth={2} strokeOpacity={0.6} dot={false} /></LineChart></ResponsiveContainer>
                 </div>
               </div>
 
-              <div className="lg:col-span-4 bg-[#111827]/80 border border-[#1F2937] rounded-[2rem] p-8 flex flex-col shadow-2xl overflow-hidden relative">
+              <div className="lg:col-span-4 bg-[#111827]/80 border border-[#1F2937] rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 flex flex-col shadow-2xl overflow-hidden relative">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#22D3EE] to-transparent opacity-50" />
                 <h3 className="text-sm font-black uppercase tracking-widest flex items-center gap-3 mb-6 relative z-10">
                   <Globe2 className="text-[#22D3EE] animate-pulse" size={16} /> Live Feed
                   <div className="w-1.5 h-1.5 bg-[#22D3EE] rounded-full animate-ping ml-auto" />
                 </h3>
-                <div className="flex-1 overflow-hidden relative h-[380px]">
+                <div className="flex-1 overflow-hidden relative h-[280px] sm:h-[380px]">
                   <div className="absolute inset-0 overflow-y-auto pr-2 [&::-webkit-scrollbar]:hidden">
                     <div className="space-y-4">
                       <AnimatePresence initial={false}>
@@ -499,13 +538,30 @@ export default function KPCSovereignDashboard() {
               </div>
             </div>
 
-            <div className="pb-12 pt-4">
-              <div className="flex items-center gap-4 mb-8"><Layers className="text-[#FDB813]" /><h2 className="text-3xl font-black uppercase tracking-tighter italic text-white">{t.infrastructure}</h2></div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <WhyCard index={0} icon={<Globe2 size={24} className="text-[#22D3EE]" />} title="Send Globally" desc="Send to anyone with a phone number. No bank account needed." statLabel="Currencies" statValue={networkStats.corridors} onClick={() => setActiveDrawer("global")} />
-                <WhyCard index={1} icon={<Shield size={24} className="text-[#FDB813]" />} title="Hedge Savings" desc="Protect against fiat decline. KPC holds $1.00 forever." statLabel="Stability" statValue={networkStats.stability} statSuffix="%" onClick={() => setActiveDrawer("hedge")} />
+            <div className="pb-8 sm:pb-12 pt-2 sm:pt-4">
+              <div className="flex items-center gap-3 sm:gap-4 mb-5 sm:mb-8"><Layers className="text-[#FDB813] shrink-0" /><h2 className="text-xl sm:text-2xl lg:text-3xl font-black uppercase tracking-tighter italic text-white">{t.infrastructure}</h2></div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                {/* These four counters are why this section read badly: the
+                    card claiming global reach printed 1, and the card about
+                    paying printed 0.
+
+                    "Currencies 1" came from currencies_supported — what you
+                    can FUND in, which is Paystack/GHS only. The card is
+                    about sending, so it now shows countries reached.
+
+                    "Stability 100%" was a hardcoded 100 presented as a
+                    measurement. The peg is the honest version of that claim.
+
+                    "Merchants 0" was true and will stay 0 until the first
+                    business signs up. A traction counter on a pre-launch
+                    page measures the wrong thing, so this shows what the
+                    product does — merchant fee capped at 1% — which is a
+                    fact from platform_settings, not a number waiting to
+                    grow. Apps stays a real count: 2 is small but true. */}
+                <WhyCard index={0} icon={<Globe2 size={24} className="text-[#22D3EE]" />} title="Send Globally" desc="Send to anyone with a phone number. No bank account needed." statLabel="Countries" statValue={networkStats.countries} onClick={() => setActiveDrawer("global")} />
+                <WhyCard index={1} icon={<Shield size={24} className="text-[#FDB813]" />} title="Hedge Savings" desc="Protect against fiat decline. KPC holds $1.00 forever." statLabel="Always worth" statText="$1.00" onClick={() => setActiveDrawer("hedge")} />
                 <WhyCard index={2} icon={<TrendingUp size={24} className="text-[#10B981]" />} title="Earn Daily" desc="Generate KC rewards through engagement and use." statLabel="Live Apps" statValue={networkStats.activeApps} onClick={() => setActiveDrawer("earn")} />
-                <WhyCard index={3} icon={<ShoppingCart size={24} className="text-[#8B5CF6]" />} title="Universal Pay" desc="One currency for gaming, real estate, and more." statLabel="Merchants" statValue={networkStats.merchants} onClick={() => setActiveDrawer("pay")} />
+                <WhyCard index={3} icon={<ShoppingCart size={24} className="text-[#8B5CF6]" />} title="Universal Pay" desc="One currency for gaming, real estate, and more." statLabel={networkStats.merchants > 0 ? "Businesses" : "Merchant fee"} statValue={networkStats.merchants > 0 ? networkStats.merchants : undefined} statText={networkStats.merchants > 0 ? undefined : "1%"} onClick={() => setActiveDrawer("pay")} />
               </div>
             </div>
           </div>
@@ -516,12 +572,12 @@ export default function KPCSovereignDashboard() {
         {activeDrawer && activeDrawerData && (
           <><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-[#0A0E14]/70 backdrop-blur-sm z-[90]" onClick={() => setActiveDrawer(null)} />
           <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="fixed right-0 top-0 bottom-0 w-full sm:w-[450px] bg-[#111827] border-l border-[#1F2937] z-[100] shadow-2xl flex flex-col">
-            <div className="p-8 border-b border-[#1F2937] flex items-start justify-between bg-[#111827]/90 backdrop-blur-md">
+            <div className="p-5 sm:p-8 border-b border-[#1F2937] flex items-start justify-between bg-[#111827]/90 backdrop-blur-md">
               <div className="flex gap-4 items-center"><div className={`w-12 h-12 rounded-xl flex items-center justify-center border ${activeDrawerData.bg} ${activeDrawerData.border}`}>{activeDrawerData.icon}</div><div><h3 className="text-xl font-black uppercase text-white">{activeDrawerData.title}</h3><p className={`text-[10px] font-mono tracking-[0.2em] uppercase mt-1 ${activeDrawerData.color}`}>{activeDrawerData.subtitle}</p></div></div>
               <button onClick={() => setActiveDrawer(null)} className="text-[#94A3B8] hover:text-white p-2 bg-[#1F2937] rounded-full"><X size={20} /></button>
             </div>
-            <div className="p-8 flex-1 overflow-y-auto"><p className="text-xs text-[#94A3B8] font-mono leading-relaxed uppercase tracking-widest bg-[#0A0E14] p-5 rounded-2xl border border-[#1F2937] mb-8">{activeDrawerData.details}</p><div className="space-y-4">{activeDrawerData.metrics.length > 0 && (<h4 className="text-[10px] font-mono text-white tracking-[0.3em] uppercase flex items-center gap-2"><Server size={12} /> Live Metrics</h4>)}{activeDrawerData.metrics.map((m: any, i: number) => (<div key={i} className="bg-[#0A0E14] border border-[#1F2937] p-4 rounded-xl flex justify-between items-center group hover:border-[#FDB813]/30 transition-colors"><span className="text-[9px] font-mono text-[#94A3B8] uppercase">{m.label}</span><span className="text-sm font-black font-mono text-white">{m.value}</span></div>))}</div></div>
-            <div className="p-8 border-t border-[#1F2937] bg-[#111827]">
+            <div className="p-5 sm:p-8 flex-1 overflow-y-auto"><p className="text-xs text-[#94A3B8] font-mono leading-relaxed uppercase tracking-widest bg-[#0A0E14] p-5 rounded-2xl border border-[#1F2937] mb-8">{activeDrawerData.details}</p><div className="space-y-4">{activeDrawerData.metrics.length > 0 && (<h4 className="text-[10px] font-mono text-white tracking-[0.3em] uppercase flex items-center gap-2"><Server size={12} /> Live Metrics</h4>)}{activeDrawerData.metrics.map((m: any, i: number) => (<div key={i} className="bg-[#0A0E14] border border-[#1F2937] p-4 rounded-xl flex justify-between items-center group hover:border-[#FDB813]/30 transition-colors"><span className="text-[9px] font-mono text-[#94A3B8] uppercase">{m.label}</span><span className="text-sm font-black font-mono text-white">{m.value}</span></div>))}</div></div>
+            <div className="p-5 sm:p-8 border-t border-[#1F2937] bg-[#111827]">
               <button onClick={handleExecuteFunction} className="w-full py-4 bg-[#FDB813] text-[#0A0E14] font-black font-mono text-[10px] uppercase rounded flex items-center justify-center gap-2 shadow-lg hover:bg-[#F59E0B] transition-all">
                 Execute Function <ChevronRight size={14} />
               </button>
@@ -573,9 +629,12 @@ function StatCard({ label, value, prefix = "", suffix = "", customValue, isShort
   );
 }
 
-function WhyCard({ index = 0, icon, title, desc, statLabel, statValue, statSuffix = "", onClick }: any) {
+// statText renders a stat that is not a count — a peg, a rate, a fee. Without
+// it every stat had to be a number, which is how "Stability" ended up as a
+// hardcoded 100 dressed as a measurement.
+function WhyCard({ index = 0, icon, title, desc, statLabel, statValue, statText, statSuffix = "", onClick }: any) {
   return (
-    <div onClick={onClick} className="bg-[#111827] border border-[#1F2937] p-6 lg:p-8 rounded-[2rem] flex flex-col group hover:-translate-y-1 hover:border-[#FDB813]/30 transition-all duration-300 shadow-xl cursor-pointer relative overflow-hidden min-h-[280px] h-full">
+    <div onClick={onClick} className="bg-[#111827] border border-[#1F2937] p-6 lg:p-8 rounded-2xl sm:rounded-[2rem] flex flex-col group hover:-translate-y-1 hover:border-[#FDB813]/30 transition-all duration-300 shadow-xl cursor-pointer relative overflow-hidden min-h-[200px] sm:min-h-[280px] h-full">
       <motion.div 
         animate={{ opacity: [0.03, 0.20, 0.03], y: [0, -3, 0] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: index * 0.6 }}
@@ -592,7 +651,9 @@ function WhyCard({ index = 0, icon, title, desc, statLabel, statValue, statSuffi
       </div>
       <div className="mt-auto pt-5 border-t border-[#1F2937] flex justify-between items-end relative z-10">
         <span className="text-[9px] font-mono text-[#94A3B8] uppercase">{statLabel}</span>
-        <span className="text-xl xl:text-2xl font-black font-mono tracking-tighter text-white group-hover:text-[#FDB813] transition-colors"><RollingNum value={statValue} decimals={statValue % 1 !== 0 ? 1 : 0} />{statSuffix}</span>
+        <span className="text-xl xl:text-2xl font-black font-mono tracking-tighter text-white group-hover:text-[#FDB813] transition-colors">
+          {statText ? statText : <><RollingNum value={statValue ?? 0} decimals={(statValue ?? 0) % 1 !== 0 ? 1 : 0} />{statSuffix}</>}
+        </span>
       </div>
     </div>
   );

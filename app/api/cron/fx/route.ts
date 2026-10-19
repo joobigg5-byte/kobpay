@@ -37,7 +37,7 @@ type Outcome = {
   code: string;
   from: number | null;
   to: number | null;
-  status: "updated" | "unchanged" | "rejected" | "missing";
+  status: "updated" | "seeded" | "unchanged" | "rejected" | "missing";
   why?: string;
 };
 
@@ -75,14 +75,27 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "provider returned no rates", updated: 0 }, { status: 502 });
   }
 
-  // Only currencies KobPay has switched on. Refreshing all 96 would write
-  // rates for currencies nothing can be charged in, and widen the blast
-  // radius of a bad feed for no benefit.
-  // active lives on currencies, not on fx_rates — read both and intersect,
-  // rather than depending on a view whose grants 020 deliberately narrowed.
+  // EVERY currency on the books, not just the switched-on ones.
+  //
+  // This used to intersect fx_rates with the active currencies, on the
+  // reasoning that writing rates for currencies nothing can be charged in
+  // widens the blast radius of a bad feed for no benefit. The benefit turned
+  // out to be the whole product. That filter was a closed loop:
+  //
+  //   a currency with no rate was never refreshed, so it never got a rate
+  //   fx_rate() raises for a switched-off currency, so it could not be
+  //   switched on until it had one
+  //
+  // Ninety-four currencies sat in the table unable to escape it, and the
+  // landing page printed "Currencies: 1" under "Send Globally" as a result.
+  //
+  // The blast-radius worry is still answered, just not by this filter: a
+  // rate only decides what KobPay can quote, hold and send. Taking money in
+  // additionally needs an active payment provider carrying the code
+  // (chargeable_currencies), and widening rates does not add one.
   const [{ data: held, error: heldErr }, { data: known, error: knownErr }] = await Promise.all([
     supabaseAdmin.from("fx_rates").select("currency, units_per_usd"),
-    supabaseAdmin.from("currencies").select("code, active").eq("active", true),
+    supabaseAdmin.from("currencies").select("code, active"),
   ]);
 
   if (heldErr || knownErr) {
@@ -90,22 +103,29 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "cannot read current rates", updated: 0 }, { status: 500 });
   }
 
-  const activeCodes = new Set((known ?? []).map((c) => String(c.code)));
-  const live = (held ?? []).filter((r) => activeCodes.has(String(r.currency)));
+  const prevByCode = new Map(
+    (held ?? []).map((r) => [String(r.currency), Number(r.units_per_usd)]),
+  );
 
   const outcomes: Outcome[] = [];
 
-  for (const row of live ?? []) {
-    const code = String(row.currency);
+  for (const row of known ?? []) {
+    const code = String(row.code);
 
     // USD is the peg, not a quote. Nothing to refresh.
     if (code === "USD") continue;
 
     const next = Number(rates[code]);
-    const prev = Number(row.units_per_usd);
+    const prev = prevByCode.has(code) ? Number(prevByCode.get(code)) : NaN;
 
     if (!Number.isFinite(next) || next <= 0) {
-      outcomes.push({ code, from: prev, to: null, status: "missing", why: "provider has no usable rate" });
+      outcomes.push({
+        code,
+        from: Number.isFinite(prev) ? prev : null,
+        to: null,
+        status: "missing",
+        why: "provider has no usable rate",
+      });
       continue;
     }
 
@@ -135,13 +155,37 @@ export async function GET(request: Request) {
     });
 
     if (error) {
-      outcomes.push({ code, from: prev, to: next, status: "rejected", why: error.message });
+      outcomes.push({
+        code,
+        from: Number.isFinite(prev) ? prev : null,
+        to: next,
+        status: "rejected",
+        why: error.message,
+      });
       continue;
     }
-    outcomes.push({ code, from: prev, to: next, status: "updated" });
+    outcomes.push({
+      code,
+      from: Number.isFinite(prev) ? prev : null,
+      to: next,
+      // A currency getting its first rate is worth telling apart from one
+      // being refreshed: it is a currency entering the product.
+      status: Number.isFinite(prev) ? "updated" : "seeded",
+    });
+  }
+
+  // Now that rates exist, switch on whatever has become usable. Holding and
+  // pricing only — chargeable_currencies() still gates taking money in. (035)
+  let activated: unknown = null;
+  const { data: act, error: actErr } = await supabaseAdmin.rpc("activate_priced_currencies");
+  if (actErr) {
+    console.error("fx cron: could not activate priced currencies", actErr);
+  } else {
+    activated = act;
   }
 
   const updated = outcomes.filter((o) => o.status === "updated").length;
+  const seeded = outcomes.filter((o) => o.status === "seeded").length;
   const problems = outcomes.filter((o) => o.status === "rejected" || o.status === "missing");
 
   // Rejections are the interesting case: the rate is now ageing toward the
@@ -153,6 +197,8 @@ export async function GET(request: Request) {
 
   return NextResponse.json({
     updated,
+    seeded,
+    activated,
     problems: problems.length,
     outcomes,
     at: new Date().toISOString(),

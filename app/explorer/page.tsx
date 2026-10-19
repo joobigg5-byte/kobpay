@@ -38,9 +38,14 @@ const kpc = (v: unknown) =>
 
 type ReserveAccount = {
   name: string; kind: string; currency: string;
-  balance: number; usd: number; as_of: string; days_old: number; stale: boolean;
+  balance: number; usd: number; as_of: string; days_old: number;
+  stale: boolean; unvalued?: boolean;
 };
 type ReserveInstrument = { name: string; issuer: string; value: number };
+type ReserveComposition = {
+  currency: string; tier: string; usd_value: number;
+  share_percent: number; cannot_value: boolean;
+};
 type ReserveHistory = { at: string; account: string; balance: number; previous: number };
 type Reserve = {
   owed_to_customers: number;
@@ -48,6 +53,7 @@ type Reserve = {
   backing_total: number;
   coverage_percent: number | null;
   accounts: ReserveAccount[];
+  composition: ReserveComposition[];
   instruments: ReserveInstrument[];
   history: ReserveHistory[];
   reconciliations_total: number;
@@ -179,6 +185,58 @@ export default function ExplorerPage() {
                   </p>
                 </div>
 
+                {/* Which currency the backing is in. Every KPC is a claim
+                    for one US dollar, so backing held in another currency
+                    moves with the exchange rate while the claim does not.
+                    An issuer publishing one total can never show that, and
+                    it is the thing most worth knowing. */}
+                {(reserve.composition ?? []).length > 0 && (
+                  <div className="bg-[#111827] border border-[#1F2937] rounded-2xl p-5 mb-3">
+                    <p className="text-[9px] font-mono text-[#FDB813] uppercase tracking-[0.2em] mb-1">
+                      What it is held in
+                    </p>
+                    <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.12em] mb-3 leading-relaxed">
+                      KPC is a claim for one US dollar. Backing held in another
+                      currency moves with the exchange rate.
+                    </p>
+                    {(reserve.composition ?? []).map((c, i) => (
+                      <div key={i} className="py-2 border-b border-[#1F2937] last:border-0">
+                        <div className="flex justify-between items-baseline gap-3">
+                          <p className="text-[11px] font-bold">
+                            {c.currency}
+                            <span
+                              className={`ml-2 text-[8px] font-mono uppercase tracking-[0.15em] px-1.5 py-0.5 rounded ${
+                                c.tier === "matched"
+                                  ? "bg-[#10B981]/10 text-[#10B981]"
+                                  : c.tier === "hard"
+                                    ? "bg-[#22D3EE]/10 text-[#22D3EE]"
+                                    : "bg-[#FDB813]/10 text-[#FDB813]"
+                              }`}
+                            >
+                              {c.tier === "matched" ? "matches the claim" : c.tier}
+                            </span>
+                          </p>
+                          <p className="text-xs font-mono font-bold shrink-0">
+                            {c.cannot_value ? "—" : `${n(c.share_percent).toFixed(1)}%`}
+                          </p>
+                        </div>
+                        <div className="mt-1.5 h-1.5 bg-[#1F2937] rounded-full">
+                          <div
+                            className={`h-1.5 rounded-full ${
+                              c.tier === "matched"
+                                ? "bg-[#10B981]"
+                                : c.tier === "hard"
+                                  ? "bg-[#22D3EE]"
+                                  : "bg-[#FDB813]"
+                            }`}
+                            style={{ width: `${Math.min(100, n(c.share_percent))}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 {reserve.accounts.length > 0 && (
                   <div className="bg-[#111827] border border-[#1F2937] rounded-2xl p-5 mb-3">
                     <p className="text-[9px] font-mono text-[#FDB813] uppercase tracking-[0.2em] mb-3">
@@ -196,7 +254,9 @@ export default function ExplorerPage() {
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-xs font-mono font-bold">${kpc(a.usd)}</p>
+                          <p className="text-xs font-mono font-bold">
+                            {a.unvalued ? "not valued" : `$${kpc(a.usd)}`}
+                          </p>
                           {/* A figure nobody has refreshed in six weeks proves
                               very little, and hiding its age is how a
                               transparency page becomes marketing. */}

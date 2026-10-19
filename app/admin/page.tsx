@@ -46,7 +46,23 @@ type Money = {
   drift: { accounts: Row[]; savings: Row[]; circles: Row[]; safe: Row[] };
 };
 type Ops = { fx: Row[]; jobs: Row[] };
+type CurrencySummary = {
+  total: number; switched_on: number; can_be_valued: number;
+  can_take_money_in: number; no_rate_yet: number; rate_too_old: number;
+};
+type CurrencyRow = { code: string; name: string; blocked_by: string };
+type Currencies = { summary: CurrencySummary; rows: CurrencyRow[] };
 type Reserve = { health: Row; economics: Row; deployments: Row[] };
+type FxTier = { matched_usd: number; hard: number; soft: number;
+                matched_percent: number; hard_percent: number; soft_percent: number };
+type FxBreach = { setting: string; says: string; actual: string; fix: string };
+type FxRow = { currency: string; tier: string; balance: number; usd_value: number;
+               share_percent: number; cannot_value: boolean };
+type ReserveFx = {
+  has_reserve: boolean; verdict: string; by_tier?: FxTier; breaches?: FxBreach[];
+  composition?: FxRow[]; coverage_percent?: number; coverage_percent_stressed?: number;
+  buffer_needed_usd?: number; coverage_needed_percent?: number; stress_case?: string;
+};
 type Rates = { rates: Row[]; yields: Row[]; history: Row[] };
 type Kyc = { queue: Row[]; tiers: Row[] };
 type Risk = { queue: Row[]; recent: Row[] };
@@ -89,6 +105,8 @@ export default function AdminPage() {
   const [moneyData, setMoneyData] = useState<Money | null>(null);
   const [ops, setOps] = useState<Ops | null>(null);
   const [reserve, setReserve] = useState<Reserve | null>(null);
+  const [reserveFx, setReserveFx] = useState<ReserveFx | null>(null);
+  const [currencies, setCurrencies] = useState<Currencies | null>(null);
   const [rates, setRates] = useState<Rates | null>(null);
   const [kyc, setKyc] = useState<Kyc | null>(null);
   const [risk, setRisk] = useState<Risk | null>(null);
@@ -99,22 +117,26 @@ export default function AdminPage() {
     setStaff(Boolean(isStaff));
     if (!isStaff) return;
 
-    const [d, m, o, rv, rt, ky, rk] = await Promise.all([
+    const [d, m, o, rv, rfx, rt, ky, rk, cu] = await Promise.all([
       supabase.rpc("admin_disputes"),
       supabase.rpc("admin_money"),
       supabase.rpc("admin_ops"),
       supabase.rpc("admin_reserve"),
+      supabase.rpc("admin_reserve_fx"),
       supabase.rpc("admin_rates"),
       supabase.rpc("admin_kyc"),
       supabase.rpc("admin_risk"),
+      supabase.rpc("admin_currencies"),
     ]);
     if (d.data) setDisputes(d.data as Disputes);
     if (m.data) setMoneyData(m.data as Money);
     if (o.data) setOps(o.data as Ops);
     if (rv.data) setReserve(rv.data as Reserve);
+    if (rfx.data) setReserveFx(rfx.data as ReserveFx);
     if (rt.data) setRates(rt.data as Rates);
     if (ky.data) setKyc(ky.data as Kyc);
     if (rk.data) setRisk(rk.data as Risk);
+    if (cu.data) setCurrencies(cu.data as Currencies);
   }, []);
 
   useEffect(() => {
@@ -602,6 +624,100 @@ export default function AdminPage() {
               </div>
             )}
 
+          {/* Currency mismatch. Coverage above is measured at today's rate,
+              so a reserve held entirely in cedis reads 100% right up until
+              the cedi moves — and it has, from ~5.8 to ~12 against the
+              dollar between 2021 and 2024. This panel is the only place
+              that difference is visible. */}
+          {reserveFx?.has_reserve && reserveFx.by_tier && (
+            <>
+              <div
+                className={`rounded-xl p-4 border ${
+                  n(reserveFx.coverage_percent_stressed) >= 100
+                    ? "bg-[#10B981]/5 border-[#10B981]/30"
+                    : "bg-[#EF4444]/10 border-[#EF4444]/40"
+                }`}
+              >
+                <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-1">
+                  Covered after a currency move?
+                </p>
+                <p
+                  className={`text-3xl font-black ${
+                    n(reserveFx.coverage_percent_stressed) >= 100
+                      ? "text-[#10B981]"
+                      : "text-[#EF4444]"
+                  }`}
+                >
+                  {reserveFx.coverage_percent_stressed == null
+                    ? "—"
+                    : `${n(reserveFx.coverage_percent_stressed).toFixed(2)}%`}
+                </p>
+                <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.12em] mt-2 leading-relaxed">
+                  {reserveFx.stress_case}
+                </p>
+                <p className="text-[10px] font-mono text-white uppercase tracking-[0.12em] mt-3 leading-relaxed">
+                  {reserveFx.verdict}
+                </p>
+              </div>
+
+              <Panel title="What the reserve is made of">
+                <KV
+                  k="In USD (the currency owed)"
+                  v={`${money(reserveFx.by_tier.matched_usd)} · ${n(reserveFx.by_tier.matched_percent).toFixed(1)}%`}
+                  bad={n(reserveFx.by_tier.matched_percent) < 60}
+                />
+                {n(reserveFx.by_tier.hard) > 0 && (
+                  <KV
+                    k="Hard currency"
+                    v={`${money(reserveFx.by_tier.hard)} · ${n(reserveFx.by_tier.hard_percent).toFixed(1)}%`}
+                  />
+                )}
+                <KV
+                  k="Soft currency"
+                  v={`${money(reserveFx.by_tier.soft)} · ${n(reserveFx.by_tier.soft_percent).toFixed(1)}%`}
+                  bad={n(reserveFx.by_tier.soft_percent) > 25}
+                />
+                {n(reserveFx.buffer_needed_usd) > 0 && (
+                  <KV
+                    k="Buffer still needed"
+                    v={`${money(reserveFx.buffer_needed_usd)} — hold ${n(reserveFx.coverage_needed_percent).toFixed(1)}% today`}
+                    bad
+                  />
+                )}
+                {(reserveFx.composition ?? []).map((c, i) => (
+                  <KV
+                    key={i}
+                    k={`${c.currency} (${c.tier})`}
+                    v={
+                      c.cannot_value
+                        ? "no fresh rate — counts as zero backing"
+                        : `${money(c.usd_value)} · ${n(c.share_percent).toFixed(1)}%`
+                    }
+                    bad={c.cannot_value}
+                  />
+                ))}
+              </Panel>
+
+              {(reserveFx.breaches ?? []).length > 0 && (
+                <Panel title="Policy breaches">
+                  {(reserveFx.breaches ?? []).map((b, i) => (
+                    <div key={i} className="py-2 border-b border-[#1F2937] last:border-0">
+                      <p className="text-[10px] font-bold text-[#EF4444]">
+                        {b.says} — now {b.actual}
+                      </p>
+                      <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.12em] mt-1">
+                        {b.fix}
+                      </p>
+                      <p className="text-[8px] font-mono text-[#4B5563] tracking-[0.12em] mt-0.5">
+                        {b.setting}
+                      </p>
+                    </div>
+                  ))}
+                </Panel>
+              )}
+            </>
+          )}
+
           <Panel title="Where the backing sits">
             <KV k="Liquid" v={money(reserve.health.liquid)} />
             <KV k="Deployed" v={money(reserve.health.deployed)} />
@@ -729,6 +845,52 @@ export default function AdminPage() {
               has enabled, which buried the one line that matters: an active
               rate going stale. fx_rate() fails closed, so a stale rate stops
               payments in that currency. */}
+          {/* Why each currency is not live. The old panel could say a
+              currency was off but not what was blocking it, so 94 rows of
+              "off" looked like a setting nobody had flipped rather than a
+              closed loop: no rate meant never refreshed, and never refreshed
+              meant no rate. (035) */}
+          {currencies && (
+            <Panel title="Currency pipeline">
+              <KV k="On the books" v={String(currencies.summary.total)} />
+              <KV
+                k="Switched on"
+                v={String(currencies.summary.switched_on)}
+                bad={currencies.summary.switched_on < 3}
+              />
+              <KV k="Can be priced" v={String(currencies.summary.can_be_valued)} />
+              <KV
+                k="Can take money in"
+                v={String(currencies.summary.can_take_money_in)}
+                bad={currencies.summary.can_take_money_in === 0}
+              />
+              {currencies.summary.rate_too_old > 0 && (
+                <KV
+                  k="Live but rate too old"
+                  v={`${currencies.summary.rate_too_old} — payments in these are refused`}
+                  bad
+                />
+              )}
+              {currencies.summary.no_rate_yet > 0 && (
+                <KV
+                  k="Never had a rate"
+                  v={`${currencies.summary.no_rate_yet} — run the FX refresh`}
+                  bad
+                />
+              )}
+              {Object.entries(
+                (currencies.rows ?? []).reduce<Record<string, number>>((acc, r) => {
+                  acc[r.blocked_by] = (acc[r.blocked_by] ?? 0) + 1;
+                  return acc;
+                }, {}),
+              )
+                .sort((a, b) => b[1] - a[1])
+                .map(([reason, count]) => (
+                  <KV key={reason} k={reason} v={String(count)} />
+                ))}
+            </Panel>
+          )}
+
           <Panel title="Exchange rates">
             {ops.fx
               .filter((f) => f.state !== "switched off")
