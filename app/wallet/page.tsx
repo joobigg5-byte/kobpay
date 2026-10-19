@@ -13,6 +13,7 @@ import {
   Users,
   Receipt,
   Store,
+  Scale,
   Phone,
   AlertCircle,
 } from "lucide-react";
@@ -23,6 +24,9 @@ import { formatKpcAsUsd } from "../lib/kpcPeg";
 export default function WalletPage() {
   const [currentUser, setCurrentUser] = useState<{ id: string; phone: string } | null>(null);
   const [checkingSession, setCheckingSession] = useState(true);
+  // Staff get one extra link. am_i_staff is the same gate the admin readers
+  // use, so this cannot show a door that will not open.
+  const [isStaff, setIsStaff] = useState(false);
 
   const { balance, loading: balanceLoading } = useKpcBalance(currentUser?.id ?? null);
 
@@ -33,6 +37,7 @@ export default function WalletPage() {
           id: data.session.user.id,
           phone: data.session.user.phone ?? "Unknown",
         });
+        supabase.rpc("am_i_staff").then(({ data: s }) => setIsStaff(Boolean(s)));
       }
       setCheckingSession(false);
     });
@@ -211,6 +216,18 @@ export default function WalletPage() {
                 Take payments
               </span>
             </Link>
+
+            {isStaff && (
+              <Link
+                href="/admin"
+                className="mt-2 flex items-center justify-center gap-2 py-3 bg-[#1F2937] hover:bg-[#FDB813]/10 border border-[#374151] hover:border-[#FDB813]/50 transition-all rounded-lg"
+              >
+                <Scale size={14} className="text-[#FDB813]" />
+                <span className="text-[9px] font-mono uppercase tracking-widest text-[#94A3B8]">
+                  Operations
+                </span>
+              </Link>
+            )}
 
             <button
               onClick={handleSignOut}
