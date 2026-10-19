@@ -296,6 +296,7 @@ export default function KPCSovereignDashboard() {
             <NavItem icon={<PiggyBank size={18} />} label={t.savings} href="/savings" active={pathname === '/savings'} onClick={() => setIsMobileMenuOpen(false)} />
             <NavItem icon={<LineChartIcon size={18} />} label={t.invest} href="/invest" active={pathname === '/invest'} onClick={() => setIsMobileMenuOpen(false)} />
             <NavItem icon={<Users size={18} />} label={t.circles} href="/circles" active={pathname === '/circles'} onClick={() => setIsMobileMenuOpen(false)} />
+            <NavItem icon={<ShieldCheck size={18} />} label="Limits" href="/limits" active={pathname === '/limits'} onClick={() => setIsMobileMenuOpen(false)} />
             <NavItem icon={<Receipt size={18} />} label={t.activity} href="/activity" active={pathname === '/activity'} onClick={() => setIsMobileMenuOpen(false)} />
 
             <NavGroup label="Paying" />

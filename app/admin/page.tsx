@@ -9,6 +9,7 @@ import {
   Activity,
   ShieldAlert,
   Vault,
+  UserCheck,
   Percent,
   Check,
   Loader2,
@@ -46,6 +47,7 @@ type Money = {
 type Ops = { fx: Row[]; jobs: Row[] };
 type Reserve = { health: Row; economics: Row; deployments: Row[] };
 type Rates = { rates: Row[]; yields: Row[]; history: Row[] };
+type Kyc = { queue: Row[]; tiers: Row[] };
 
 const n = (v: unknown) => (typeof v === "number" ? v : Number(v ?? 0));
 const money = (v: unknown) =>
@@ -80,12 +82,13 @@ const until = (iso: string) => {
 
 export default function AdminPage() {
   const [staff, setStaff] = useState<boolean | null>(null);
-  const [tab, setTab] = useState<"disputes" | "money" | "reserve" | "rates" | "ops">("disputes");
+  const [tab, setTab] = useState<"disputes" | "kyc" | "money" | "reserve" | "rates" | "ops">("disputes");
   const [disputes, setDisputes] = useState<Disputes | null>(null);
   const [moneyData, setMoneyData] = useState<Money | null>(null);
   const [ops, setOps] = useState<Ops | null>(null);
   const [reserve, setReserve] = useState<Reserve | null>(null);
   const [rates, setRates] = useState<Rates | null>(null);
+  const [kyc, setKyc] = useState<Kyc | null>(null);
   const [working, setWorking] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -93,23 +96,50 @@ export default function AdminPage() {
     setStaff(Boolean(isStaff));
     if (!isStaff) return;
 
-    const [d, m, o, rv, rt] = await Promise.all([
+    const [d, m, o, rv, rt, ky] = await Promise.all([
       supabase.rpc("admin_disputes"),
       supabase.rpc("admin_money"),
       supabase.rpc("admin_ops"),
       supabase.rpc("admin_reserve"),
       supabase.rpc("admin_rates"),
+      supabase.rpc("admin_kyc"),
     ]);
     if (d.data) setDisputes(d.data as Disputes);
     if (m.data) setMoneyData(m.data as Money);
     if (o.data) setOps(o.data as Ops);
     if (rv.data) setReserve(rv.data as Reserve);
     if (rt.data) setRates(rt.data as Rates);
+    if (ky.data) setKyc(ky.data as Kyc);
   }, []);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  const decideKyc = async (id: string, decision: "approved" | "more_info" | "rejected") => {
+    let note: string | null = null;
+    if (decision !== "approved") {
+      note = window.prompt(
+        decision === "rejected"
+          ? "Why are you rejecting this? They see this."
+          : "What else do you need from them? They see this.",
+      );
+      if (!note || !note.trim()) return;
+    }
+    setWorking(id);
+    const { error } = await supabase.rpc("review_kyc", {
+      p_submission: id,
+      p_decision: decision,
+      p_note: note?.trim() ?? null,
+    });
+    setWorking(null);
+    if (error) {
+      toast.error(error.message.replace(/^.*?:\s*/, ""));
+      return;
+    }
+    toast.success(decision === "approved" ? "Approved" : "Sent back to them");
+    load();
+  };
 
   const decide = async (d: Dispute, outcome: "refund" | "reject" | "partial") => {
     const note = window.prompt(
@@ -189,6 +219,7 @@ export default function AdminPage() {
         {(
           [
             ["disputes", "Disputes", Scale],
+            ["kyc", "Identity", UserCheck],
             ["money", "Money", Coins],
             ["reserve", "Reserve", Vault],
             ["rates", "Rates", Percent],
@@ -206,6 +237,11 @@ export default function AdminPage() {
           >
             <Icon size={13} />
             {label}
+            {key === "kyc" && kyc && kyc.queue.length > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 rounded bg-[#FDB813] text-[#0A0E14] font-black">
+                {kyc.queue.length}
+              </span>
+            )}
             {key === "disputes" && disputes && disputes.queue.length > 0 && (
               <span className="ml-1 px-1.5 py-0.5 rounded bg-[#FDB813] text-[#0A0E14] font-black">
                 {disputes.queue.length}
@@ -368,6 +404,60 @@ export default function AdminPage() {
               <Check size={13} /> Every balance matches its ledger
             </div>
           )}
+        </div>
+      )}
+
+      {tab === "kyc" && kyc && (
+        <div className="space-y-3">
+          {kyc.queue.length === 0 ? (
+            <Empty>Nobody waiting to be verified</Empty>
+          ) : (
+            kyc.queue.map((k, i) => (
+              <div key={i} className="bg-[#111827] border border-[#1F2937] rounded-xl p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <p className="text-sm font-bold">{String(k.full_name)}</p>
+                    <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mt-0.5">
+                      {String(k.phone)} · {String(k.tier_now)} → {String(k.tier_wanted)}
+                    </p>
+                  </div>
+                  <span className="text-[9px] font-mono uppercase tracking-[0.15em] px-2 py-1 rounded bg-[#1F2937] text-[#94A3B8]">
+                    {n(k.hours_waiting) < 1 ? "just now" : `${Math.round(n(k.hours_waiting))}h`}
+                  </span>
+                </div>
+
+                <div className="bg-[#0A0E14] border border-[#1F2937] rounded-lg p-3 mb-3 space-y-1">
+                  <KV k="ID" v={`${String(k.id_type).replace(/_/g, " ")} · ${String(k.id_reference ?? "—")}`} />
+                  {k.address ? <KV k="Address" v={String(k.address)} /> : null}
+                  {/* Blank is normal — it is optional on the form and asked
+                      for with 'More info' only when the amounts warrant it. */}
+                  <KV k="Source of funds" v={String(k.source_of_funds ?? "not given")} />
+                </div>
+
+                <div className="grid grid-cols-3 gap-2">
+                  <Act onClick={() => decideKyc(String(k.id), "approved")} busy={working === k.id} tone="good">
+                    Approve
+                  </Act>
+                  <Act onClick={() => decideKyc(String(k.id), "more_info")} busy={working === k.id}>
+                    More info
+                  </Act>
+                  <Act onClick={() => decideKyc(String(k.id), "rejected")} busy={working === k.id} tone="bad">
+                    Reject
+                  </Act>
+                </div>
+              </div>
+            ))
+          )}
+
+          <Panel title="Who is on what">
+            {kyc.tiers.map((t, i) => (
+              <KV
+                key={i}
+                k={`${String(t.name)} · ${kpcShort(t.daily_kpc)}/day`}
+                v={`${n(t.people)} ${n(t.people) === 1 ? "person" : "people"}`}
+              />
+            ))}
+          </Panel>
         </div>
       )}
 
@@ -623,6 +713,9 @@ function Shell({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+
+const kpcShort = (v: unknown) =>
+  `${Number(v ?? 0).toLocaleString(undefined, { maximumFractionDigits: 0 })} KPC`;
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (

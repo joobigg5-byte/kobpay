@@ -214,6 +214,17 @@ export default function WalletPage() {
               </Link>
             </div>
 
+            {/* Limits live where people look when something is refused. */}
+            <Link
+              href="/limits"
+              className="mt-3 flex items-center justify-center gap-2 py-3 bg-[#1F2937] hover:bg-[#FDB813]/10 border border-[#374151] hover:border-[#FDB813]/50 transition-all rounded-lg"
+            >
+              <ShieldCheck size={14} className="text-[#FDB813]" />
+              <span className="text-[9px] font-mono uppercase tracking-widest text-[#94A3B8]">
+                Limits &amp; verification
+              </span>
+            </Link>
+
             {hasPin === false && (
               <button
                 onClick={() => setPinSetup(true)}
