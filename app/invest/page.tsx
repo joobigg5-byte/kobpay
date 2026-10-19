@@ -9,7 +9,7 @@ import {
   AlertTriangle,
   Clock,
   Loader2,
-  Info,
+  ChevronDown,
 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import { useKpcBalance } from "../lib/useKpcBalance";
@@ -176,16 +176,26 @@ export default function InvestPage() {
           </Panel>
         ) : (
           <>
-            {/* The distinction the whole page rests on. Savings is a promise
-                with a rate; this is not, and saying so once up front is worth
-                more than a disclaimer nobody reads at the bottom. */}
-            <div className="mb-5 bg-[#1F2937]/60 border border-[#374151] rounded-xl p-4 flex gap-3">
-              <Info size={15} className="text-[#94A3B8] shrink-0 mt-0.5" />
-              <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.12em] leading-relaxed">
-                This is not savings. Your money goes to the issuer, not KobPay, and what
-                it is worth can fall. Selling takes a few days to pay out.
-              </p>
-            </div>
+            {/* Consumer copy, not internal reasoning. An earlier version of
+                this explained custody, unit pricing and what happens if
+                KobPay fails — all true, none of it what somebody opening an
+                app wants read at them. No bank puts its failure scenario on
+                the product page.
+                
+                What stays: one short risk line, because this is an
+                investment and that is not optional. What moved: the
+                mechanics, into "How this works" below, for the people who
+                want them. */}
+            {holdings.length === 0 && (
+              <div className="mb-5">
+                <h2 className="text-xl font-black leading-tight mb-2">
+                  Put your KPC to work
+                </h2>
+                <p className="text-[11px] font-mono text-[#94A3B8] uppercase tracking-[0.12em] leading-relaxed">
+                  Treasury bills and funds, in dollars, from small amounts.
+                </p>
+              </div>
+            )}
 
             {holdings.length > 0 && (
               <div className="mb-5 bg-[#111827] border border-[#1F2937] rounded-xl p-5">
@@ -279,10 +289,18 @@ export default function InvestPage() {
 
             {instruments.length === 0 ? (
               <Panel>
-                <p className="text-[10px] font-mono text-[#4B5563] uppercase tracking-[0.15em] text-center leading-relaxed py-2">
-                  Nothing is open right now.
-                  <br />
-                  New products appear here when they are released.
+                {/* "Nothing is open right now" full stop reads like an abandoned
+                    product. Saying WHY nothing is listed is the honest version
+                    and the reassuring one at the same time: we do not list
+                    something until there is a real issuer behind it. */}
+                <p className="text-[11px] font-bold text-center mb-2">
+                  New products coming soon
+                </p>
+                <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.15em] text-center leading-relaxed">
+                  Meanwhile your KPC can earn in{" "}
+                  <Link href="/savings" className="text-[#10B981] underline">
+                    savings
+                  </Link>
                 </p>
               </Panel>
             ) : (
@@ -372,9 +390,48 @@ export default function InvestPage() {
                 );
               })
             )}
+            {/* Where the detail belongs: available, not shouted. Anyone who
+                wants to know how it works can open it; nobody is made to read
+                it before they can see a product. */}
+            <details className="mt-6 group">
+              <summary className="cursor-pointer list-none flex items-center justify-between py-3 px-4 bg-[#111827] border border-[#1F2937] rounded-xl text-[10px] font-mono uppercase tracking-[0.15em] text-[#94A3B8]">
+                How this works
+                <ChevronDown
+                  size={14}
+                  className="transition-transform group-open:rotate-180"
+                />
+              </summary>
+              <div className="px-4 pt-4 pb-1 space-y-3">
+                <Point t="Held by the issuer">
+                  Your investment sits with the institution that issued it, in your
+                  name. KobPay records it and gives you a way in and out.
+                </Point>
+                <Point t="Priced daily">
+                  You hold units. Their price is updated each business day, and every
+                  price is kept on record.
+                </Point>
+                <Point t="Selling takes a few days">
+                  When you sell, the price is set that day and the money reaches your
+                  wallet after the settlement period shown on the product.
+                </Point>
+              </div>
+            </details>
+
+            <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.12em] leading-relaxed text-center mt-6 mb-2">
+              Investments can fall as well as rise. Capital is at risk.
+            </p>
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+function Point({ t, children }: { t: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <p className="text-[10px] font-bold mb-0.5">{t}</p>
+      <p className="text-[10px] font-mono text-[#94A3B8] leading-relaxed">{children}</p>
     </div>
   );
 }
