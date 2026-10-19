@@ -69,20 +69,20 @@ const tickerItems = [
 ];
 
 const drawerContent: Record<string, any> = {
-  "buy": { title: "Acquire KPC", subtitle: "Mint Sovereign Asset", icon: <Coins className="text-[#FDB813]" size={24} />, color: "text-[#FDB813]", bg: "bg-[#FDB813]/10", border: "border-[#FDB813]/30", details: "Instantly mint 1:1 USD-backed KPC via fiat gateway.", metrics: [{ label: "Peg", value: "$1.00 USD" }, { label: "Treasury", value: "Verified" }] },
-  "live_price": { title: "Price Oracle", subtitle: "Peg Stability", icon: <Activity className="text-[#10B981]" size={24} />, color: "text-[#10B981]", bg: "bg-[#10B981]/10", border: "border-[#10B981]/30", details: "Aggregate price feed from decentralized nodes.", metrics: [{ label: "Oracle", value: "Axiom/Chainlink" }, { label: "Heartbeat", value: "3600s" }] },
-  "volume": { title: "24H Volume", subtitle: "Network Velocity", icon: <BarChart className="text-[#22D3EE]" size={24} />, color: "text-[#22D3EE]", bg: "bg-[#22D3EE]/10", border: "border-[#22D3EE]/30", details: "Total volume transacted across the Sovereign Rail.", metrics: [{ label: "DEX", value: "$4.2M" }, { label: "CEX", value: "$5.1M" }] },
-  "market_cap": { title: "Market Cap", subtitle: "Value Secured", icon: <PieChart className="text-[#FDB813]" size={24} />, color: "text-[#FDB813]", bg: "bg-[#FDB813]/10", border: "border-[#FDB813]/30", details: "Total market value of circulating KPC supply.", metrics: [{ label: "Backing", value: "$45.5M" }, { label: "Ratio", value: "100.6%" }] },
-  "txns": { title: "Transactions", subtitle: "Daily Execution", icon: <Zap className="text-[#8B5CF6]" size={24} />, color: "text-[#8B5CF6]", bg: "bg-[#8B5CF6]/10", border: "border-[#8B5CF6]/30", details: "Successfully settled transactions on network today.", metrics: [{ label: "TPS", value: "1,240" }, { label: "Peak", value: "4,500" }] },
-  "holders": { title: "Holders", subtitle: "Global Distribution", icon: <Users className="text-[#F472B6]" size={24} />, color: "text-[#F472B6]", bg: "bg-[#F472B6]/10", border: "border-[#F472B6]/30", details: "Unique wallet addresses currently holding KPC.", metrics: [{ label: "Active", value: "65,420" }, { label: "New", value: "+1,204" }] },
-  "network": { title: "Network", subtitle: "Infrastructure Health", icon: <HardDrive className="text-[#10B981]" size={24} />, color: "text-[#10B981]", bg: "bg-[#10B981]/10", border: "border-[#10B981]/30", details: "Live status of validators and consensus health.", metrics: [{ label: "Nodes", value: "124" }, { label: "Uptime", value: "99.99%" }] },
-  "fee": { title: "Avg Fee", subtitle: "Settlement Costs", icon: <Code className="text-[#94A3B8]" size={24} />, color: "text-[#94A3B8]", bg: "bg-[#1F2937]/50", border: "border-[#374151]/50", details: "Average gas cost for micro-transactions.", metrics: [{ label: "Transfer", value: "$0.001" }, { label: "Gateway", value: "0.00%" }] },
-  "circulating": { title: "Supply", subtitle: "Token Emission", icon: <Layers className="text-[#FDB813]" size={24} />, color: "text-[#FDB813]", bg: "bg-[#FDB813]/10", border: "border-[#FDB813]/30", details: "Net amount of KPC accessible across all platforms.", metrics: [{ label: "Minted", value: "124.5M" }, { label: "Burned", value: "79.3M" }] },
-  "global": { title: "Global Settlement", subtitle: "Cross-Border Liquidity", icon: <Globe2 className="text-[#22D3EE]" size={24} />, color: "text-[#22D3EE]", bg: "bg-[#22D3EE]/10", border: "border-[#22D3EE]/30", details: "Native borderless rail settling in milliseconds.", metrics: [{ label: "Countries", value: "54" }, { label: "Latency", value: "400ms" }] },
-  "hedge": { title: "Sovereign Savings", subtitle: "Value Protection", icon: <Shield className="text-[#FDB813]" size={24} />, color: "text-[#FDB813]", bg: "bg-[#FDB813]/10", border: "border-[#FDB813]/30", details: "Asset designed to protect users from fiat depreciation.", metrics: [{ label: "Backing", value: "100% USD" }, { label: "Stability", value: "0.00%" }] },
-  "earn": { title: "Action Yield", subtitle: "Proof-of-Engagement", icon: <TrendingUp className="text-[#10B981]" size={24} />, color: "text-[#10B981]", bg: "bg-[#10B981]/10", border: "border-[#10B981]/30", details: "Generate KC through network participation.", metrics: [{ label: "Daily Earners", value: "14,205" }, { label: "Rate", value: "Variable" }] },
-  "pay": { title: "Universal Pay", subtitle: "Ecosystem Commerce", icon: <ShoppingCart className="text-[#8B5CF6]" size={24} />, color: "#8B5CF6", bg: "bg-[#8B5CF6]/10", border: "border-[#8B5CF6]/30", details: "One currency for all integrated dApps.", metrics: [{ label: "Merchants", value: "450+" }, { label: "Escrow", value: "Active" }] },
-  "protect": { title: "Protect Savings", subtitle: "Fiat-to-Peg Swap", icon: <Lock className="text-[#10B981]" size={24} />, color: "text-[#10B981]", bg: "bg-[#10B981]/10", border: "border-[#10B981]/30", details: "Shield local currency by minting KPC.", metrics: [{ label: "Supported", value: "GHS, NGN, ZAR" }, { label: "Slippage", value: "0.00%" }] }
+  "buy": { title: "Acquire KPC", subtitle: "Mint Sovereign Asset", icon: <Coins className="text-[#FDB813]" size={24} />, color: "text-[#FDB813]", bg: "bg-[#FDB813]/10", border: "border-[#FDB813]/30", details: "Instantly mint 1:1 USD-backed KPC via fiat gateway.", metrics: [] },
+  "live_price": { title: "Price Oracle", subtitle: "Peg Stability", icon: <Activity className="text-[#10B981]" size={24} />, color: "text-[#10B981]", bg: "bg-[#10B981]/10", border: "border-[#10B981]/30", details: "Aggregate price feed from decentralized nodes.", metrics: [] },
+  "volume": { title: "24H Volume", subtitle: "Network Velocity", icon: <BarChart className="text-[#22D3EE]" size={24} />, color: "text-[#22D3EE]", bg: "bg-[#22D3EE]/10", border: "border-[#22D3EE]/30", details: "Total volume transacted across the Sovereign Rail.", metrics: [] },
+  "market_cap": { title: "Market Cap", subtitle: "Value Secured", icon: <PieChart className="text-[#FDB813]" size={24} />, color: "text-[#FDB813]", bg: "bg-[#FDB813]/10", border: "border-[#FDB813]/30", details: "Total market value of circulating KPC supply.", metrics: [] },
+  "txns": { title: "Transactions", subtitle: "Daily Execution", icon: <Zap className="text-[#8B5CF6]" size={24} />, color: "text-[#8B5CF6]", bg: "bg-[#8B5CF6]/10", border: "border-[#8B5CF6]/30", details: "Successfully settled transactions on network today.", metrics: [] },
+  "holders": { title: "Holders", subtitle: "Global Distribution", icon: <Users className="text-[#F472B6]" size={24} />, color: "text-[#F472B6]", bg: "bg-[#F472B6]/10", border: "border-[#F472B6]/30", details: "Unique wallet addresses currently holding KPC.", metrics: [] },
+  "network": { title: "Network", subtitle: "Infrastructure Health", icon: <HardDrive className="text-[#10B981]" size={24} />, color: "text-[#10B981]", bg: "bg-[#10B981]/10", border: "border-[#10B981]/30", details: "Live status of validators and consensus health.", metrics: [] },
+  "fee": { title: "Avg Fee", subtitle: "Settlement Costs", icon: <Code className="text-[#94A3B8]" size={24} />, color: "text-[#94A3B8]", bg: "bg-[#1F2937]/50", border: "border-[#374151]/50", details: "Average gas cost for micro-transactions.", metrics: [] },
+  "circulating": { title: "Supply", subtitle: "Token Emission", icon: <Layers className="text-[#FDB813]" size={24} />, color: "text-[#FDB813]", bg: "bg-[#FDB813]/10", border: "border-[#FDB813]/30", details: "Net amount of KPC accessible across all platforms.", metrics: [] },
+  "global": { title: "Global Settlement", subtitle: "Cross-Border Liquidity", icon: <Globe2 className="text-[#22D3EE]" size={24} />, color: "text-[#22D3EE]", bg: "bg-[#22D3EE]/10", border: "border-[#22D3EE]/30", details: "Native borderless rail settling in milliseconds.", metrics: [] },
+  "hedge": { title: "Sovereign Savings", subtitle: "Value Protection", icon: <Shield className="text-[#FDB813]" size={24} />, color: "text-[#FDB813]", bg: "bg-[#FDB813]/10", border: "border-[#FDB813]/30", details: "Asset designed to protect users from fiat depreciation.", metrics: [] },
+  "earn": { title: "Action Yield", subtitle: "Proof-of-Engagement", icon: <TrendingUp className="text-[#10B981]" size={24} />, color: "text-[#10B981]", bg: "bg-[#10B981]/10", border: "border-[#10B981]/30", details: "Generate KC through network participation.", metrics: [] },
+  "pay": { title: "Universal Pay", subtitle: "Ecosystem Commerce", icon: <ShoppingCart className="text-[#8B5CF6]" size={24} />, color: "#8B5CF6", bg: "bg-[#8B5CF6]/10", border: "border-[#8B5CF6]/30", details: "One currency for all integrated dApps.", metrics: [] },
+  "protect": { title: "Protect Savings", subtitle: "Fiat-to-Peg Swap", icon: <Lock className="text-[#10B981]" size={24} />, color: "text-[#10B981]", bg: "bg-[#10B981]/10", border: "border-[#10B981]/30", details: "Shield local currency by minting KPC.", metrics: [] }
 };
 
 export default function KPCSovereignDashboard() {
@@ -121,18 +121,48 @@ export default function KPCSovereignDashboard() {
 
   const [latestBlock, setLatestBlock] = useState("Syncing...");
   const [isNetworkLive, setIsNetworkLive] = useState(false);
+  // These were hardcoded: 84,210 holders, $12.4M volume, 142,850 daily
+  // transactions, 54 corridors, 23 apps, 450 merchants. The ledger said 2
+  // profiles and 2 apps. Published figures a regulator can test against the
+  // database are representations, not marketing — so they now come from
+  // public_stats(), which counts from the ledger at call time.
+  //
+  // Zeros until Paystack settles the first real deposit. That is the correct
+  // reading, and every one of them moves the day it does.
   const [networkStats, setNetworkStats] = useState({
     price: 1.00,
-    volume: 12400500,
-    marketCap: 45200000,
-    txnsToday: 142850,
-    holders: 84210,
-    circulating: 45.2,
-    corridors: 54,
+    volume: 0,
+    marketCap: 0,
+    txnsToday: 0,
+    holders: 0,
+    circulating: 0,
+    corridors: 0,
     stability: 100,
-    activeApps: 23,
-    merchants: 450
+    activeApps: 0,
+    merchants: 0
   });
+
+  useEffect(() => {
+    supabase.rpc("public_stats").then(({ data }) => {
+      if (!data) return;
+      const d = data as Record<string, number>;
+      setNetworkStats((prev) => ({
+        ...prev,
+        price: Number(d.price_usd ?? 1),
+        volume: Number(d.volume_24h ?? 0),
+        // Market cap for a pegged unit is simply what exists, times $1.
+        marketCap: Number(d.total_supply ?? 0),
+        txnsToday: Number(d.transactions_24h ?? 0),
+        holders: Number(d.holders ?? 0),
+        circulating: Number(d.in_circulation ?? 0),
+        // "Corridors" only honestly means currencies we can price a payment
+        // in. Anything else is a number with no definition behind it.
+        corridors: Number(d.currencies_supported ?? 0),
+        activeApps: Number(d.apps ?? 0),
+        merchants: Number(d.merchants ?? 0),
+      }));
+    });
+  }, []);
 
   const [currentLang, setCurrentLang] = useState<LanguageCode>('en');
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
@@ -472,10 +502,10 @@ export default function KPCSovereignDashboard() {
             <div className="pb-12 pt-4">
               <div className="flex items-center gap-4 mb-8"><Layers className="text-[#FDB813]" /><h2 className="text-3xl font-black uppercase tracking-tighter italic text-white">{t.infrastructure}</h2></div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <WhyCard index={0} icon={<Globe2 size={24} className="text-[#22D3EE]" />} title="Send Globally" desc="Send instantly to 50+ countries. No bank. $0.001 fee." statLabel="Corridors" statValue={networkStats.corridors} onClick={() => setActiveDrawer("global")} />
+                <WhyCard index={0} icon={<Globe2 size={24} className="text-[#22D3EE]" />} title="Send Globally" desc="Send to anyone with a phone number. No bank account needed." statLabel="Currencies" statValue={networkStats.corridors} onClick={() => setActiveDrawer("global")} />
                 <WhyCard index={1} icon={<Shield size={24} className="text-[#FDB813]" />} title="Hedge Savings" desc="Protect against fiat decline. KPC holds $1.00 forever." statLabel="Stability" statValue={networkStats.stability} statSuffix="%" onClick={() => setActiveDrawer("hedge")} />
                 <WhyCard index={2} icon={<TrendingUp size={24} className="text-[#10B981]" />} title="Earn Daily" desc="Generate KC rewards through engagement and use." statLabel="Live Apps" statValue={networkStats.activeApps} onClick={() => setActiveDrawer("earn")} />
-                <WhyCard index={3} icon={<ShoppingCart size={24} className="text-[#8B5CF6]" />} title="Universal Pay" desc="One currency for gaming, real estate, and more." statLabel="Active" statValue={networkStats.merchants} statSuffix="+" onClick={() => setActiveDrawer("pay")} />
+                <WhyCard index={3} icon={<ShoppingCart size={24} className="text-[#8B5CF6]" />} title="Universal Pay" desc="One currency for gaming, real estate, and more." statLabel="Merchants" statValue={networkStats.merchants} onClick={() => setActiveDrawer("pay")} />
               </div>
             </div>
           </div>
@@ -490,7 +520,7 @@ export default function KPCSovereignDashboard() {
               <div className="flex gap-4 items-center"><div className={`w-12 h-12 rounded-xl flex items-center justify-center border ${activeDrawerData.bg} ${activeDrawerData.border}`}>{activeDrawerData.icon}</div><div><h3 className="text-xl font-black uppercase text-white">{activeDrawerData.title}</h3><p className={`text-[10px] font-mono tracking-[0.2em] uppercase mt-1 ${activeDrawerData.color}`}>{activeDrawerData.subtitle}</p></div></div>
               <button onClick={() => setActiveDrawer(null)} className="text-[#94A3B8] hover:text-white p-2 bg-[#1F2937] rounded-full"><X size={20} /></button>
             </div>
-            <div className="p-8 flex-1 overflow-y-auto"><p className="text-xs text-[#94A3B8] font-mono leading-relaxed uppercase tracking-widest bg-[#0A0E14] p-5 rounded-2xl border border-[#1F2937] mb-8">{activeDrawerData.details}</p><div className="space-y-4"><h4 className="text-[10px] font-mono text-white tracking-[0.3em] uppercase flex items-center gap-2"><Server size={12} /> Live Metrics</h4>{activeDrawerData.metrics.map((m: any, i: number) => (<div key={i} className="bg-[#0A0E14] border border-[#1F2937] p-4 rounded-xl flex justify-between items-center group hover:border-[#FDB813]/30 transition-colors"><span className="text-[9px] font-mono text-[#94A3B8] uppercase">{m.label}</span><span className="text-sm font-black font-mono text-white">{m.value}</span></div>))}</div></div>
+            <div className="p-8 flex-1 overflow-y-auto"><p className="text-xs text-[#94A3B8] font-mono leading-relaxed uppercase tracking-widest bg-[#0A0E14] p-5 rounded-2xl border border-[#1F2937] mb-8">{activeDrawerData.details}</p><div className="space-y-4">{activeDrawerData.metrics.length > 0 && (<h4 className="text-[10px] font-mono text-white tracking-[0.3em] uppercase flex items-center gap-2"><Server size={12} /> Live Metrics</h4>)}{activeDrawerData.metrics.map((m: any, i: number) => (<div key={i} className="bg-[#0A0E14] border border-[#1F2937] p-4 rounded-xl flex justify-between items-center group hover:border-[#FDB813]/30 transition-colors"><span className="text-[9px] font-mono text-[#94A3B8] uppercase">{m.label}</span><span className="text-sm font-black font-mono text-white">{m.value}</span></div>))}</div></div>
             <div className="p-8 border-t border-[#1F2937] bg-[#111827]">
               <button onClick={handleExecuteFunction} className="w-full py-4 bg-[#FDB813] text-[#0A0E14] font-black font-mono text-[10px] uppercase rounded flex items-center justify-center gap-2 shadow-lg hover:bg-[#F59E0B] transition-all">
                 Execute Function <ChevronRight size={14} />
