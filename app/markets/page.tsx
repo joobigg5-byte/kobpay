@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, TrendingUp, AlertTriangle, Check } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
+import AppMenu from "../components/AppMenu";
 import { Toaster } from "react-hot-toast";
 
 // This page used to be four hardcoded rows: KPC/GHS at 13.50, KPC/NGN at
@@ -55,6 +56,7 @@ export default function MarketsPage() {
           >
             <ArrowLeft size={18} />
           </Link>
+          <AppMenu />
           <h1 className="text-xl lg:text-3xl font-black uppercase tracking-widest flex items-center gap-3">
             <TrendingUp className="text-[#10B981]" /> Rates
           </h1>

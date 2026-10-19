@@ -15,7 +15,7 @@ export const translations = {
     safe: "Safe Send",
     merchant: "Take Payments",
     operations: "Operations",
-    infrastructure: "Sovereign Infrastructure",
+    infrastructure: "What you can do",
     connect: "Connect"
   },
   es: {
@@ -34,7 +34,7 @@ export const translations = {
     safe: "Pago Seguro",
     merchant: "Cobrar",
     operations: "Operaciones",
-    infrastructure: "Infraestructura Soberana",
+    infrastructure: "Lo que puedes hacer",
     connect: "Conectar"
   },
   fr: {
@@ -53,7 +53,7 @@ export const translations = {
     safe: "Paiement Sûr",
     merchant: "Encaisser",
     operations: "Opérations",
-    infrastructure: "Infrastructure Souveraine",
+    infrastructure: "Ce que vous pouvez faire",
     connect: "Connecter"
   },
   pt: {
@@ -72,7 +72,7 @@ export const translations = {
     safe: "Pagamento Seguro",
     merchant: "Receber",
     operations: "Operações",
-    infrastructure: "Infraestrutura Soberana",
+    infrastructure: "O que você pode fazer",
     connect: "Conectar"
   },
   zh: {
@@ -91,7 +91,7 @@ export const translations = {
     safe: "安全支付",
     merchant: "收款",
     operations: "运营",
-    infrastructure: "主权基础设施",
+    infrastructure: "你可以做什么",
     connect: "连接"
   },
   ja: {
@@ -110,7 +110,7 @@ export const translations = {
     safe: "安全送金",
     merchant: "決済受付",
     operations: "運営",
-    infrastructure: "ソブリンインフラストラクチャ",
+    infrastructure: "できること",
     connect: "接続する"
   }
 } as const;

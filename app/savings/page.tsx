@@ -7,6 +7,7 @@ import {
   Pause, Play, AlertTriangle, TrendingUp, Clock,
 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
+import AppMenu from "../components/AppMenu";
 import { useKpcBalance } from "../lib/useKpcBalance";
 import { formatKpcAsUsd } from "../lib/kpcPeg";
 import toast, { Toaster } from "react-hot-toast";
@@ -139,6 +140,7 @@ export default function SavingsPage() {
           >
             <ArrowLeft size={20} />
           </Link>
+          <AppMenu />
           <div className="flex items-center gap-2 text-[10px] font-mono tracking-widest uppercase bg-[#0A0E14] px-3 py-1.5 rounded-full border border-[#1F2937]">
             <PiggyBank size={12} className="text-[#10B981]" />
             <span className="text-[#10B981]">Savings</span>

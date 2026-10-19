@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Gauge, ChevronDown, TrendingUp } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
+import AppMenu from "../components/AppMenu";
 
 // The copy lesson from /invest applies here more than anywhere: a score is a
 // judgement about a person, and the page has to read like it is on their side.
@@ -36,14 +37,39 @@ const BANDS: Record<string, { label: string; color: string; ring: string }> = {
 export default function ScorePage() {
   const [data, setData] = useState<Score | null>(null);
   const [loading, setLoading] = useState(true);
+  const [signedIn, setSignedIn] = useState(false);
   const [error, setError] = useState("");
   const [showWorkings, setShowWorkings] = useState(false);
 
+  // WAIT FOR THE SESSION BEFORE CALLING.
+  //
+  // supabase-js restores the session from storage asynchronously. Firing the
+  // RPC straight from useEffect sends it before that finishes, so PostgREST
+  // runs it as `anon` — and 032 revokes my_credit_score from anon on purpose.
+  // The result was a signed-in customer being shown
+  // "permission denied for function my_credit_score".
+  //
+  // Every other authenticated page here (/limits, /invest) already gets this
+  // right. This one did not, which is what made it look like a grant problem
+  // rather than a race.
   useEffect(() => {
-    supabase.rpc("my_credit_score").then(({ data: d, error: e }) => {
-      if (e) setError(e.message);
-      else setData(d as Score);
-      setLoading(false);
+    supabase.auth.getSession().then(({ data: s }) => {
+      setSignedIn(Boolean(s.session));
+      if (!s.session) {
+        setLoading(false);
+        return;
+      }
+      supabase.rpc("my_credit_score").then(({ data: d, error: e }) => {
+        // Never show a customer a Postgres message. If it still happens the
+        // console keeps the real one for us.
+        if (e) {
+          console.error("my_credit_score", e);
+          setError("Your score could not be worked out just now.");
+        } else {
+          setData(d as Score);
+        }
+        setLoading(false);
+      });
     });
   }, []);
 
@@ -63,6 +89,7 @@ export default function ScorePage() {
           >
             <ArrowLeft size={18} />
           </Link>
+          <AppMenu />
           <h1 className="text-xl lg:text-3xl font-black uppercase tracking-widest flex items-center gap-3">
             <Gauge className="text-[#FDB813]" /> Your score
           </h1>
@@ -72,6 +99,16 @@ export default function ScorePage() {
           <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest py-20 text-center">
             Loading...
           </p>
+        ) : !signedIn ? (
+          <div className="bg-[#111827] border border-[#1F2937] rounded-2xl p-8 text-center">
+            <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.15em]">
+              Please{" "}
+              <Link href="/auth" className="text-[#FDB813] underline">
+                sign in
+              </Link>{" "}
+              to see your score.
+            </p>
+          </div>
         ) : error || !data ? (
           <div className="bg-[#111827] border border-[#1F2937] rounded-2xl p-8 text-center">
             <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.15em]">

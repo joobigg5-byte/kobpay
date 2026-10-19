@@ -7,6 +7,7 @@ import {
   Clock, Trophy, AlertTriangle, Wallet,
 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
+import AppMenu from "../components/AppMenu";
 import { useKpcBalance } from "../lib/useKpcBalance";
 import { formatKpcAsUsd } from "../lib/kpcPeg";
 import toast, { Toaster } from "react-hot-toast";
@@ -114,6 +115,7 @@ export default function CirclesPage() {
           >
             <ArrowLeft size={20} />
           </Link>
+          <AppMenu />
           <div className="flex items-center gap-2 text-[10px] font-mono tracking-widest uppercase bg-[#0A0E14] px-3 py-1.5 rounded-full border border-[#1F2937]">
             <Users size={12} className="text-[#FDB813]" />
             <span className="text-[#FDB813]">Circles</span>
@@ -122,7 +124,7 @@ export default function CirclesPage() {
 
         <h1 className="text-3xl font-black uppercase tracking-widest mb-1">Circles</h1>
         <p className="text-[10px] font-mono text-[#94A3B8] tracking-widest uppercase mb-8">
-          Susu without the organiser holding your money
+          A savings group where nobody has to hold the cash
         </p>
 
         {checkingSession ? (
@@ -130,8 +132,8 @@ export default function CirclesPage() {
             Loading...
           </p>
         ) : !userId ? (
-          <div className="bg-[#EF4444]/10 border border-[#EF4444]/30 p-6 rounded-xl">
-            <p className="text-xs font-mono text-[#EF4444] leading-relaxed uppercase">
+          <div className="bg-[#111827] border border-[#1F2937] p-6 rounded-xl">
+            <p className="text-xs font-mono text-[#94A3B8] leading-relaxed uppercase">
               Please{" "}
               <Link href="/auth" className="underline">
                 sign in

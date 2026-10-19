@@ -12,6 +12,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
+import AppMenu from "../components/AppMenu";
 import { useKpcBalance } from "../lib/useKpcBalance";
 import { formatKpcAsUsd } from "../lib/kpcPeg";
 import toast, { Toaster } from "react-hot-toast";
@@ -157,6 +158,7 @@ export default function InvestPage() {
           >
             <ArrowLeft size={18} />
           </Link>
+          <AppMenu />
           <h1 className="text-lg font-black uppercase tracking-widest">Invest</h1>
         </div>
 

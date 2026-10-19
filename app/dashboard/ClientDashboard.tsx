@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
 import { translations, LanguageCode } from '../translations';
+import AppMenu from '../components/AppMenu';
 import { 
   LayoutDashboard, Search, Wallet, TrendingUp, Send, 
   ShoppingCart, BarChart2, Layers, Code, Shield, User, Globe,
@@ -80,21 +81,33 @@ const staticTickerItems = [
   "🔍 Reserve published on the Ledger page",
 ];
 
+// WHAT THESE USED TO SAY
+//
+// Every one of these was crypto-speak, and several were untrue of KobPay:
+// "aggregate price feed from decentralized nodes" (there are no nodes, the
+// price is fixed at a dollar by design), "live status of validators and
+// consensus health" (no validators), "average gas cost" (no gas — sending is
+// free), "one currency for all integrated dApps" (they are apps), "Mint
+// Sovereign Asset", "Proof-of-Engagement", "Token Emission".
+//
+// A customer in New York, Accra or Lagos has to be able to read these. The
+// test applied to every line: would somebody who has never heard of a
+// stablecoin know what this means, and is it actually true of KobPay?
 const drawerContent: Record<string, any> = {
-  "buy": { title: "Acquire KPC", subtitle: "Mint Sovereign Asset", icon: <Coins className="text-[#FDB813]" size={24} />, color: "text-[#FDB813]", bg: "bg-[#FDB813]/10", border: "border-[#FDB813]/30", details: "Instantly mint 1:1 USD-backed KPC via fiat gateway.", metrics: [] },
-  "live_price": { title: "Price Oracle", subtitle: "Peg Stability", icon: <Activity className="text-[#10B981]" size={24} />, color: "text-[#10B981]", bg: "bg-[#10B981]/10", border: "border-[#10B981]/30", details: "Aggregate price feed from decentralized nodes.", metrics: [] },
-  "volume": { title: "24H Volume", subtitle: "Network Velocity", icon: <BarChart className="text-[#22D3EE]" size={24} />, color: "text-[#22D3EE]", bg: "bg-[#22D3EE]/10", border: "border-[#22D3EE]/30", details: "Total volume transacted across the Sovereign Rail.", metrics: [] },
-  "market_cap": { title: "Market Cap", subtitle: "Value Secured", icon: <PieChart className="text-[#FDB813]" size={24} />, color: "text-[#FDB813]", bg: "bg-[#FDB813]/10", border: "border-[#FDB813]/30", details: "Total market value of circulating KPC supply.", metrics: [] },
-  "txns": { title: "Transactions", subtitle: "Daily Execution", icon: <Zap className="text-[#8B5CF6]" size={24} />, color: "text-[#8B5CF6]", bg: "bg-[#8B5CF6]/10", border: "border-[#8B5CF6]/30", details: "Successfully settled transactions on network today.", metrics: [] },
-  "holders": { title: "Holders", subtitle: "Global Distribution", icon: <Users className="text-[#F472B6]" size={24} />, color: "text-[#F472B6]", bg: "bg-[#F472B6]/10", border: "border-[#F472B6]/30", details: "Unique wallet addresses currently holding KPC.", metrics: [] },
-  "network": { title: "Network", subtitle: "Infrastructure Health", icon: <HardDrive className="text-[#10B981]" size={24} />, color: "text-[#10B981]", bg: "bg-[#10B981]/10", border: "border-[#10B981]/30", details: "Live status of validators and consensus health.", metrics: [] },
-  "fee": { title: "Avg Fee", subtitle: "Settlement Costs", icon: <Code className="text-[#94A3B8]" size={24} />, color: "text-[#94A3B8]", bg: "bg-[#1F2937]/50", border: "border-[#374151]/50", details: "Average gas cost for micro-transactions.", metrics: [] },
-  "circulating": { title: "Supply", subtitle: "Token Emission", icon: <Layers className="text-[#FDB813]" size={24} />, color: "text-[#FDB813]", bg: "bg-[#FDB813]/10", border: "border-[#FDB813]/30", details: "Net amount of KPC accessible across all platforms.", metrics: [] },
-  "global": { title: "Global Settlement", subtitle: "Cross-Border Liquidity", icon: <Globe2 className="text-[#22D3EE]" size={24} />, color: "text-[#22D3EE]", bg: "bg-[#22D3EE]/10", border: "border-[#22D3EE]/30", details: "Native borderless rail settling in milliseconds.", metrics: [] },
-  "hedge": { title: "Sovereign Savings", subtitle: "Value Protection", icon: <Shield className="text-[#FDB813]" size={24} />, color: "text-[#FDB813]", bg: "bg-[#FDB813]/10", border: "border-[#FDB813]/30", details: "Asset designed to protect users from fiat depreciation.", metrics: [] },
-  "earn": { title: "Action Yield", subtitle: "Proof-of-Engagement", icon: <TrendingUp className="text-[#10B981]" size={24} />, color: "text-[#10B981]", bg: "bg-[#10B981]/10", border: "border-[#10B981]/30", details: "Generate KC through network participation.", metrics: [] },
-  "pay": { title: "Universal Pay", subtitle: "Ecosystem Commerce", icon: <ShoppingCart className="text-[#8B5CF6]" size={24} />, color: "#8B5CF6", bg: "bg-[#8B5CF6]/10", border: "border-[#8B5CF6]/30", details: "One currency for all integrated dApps.", metrics: [] },
-  "protect": { title: "Protect Savings", subtitle: "Fiat-to-Peg Swap", icon: <Lock className="text-[#10B981]" size={24} />, color: "text-[#10B981]", bg: "bg-[#10B981]/10", border: "border-[#10B981]/30", details: "Shield local currency by minting KPC.", metrics: [] }
+  "buy": { title: "Add money", subtitle: "Turn cash into KPC", icon: <Coins className="text-[#FDB813]" size={24} />, color: "text-[#FDB813]", bg: "bg-[#FDB813]/10", border: "border-[#FDB813]/30", details: "Pay with mobile money or a card and the same value lands in your wallet as KPC. One KPC costs one dollar.", metrics: [] },
+  "live_price": { title: "What 1 KPC is worth", subtitle: "Always one dollar", icon: <Activity className="text-[#10B981]" size={24} />, color: "text-[#10B981]", bg: "bg-[#10B981]/10", border: "border-[#10B981]/30", details: "KPC does not go up and down. One KPC is one US dollar, and we hold money to back every one that exists. The Ledger page shows what we hold.", metrics: [] },
+  "volume": { title: "Moved in 24 hours", subtitle: "Between wallets", icon: <BarChart className="text-[#22D3EE]" size={24} />, color: "text-[#22D3EE]", bg: "bg-[#22D3EE]/10", border: "border-[#22D3EE]/30", details: "How much KPC people sent each other in the last day, counted from the ledger.", metrics: [] },
+  "market_cap": { title: "KPC in existence", subtitle: "All wallets and savings", icon: <PieChart className="text-[#FDB813]" size={24} />, color: "text-[#FDB813]", bg: "bg-[#FDB813]/10", border: "border-[#FDB813]/30", details: "Every KPC that exists. Each one is a dollar we owe somebody, so this is also the size of what we have to back.", metrics: [] },
+  "txns": { title: "Payments today", subtitle: "In the last 24 hours", icon: <Zap className="text-[#8B5CF6]" size={24} />, color: "text-[#8B5CF6]", bg: "bg-[#8B5CF6]/10", border: "border-[#8B5CF6]/30", details: "How many payments went through in the last day.", metrics: [] },
+  "holders": { title: "People holding KPC", subtitle: "Wallets with money in them", icon: <Users className="text-[#F472B6]" size={24} />, color: "text-[#F472B6]", bg: "bg-[#F472B6]/10", border: "border-[#F472B6]/30", details: "How many wallets have some KPC in them right now.", metrics: [] },
+  "network": { title: "Countries", subtitle: "Where you can send", icon: <Globe2 className="text-[#10B981]" size={24} />, color: "text-[#10B981]", bg: "bg-[#10B981]/10", border: "border-[#10B981]/30", details: "You can send KPC to a phone number in any of these countries. Putting money in needs a payment provider that covers your country, which is fewer places for now.", metrics: [] },
+  "fee": { title: "What sending costs", subtitle: "Nothing", icon: <Code className="text-[#94A3B8]" size={24} />, color: "text-[#94A3B8]", bg: "bg-[#1F2937]/50", border: "border-[#374151]/50", details: "Sending KPC to another person is free. Moving money out to a bank or mobile money has a small fee, and you see it before you confirm.", metrics: [] },
+  "circulating": { title: "Held by people", subtitle: "Not counting savings", icon: <Layers className="text-[#FDB813]" size={24} />, color: "text-[#FDB813]", bg: "bg-[#FDB813]/10", border: "border-[#FDB813]/30", details: "KPC sitting in everyday wallets, ready to spend. Money locked in savings plans is counted separately.", metrics: [] },
+  "global": { title: "Send anywhere", subtitle: "A phone number is enough", icon: <Globe2 className="text-[#22D3EE]" size={24} />, color: "text-[#22D3EE]", bg: "bg-[#22D3EE]/10", border: "border-[#22D3EE]/30", details: "You need the other person\u2019s phone number, not their bank details. It arrives straight away, and it does not cost anything to send.", metrics: [] },
+  "hedge": { title: "Protect your savings", subtitle: "Hold dollars instead", icon: <Shield className="text-[#FDB813]" size={24} />, color: "text-[#FDB813]", bg: "bg-[#FDB813]/10", border: "border-[#FDB813]/30", details: "When your local currency loses value against the dollar, money you hold as KPC keeps its dollar value. That is the whole idea.", metrics: [] },
+  "earn": { title: "Earn points", subtitle: "For using KobPay", icon: <TrendingUp className="text-[#10B981]" size={24} />, color: "text-[#10B981]", bg: "bg-[#10B981]/10", border: "border-[#10B981]/30", details: "You collect KC points as you use KobPay. Points are not money and do not hold a value \u2014 you swap them for KPC when you have enough.", metrics: [] },
+  "pay": { title: "Pay with KPC", subtitle: "Shops and apps", icon: <ShoppingCart className="text-[#8B5CF6]" size={24} />, color: "#8B5CF6", bg: "bg-[#8B5CF6]/10", border: "border-[#8B5CF6]/30", details: "Any business or app signed up to KobPay can take KPC, so the same balance works everywhere.", metrics: [] },
+  "protect": { title: "Keep your value", subtitle: "Swap into dollars", icon: <Lock className="text-[#10B981]" size={24} />, color: "text-[#10B981]", bg: "bg-[#10B981]/10", border: "border-[#10B981]/30", details: "Change your local currency into KPC and it stops tracking the local currency. A dollar today is still a dollar later.", metrics: [] }
 };
 
 export default function KPCSovereignDashboard() {
@@ -291,7 +304,7 @@ export default function KPCSovereignDashboard() {
   };
 
   const handleExecuteFunction = () => {
-    toast.success('Sovereign Contract Executed via Reown', {
+    toast.success('Done', {
       icon: '✅',
       style: { borderRadius: '10px', background: '#10B981', color: '#0A0E14', fontWeight: 'bold', fontSize: '12px', fontFamily: 'monospace' }
     });
@@ -310,7 +323,7 @@ export default function KPCSovereignDashboard() {
           <div className="p-4 lg:p-6 border-b border-[#1F2937] flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#FDB813] to-[#F59E0B] flex items-center justify-center shadow-[0_0_15px_rgba(253,184,19,0.4)] shrink-0"><span className="font-black text-[#0A0E14]">K</span></div>
-              <div className="flex flex-col"><h2 className="font-black text-[13px] tracking-widest uppercase leading-none mb-1.5 whitespace-nowrap">KOBPAY COINS</h2><p className="text-[8px] font-mono text-[#FDB813] tracking-[0.45em] uppercase leading-none">Sovereign Rail</p></div>
+              <div className="flex flex-col"><h2 className="font-black text-[13px] tracking-widest uppercase leading-none mb-1.5 whitespace-nowrap">KOBPAY</h2><p className="text-[8px] font-mono text-[#FDB813] tracking-[0.3em] uppercase leading-none">Holds its value</p></div>
             </div>
             <button className="lg:hidden text-[#94A3B8] hover:text-white" onClick={() => setIsMobileMenuOpen(false)}>
               <X size={20} />
@@ -358,6 +371,16 @@ export default function KPCSovereignDashboard() {
       <div className="flex-1 flex flex-col relative h-full overflow-y-auto [&::-webkit-scrollbar]:hidden">
         <header className="h-16 sm:h-20 border-b border-[#1F2937] bg-[#111827]/80 backdrop-blur-xl sticky top-0 z-30 flex items-center justify-between px-4 sm:px-8 shrink-0">
           <div className="flex items-center gap-3 sm:gap-6 min-w-0">
+            {/* THE PHONE MENU WAS NEVER OPENABLE.
+                The sidebar sits off-canvas at -translate-x-full until
+                isMobileMenuOpen is true, and nothing in the app ever set it
+                to true — the only toggle was the close button INSIDE the
+                sidebar, so it was off-screen too. Below lg there was no way
+                to reach Wallet, Send, Savings or anything else.
+                AppMenu is the same slide-over the other pages use. */}
+            <div className="lg:hidden">
+              <AppMenu />
+            </div>
             <div className="hidden sm:flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest bg-[#1F2937]/50 px-4 py-2 rounded-full border border-[#1F2937]"><span className="text-[#FDB813]">1 KPC</span><span className="text-[#94A3B8]">=</span><span className="text-white">$1.00 USD</span></div>
             <div className="flex items-center gap-2 text-[9px] sm:text-[10px] font-mono tracking-widest text-[#94A3B8] uppercase whitespace-nowrap">
               <div className={`w-2 h-2 rounded-full shadow-[0_0_8px_#10b981] ${ledgerLive === true ? 'bg-[#10B981] animate-pulse' : ledgerLive === false ? 'bg-[#EF4444]' : 'bg-[#94A3B8]'}`} />
@@ -446,7 +469,7 @@ export default function KPCSovereignDashboard() {
             
             <div className="bg-[#0A0E14]/80 backdrop-blur-xl border border-[#1F2937] rounded-2xl sm:rounded-3xl p-5 sm:p-8 relative overflow-hidden group shadow-[0_0_80px_rgba(0,0,0,0.8)] max-w-4xl mt-0 sm:mt-2 flex flex-col items-center justify-center gap-4 sm:gap-5 text-center mx-auto">
               <div className="absolute top-1/2 left-1/2 w-full lg:w-[80%] h-64 -translate-y-1/2 -translate-x-1/2 bg-gradient-to-r from-[#AA771C]/20 via-[#AA771C]/5 to-transparent blur-[100px]" />
-              <div className="relative z-10 inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 border border-[#FDB813]/30 rounded-full bg-[#0A0E14]/60"><Shield size={12} className="text-[#FDB813] shrink-0" /><span className="text-[9px] sm:text-[10px] font-mono tracking-[0.12em] sm:tracking-[0.2em] text-[#FDB813] uppercase font-bold">The Sovereign Payment Rail</span></div>
+              <div className="relative z-10 inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 border border-[#FDB813]/30 rounded-full bg-[#0A0E14]/60"><Shield size={12} className="text-[#FDB813] shrink-0" /><span className="text-[9px] sm:text-[10px] font-mono tracking-[0.12em] sm:tracking-[0.2em] text-[#FDB813] uppercase font-bold">One KPC is one US dollar. Always.</span></div>
               <div className="relative z-10 w-full max-w-xl aspect-video rounded-xl overflow-hidden border border-[#FDB813]/30 bg-black shadow-[0_0_50px_rgba(253,184,19,0.1)]"><video src="/kpc-video.mp4" autoPlay loop muted playsInline className="w-full h-full object-cover scale-105" /></div>
               <div className="relative z-10 flex gap-3 sm:gap-4 w-full justify-center max-w-md">
                 <motion.button 
@@ -489,7 +512,7 @@ export default function KPCSovereignDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-8">
               <div className="lg:col-span-8 bg-[#111827]/80 backdrop-blur-xl border border-[#1F2937] rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 lg:p-10 flex flex-col shadow-2xl">
                 <div className="flex justify-between items-center mb-5 sm:mb-8">
-                  <div><h3 className="text-base sm:text-xl font-black uppercase tracking-widest mb-2 flex items-center gap-2 sm:gap-3"><Activity className="text-[#FDB813]" size={20} /> Fiat Depreciation</h3><p className="text-[10px] font-mono text-[#94A3B8] tracking-widest uppercase">While currencies lose value, KPC holds $1.00.</p></div>
+                  <div><h3 className="text-base sm:text-xl font-black uppercase tracking-widest mb-2 flex items-center gap-2 sm:gap-3"><Activity className="text-[#FDB813]" size={20} /> What a dollar is worth</h3><p className="text-[10px] font-mono text-[#94A3B8] tracking-widest uppercase">Local currencies lose value against the dollar. KPC does not.</p></div>
                 </div>
                 <div className="h-[240px] sm:h-[300px] lg:h-[350px] w-full font-mono text-[9px] sm:text-[10px]">
                   <ResponsiveContainer width="100%" height="100%"><LineChart data={liveChartData}><CartesianGrid strokeDasharray="3 3" stroke="#1F2937" vertical={false} /><XAxis dataKey="month" stroke="#94A3B8" /><YAxis stroke="#94A3B8" tickFormatter={(val: number) => `${(val * 100).toFixed(0)}%`} /><Tooltip contentStyle={{ backgroundColor: '#0A0E14', border: '1px solid #1F2937' }} /><Legend /><Line type="monotone" dataKey="KPC" name="🪙 KPC" stroke="#FDB813" strokeWidth={3} dot={false} /><Line type="monotone" dataKey="GHS" name="🇬🇭 GHS" stroke="#EF4444" strokeWidth={2} strokeOpacity={0.6} dot={false} /><Line type="monotone" dataKey="NGN" name="🇳🇬 NGN" stroke="#22D3EE" strokeWidth={2} strokeOpacity={0.6} dot={false} /></LineChart></ResponsiveContainer>
@@ -558,10 +581,10 @@ export default function KPCSovereignDashboard() {
                     product does — merchant fee capped at 1% — which is a
                     fact from platform_settings, not a number waiting to
                     grow. Apps stays a real count: 2 is small but true. */}
-                <WhyCard index={0} icon={<Globe2 size={24} className="text-[#22D3EE]" />} title="Send Globally" desc="Send to anyone with a phone number. No bank account needed." statLabel="Countries" statValue={networkStats.countries} onClick={() => setActiveDrawer("global")} />
-                <WhyCard index={1} icon={<Shield size={24} className="text-[#FDB813]" />} title="Hedge Savings" desc="Protect against fiat decline. KPC holds $1.00 forever." statLabel="Always worth" statText="$1.00" onClick={() => setActiveDrawer("hedge")} />
-                <WhyCard index={2} icon={<TrendingUp size={24} className="text-[#10B981]" />} title="Earn Daily" desc="Generate KC rewards through engagement and use." statLabel="Live Apps" statValue={networkStats.activeApps} onClick={() => setActiveDrawer("earn")} />
-                <WhyCard index={3} icon={<ShoppingCart size={24} className="text-[#8B5CF6]" />} title="Universal Pay" desc="One currency for gaming, real estate, and more." statLabel={networkStats.merchants > 0 ? "Businesses" : "Merchant fee"} statValue={networkStats.merchants > 0 ? networkStats.merchants : undefined} statText={networkStats.merchants > 0 ? undefined : "1%"} onClick={() => setActiveDrawer("pay")} />
+                <WhyCard index={0} icon={<Globe2 size={24} className="text-[#22D3EE]" />} title="Send Globally" desc="All you need is their phone number. No bank account, no fee." statLabel="Countries" statValue={networkStats.countries} onClick={() => setActiveDrawer("global")} />
+                <WhyCard index={1} icon={<Shield size={24} className="text-[#FDB813]" />} title="Protect Savings" desc="Hold your money as dollars so it keeps its value." statLabel="Always worth" statText="$1.00" onClick={() => setActiveDrawer("hedge")} />
+                <WhyCard index={2} icon={<TrendingUp size={24} className="text-[#10B981]" />} title="Earn Daily" desc="Collect KC points as you use KobPay, and swap them for KPC." statLabel="Live Apps" statValue={networkStats.activeApps} onClick={() => setActiveDrawer("earn")} />
+                <WhyCard index={3} icon={<ShoppingCart size={24} className="text-[#8B5CF6]" />} title="Universal Pay" desc="One balance that works across every shop and app on KobPay." statLabel={networkStats.merchants > 0 ? "Businesses" : "Merchant fee"} statValue={networkStats.merchants > 0 ? networkStats.merchants : undefined} statText={networkStats.merchants > 0 ? undefined : "1%"} onClick={() => setActiveDrawer("pay")} />
               </div>
             </div>
           </div>
@@ -696,7 +719,7 @@ const KobBotAvatar = ({ className = "w-full h-full" }: { className?: string }) =
 
 function KobBotChat() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<{role: string, content: string}[]>([{ role: 'model', content: "System online. I am KobBot 2.0. How can I assist you with the Sovereign Rail today?" }]);
+  const [messages, setMessages] = useState<{role: string, content: string}[]>([{ role: 'model', content: "Hi, I am KobBot. Ask me anything about sending money, saving, or your balance." }]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -770,7 +793,7 @@ function KobBotChat() {
                   <div className="font-mono font-bold text-white tracking-widest text-xs uppercase flex items-center gap-2">
                     KobBot 2.0 <div className="w-1.5 h-1.5 bg-[#10B981] rounded-full animate-pulse shadow-[0_0_8px_#10b981]" />
                   </div>
-                  <div className="text-[9px] font-mono text-[#94A3B8] tracking-widest uppercase mt-0.5">Sovereign AI Core</div>
+                  <div className="text-[9px] font-mono text-[#94A3B8] tracking-widest uppercase mt-0.5">Your money assistant</div>
                 </div>
               </div>
             </div>

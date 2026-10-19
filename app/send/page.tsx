@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ArrowLeft, Send, Zap, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
+import AppMenu from "../components/AppMenu";
 import { useKpcBalance } from "../lib/useKpcBalance";
 
 // Renamed so the default export can wrap it in Suspense. useSearchParams
@@ -75,6 +76,7 @@ function SendForm() {
           <Link href="/" className="text-[#94A3B8] hover:text-[#FDB813] transition-colors p-2 bg-[#1F2937] rounded-lg border border-[#374151]">
             <ArrowLeft size={20} />
           </Link>
+          <AppMenu />
           <div className="flex items-center gap-2 text-[10px] font-mono tracking-widest uppercase bg-[#0A0E14] px-3 py-1.5 rounded-full border border-[#1F2937]">
             <Zap size={12} className="text-[#FDB813]" /> Transfer Protocol
           </div>

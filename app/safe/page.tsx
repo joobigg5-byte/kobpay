@@ -7,6 +7,7 @@ import {
   Clock, Scale, Handshake,
 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
+import AppMenu from "../components/AppMenu";
 import { useKpcBalance } from "../lib/useKpcBalance";
 import { formatKpcAsUsd } from "../lib/kpcPeg";
 import toast, { Toaster } from "react-hot-toast";
@@ -106,6 +107,7 @@ export default function SafePage() {
           >
             <ArrowLeft size={20} />
           </Link>
+          <AppMenu />
           <div className="flex items-center gap-2 text-[10px] font-mono tracking-widest uppercase bg-[#0A0E14] px-3 py-1.5 rounded-full border border-[#1F2937]">
             <ShieldCheck size={12} className="text-[#10B981]" />
             <span className="text-[#10B981]">Safe send</span>
@@ -122,8 +124,8 @@ export default function SafePage() {
             Loading...
           </p>
         ) : !userId ? (
-          <div className="bg-[#EF4444]/10 border border-[#EF4444]/30 p-6 rounded-xl">
-            <p className="text-xs font-mono text-[#EF4444] leading-relaxed uppercase">
+          <div className="bg-[#111827] border border-[#1F2937] p-6 rounded-xl">
+            <p className="text-xs font-mono text-[#94A3B8] leading-relaxed uppercase">
               Please{" "}
               <Link href="/auth" className="underline">
                 sign in

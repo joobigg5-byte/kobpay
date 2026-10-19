@@ -7,6 +7,7 @@ import {
   ChevronDown, Clock, Check, X,
 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
+import AppMenu from "../components/AppMenu";
 import { formatKpcAsUsd } from "../lib/kpcPeg";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -108,6 +109,7 @@ export default function ActivityPage() {
           >
             <ArrowLeft size={20} />
           </Link>
+          <AppMenu />
           <div className="flex items-center gap-2 text-[10px] font-mono tracking-widest uppercase bg-[#0A0E14] px-3 py-1.5 rounded-full border border-[#1F2937]">
             <Receipt size={12} className="text-[#FDB813]" />
             <span className="text-[#FDB813]">Activity</span>
@@ -124,8 +126,8 @@ export default function ActivityPage() {
             Loading...
           </p>
         ) : !userId ? (
-          <div className="bg-[#EF4444]/10 border border-[#EF4444]/30 p-6 rounded-xl">
-            <p className="text-xs font-mono text-[#EF4444] leading-relaxed uppercase">
+          <div className="bg-[#111827] border border-[#1F2937] p-6 rounded-xl">
+            <p className="text-xs font-mono text-[#94A3B8] leading-relaxed uppercase">
               Please{" "}
               <Link href="/auth" className="underline">
                 sign in

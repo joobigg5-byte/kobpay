@@ -20,6 +20,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
+import AppMenu from "../components/AppMenu";
 import { useKpcBalance } from "../lib/useKpcBalance";
 import { formatKpcAsUsd } from "../lib/kpcPeg";
 import PinSetup from "../components/PinSetup";
@@ -76,6 +77,7 @@ export default function WalletPage() {
           >
             <ArrowLeft size={20} />
           </Link>
+          <AppMenu />
           <div className="flex items-center gap-2 text-[10px] font-mono tracking-widest uppercase bg-[#0A0E14] px-3 py-1.5 rounded-full border border-[#1F2937]">
             {currentUser ? (
               <>
@@ -92,7 +94,7 @@ export default function WalletPage() {
         </div>
 
         <h1 className="text-3xl font-black uppercase tracking-widest mb-1 text-white">
-          Sovereign Vault
+          Your wallet
         </h1>
         <p className="text-[10px] font-mono text-[#94A3B8] tracking-widest uppercase mb-8">
           Your real KPC balance, $1-pegged, always
@@ -104,14 +106,14 @@ export default function WalletPage() {
           </p>
         ) : !currentUser ? (
           <div className="flex flex-col items-center justify-center py-6 gap-6">
-            <div className="bg-[#EF4444]/10 border border-[#EF4444]/30 p-6 rounded-xl flex items-start gap-4 w-full text-left">
-              <AlertCircle className="text-[#EF4444] shrink-0" size={24} />
-              <p className="text-xs font-mono text-[#EF4444] leading-relaxed uppercase">
-                Connection Required. Please{" "}
+            <div className="bg-[#111827] border border-[#1F2937] p-6 rounded-xl flex items-start gap-4 w-full text-left">
+              <AlertCircle className="text-[#94A3B8] shrink-0" size={24} />
+              <p className="text-xs font-mono text-[#94A3B8] leading-relaxed uppercase">
+                Please{" "}
                 <Link href="/auth" className="font-bold underline">
                   sign in
                 </Link>{" "}
-                to view your Sovereign Vault.
+                to see your wallet.
               </p>
             </div>
           </div>

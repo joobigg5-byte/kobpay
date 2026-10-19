@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import AppMenu from '../components/AppMenu';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowLeft, Layers, Plus, Bot, Gamepad2, 
   Store, Home, Zap, X, Code, Rocket, LucideIcon 
 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
+import { supabase } from '../lib/supabaseClient';
 
 // --- TYPE DEFINITION ---
 interface DApp {
@@ -19,24 +21,42 @@ interface DApp {
   border: string;
 }
 
-const INITIAL_DAPPS: DApp[] = [
-  { id: 1, name: "KobBot AI", desc: "Sovereign Guardian assistant.", icon: Bot, color: "text-[#10B981]", border: "hover:border-[#10B981]" },
-  { id: 2, name: "KobPlay", desc: "Play-to-earn KC rewards.", icon: Gamepad2, color: "text-[#F472B6]", border: "hover:border-[#F472B6]" },
-  { id: 3, name: "Ready Markets", desc: "Decentralized P2P marketplace.", icon: Store, color: "text-[#FDB813]", border: "hover:border-[#FDB813]" },
-  { id: 4, name: "AegisProp", desc: "Tokenized real estate rail.", icon: Home, color: "text-[#22D3EE]", border: "hover:border-[#22D3EE]" }
-];
+// These four were hardcoded: KobBot AI, KobPlay, Ready Markets, AegisProp.
+// None of them exist. Two apps are registered on the rail and neither was
+// named here — the same invention the scrolling banner was doing before 033,
+// except a directory is a stronger claim, because somebody may try to go and
+// use one. The list now comes from public_apps(). (036)
+const INITIAL_DAPPS: DApp[] = [];
 
 export default function EcosystemPage() {
   const [dapps, setDapps] = useState<DApp[]>(INITIAL_DAPPS);
+  const [loading, setLoading] = useState(true);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [newAppName, setNewAppName] = useState("");
+
+  useEffect(() => {
+    supabase.rpc("public_apps").then(({ data }) => {
+      const list = (data as { apps?: { name: string; since: string }[] } | null)?.apps ?? [];
+      setDapps(
+        list.map((a, i) => ({
+          id: i + 1,
+          name: a.name,
+          desc: "On the KobPay rail since " + new Date(a.since).toLocaleDateString(),
+          icon: Rocket,
+          color: "text-[#FDB813]",
+          border: "hover:border-[#FDB813]",
+        })),
+      );
+      setLoading(false);
+    });
+  }, []);
 
   const addApp = () => {
     if (!newAppName) return;
     const newApp: DApp = {
       id: Date.now(),
       name: newAppName,
-      desc: "New Sovereign Protocol deployed to Mainnet.",
+      desc: "Your app is now live on KobPay.",
       icon: Rocket,
       color: "text-[#8B5CF6]",
       border: "hover:border-[#8B5CF6]"
@@ -60,9 +80,10 @@ export default function EcosystemPage() {
             <Link href="/" className="p-3 bg-[#111827] rounded-xl border border-[#1F2937] hover:border-[#FDB813] transition-colors">
               <ArrowLeft size={20} />
             </Link>
+            <AppMenu />
             <div>
               <h1 className="text-3xl font-black uppercase tracking-widest flex items-center gap-3">
-                <Layers className="text-[#FDB813]" size={28} /> Sovereign Ecosystem
+                <Layers className="text-[#FDB813]" size={28} /> Apps that take KPC
               </h1>
               <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.3em] mt-1">Verified Protocol Directory</p>
             </div>
@@ -79,6 +100,13 @@ export default function EcosystemPage() {
         {/* --- DYNAMIC APP GRID --- */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
           <AnimatePresence>
+            {!loading && dapps.length === 0 && (
+              <div className="col-span-full bg-[#111827] border border-[#1F2937] rounded-2xl p-8 text-center">
+                <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] leading-relaxed">
+                  No apps have joined yet. When one does, it appears here.
+                </p>
+              </div>
+            )}
             {dapps.map((app) => {
               const Icon = app.icon; // Standard component reference
               return (
@@ -174,7 +202,7 @@ export default function EcosystemPage() {
                   onClick={addApp}
                   className="w-full py-5 bg-[#FDB813] text-[#0A0E14] font-black font-mono text-[11px] uppercase tracking-[0.2em] rounded-xl hover:bg-[#F59E0B] transition-all shadow-[0_0_30px_rgba(253,184,19,0.2)]"
                 >
-                  Confirm Mainnet Deployment
+                  Add this app
                 </button>
               </div>
             </motion.div>

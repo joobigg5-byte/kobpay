@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Activity, ShieldCheck, AlertTriangle, Scale, Landmark, Info } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
+import AppMenu from "../components/AppMenu";
 
 // This page used to stream Ethereum mainnet: latest block, miner addresses,
 // 0.0000 ETH transfers, "Active Nodes 1,245" and "Finality: Instant" — for a
@@ -89,6 +90,7 @@ export default function ExplorerPage() {
           >
             <ArrowLeft size={18} />
           </Link>
+          <AppMenu />
           <h1 className="text-xl lg:text-3xl font-black uppercase tracking-widest flex items-center gap-3">
             <Activity className="text-[#22D3EE]" /> The ledger
           </h1>

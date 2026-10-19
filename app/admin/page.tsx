@@ -17,6 +17,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
+import AppMenu from "../components/AppMenu";
 import toast, { Toaster } from "react-hot-toast";
 
 type Dispute = {
@@ -967,6 +968,7 @@ function Shell({ children }: { children: React.ReactNode }) {
           >
             <ArrowLeft size={18} />
           </Link>
+          <AppMenu />
           <h1 className="text-lg font-black uppercase tracking-widest">Operations</h1>
         </div>
         {children}

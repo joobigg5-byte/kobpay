@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import AppMenu from "../components/AppMenu";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -161,6 +162,9 @@ export default function PayTerminal() {
             Back
           </span>
         </Link>
+        <div className="ml-auto">
+          <AppMenu />
+        </div>
       </header>
 
       <main className="flex-1 flex items-start justify-center p-4 lg:p-6">

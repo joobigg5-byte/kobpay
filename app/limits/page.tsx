@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ShieldCheck, Clock, Loader2, Check } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
+import AppMenu from "../components/AppMenu";
 import toast, { Toaster } from "react-hot-toast";
 
 type NextTier = {
@@ -110,6 +111,7 @@ export default function LimitsPage() {
           >
             <ArrowLeft size={18} />
           </Link>
+          <AppMenu />
           <h1 className="text-lg font-black uppercase tracking-widest">Your limits</h1>
         </div>
 
