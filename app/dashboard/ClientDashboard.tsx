@@ -11,7 +11,7 @@ import {
   ShoppingCart, BarChart2, Layers, Code, Shield, User, Globe,
   Activity, Globe2, Menu, X, ChevronDown, ChevronRight, Zap, Lock, Server, Coins,
   BarChart, PieChart, Users, HardDrive, Loader2,
-  PiggyBank, LineChart as LineChartIcon, Receipt, ShieldCheck, Store, Scale
+  PiggyBank, LineChart as LineChartIcon, Receipt, ShieldCheck, Store, Scale, Gauge
 } from 'lucide-react';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend 
@@ -296,6 +296,7 @@ export default function KPCSovereignDashboard() {
             <NavItem icon={<LineChartIcon size={18} />} label={t.invest} href="/invest" active={pathname === '/invest'} onClick={() => setIsMobileMenuOpen(false)} />
             <NavItem icon={<Users size={18} />} label={t.circles} href="/circles" active={pathname === '/circles'} onClick={() => setIsMobileMenuOpen(false)} />
             <NavItem icon={<ShieldCheck size={18} />} label="Limits" href="/limits" active={pathname === '/limits'} onClick={() => setIsMobileMenuOpen(false)} />
+            <NavItem icon={<Gauge size={18} />} label="Score" href="/score" active={pathname === '/score'} onClick={() => setIsMobileMenuOpen(false)} />
             <NavItem icon={<Receipt size={18} />} label={t.activity} href="/activity" active={pathname === '/activity'} onClick={() => setIsMobileMenuOpen(false)} />
 
             <NavGroup label="Paying" />
