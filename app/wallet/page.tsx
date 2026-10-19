@@ -14,6 +14,7 @@ import {
   Receipt,
   Store,
   Scale,
+  LineChart,
   Phone,
   AlertCircle,
 } from "lucide-react";
@@ -204,12 +205,26 @@ export default function WalletPage() {
               </Link>
             </div>
 
+            {/* Deliberately not in the grid with Save. Savings is a promise
+                at a fixed rate; this is money that can fall in value, and
+                putting them side by side as equivalent choices would be the
+                most misleading thing on the page. */}
+            <Link
+              href="/invest"
+              className="mt-3 flex items-center justify-center gap-2 py-3 bg-[#1F2937] hover:bg-[#10B981]/10 border border-[#374151] hover:border-[#10B981]/50 transition-all rounded-lg"
+            >
+              <LineChart size={14} className="text-[#10B981]" />
+              <span className="text-[9px] font-mono uppercase tracking-widest text-[#94A3B8]">
+                Invest
+              </span>
+            </Link>
+
             {/* Not a seventh tile. Taking payments is a different mode from
                 spending, and a merchant visits this once then lives on that
                 page — it should not compete with Send for attention. */}
             <Link
               href="/merchant"
-              className="mt-3 flex items-center justify-center gap-2 py-3 bg-[#1F2937] hover:bg-[#FDB813]/10 border border-[#374151] hover:border-[#FDB813]/50 transition-all rounded-lg"
+              className="mt-2 flex items-center justify-center gap-2 py-3 bg-[#1F2937] hover:bg-[#FDB813]/10 border border-[#374151] hover:border-[#FDB813]/50 transition-all rounded-lg"
             >
               <Store size={14} className="text-[#FDB813]" />
               <span className="text-[9px] font-mono uppercase tracking-widest text-[#94A3B8]">
