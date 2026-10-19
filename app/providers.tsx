@@ -10,6 +10,7 @@ import { WagmiProvider } from 'wagmi';
 import { mainnet, polygon, arbitrum, base } from 'wagmi/chains';
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import '@rainbow-me/rainbowkit/styles.css';
+import PinPrompt from './components/PinPrompt';
 
 const config = getDefaultConfig({
   appName: 'KobPay Coins (KPC)',
@@ -33,6 +34,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
           })}
         >
           {children}
+          {/* Mounted once for the whole app. supabaseClient raises the PIN
+              event when the database asks for one; this answers it, so no
+              page needs to know a PIN exists. */}
+          <PinPrompt />
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

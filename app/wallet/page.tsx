@@ -14,6 +14,7 @@ import {
   Receipt,
   Store,
   Scale,
+  Lock,
   LineChart,
   Phone,
   AlertCircle,
@@ -21,6 +22,7 @@ import {
 import { supabase } from "../lib/supabaseClient";
 import { useKpcBalance } from "../lib/useKpcBalance";
 import { formatKpcAsUsd } from "../lib/kpcPeg";
+import PinSetup from "../components/PinSetup";
 
 export default function WalletPage() {
   const [currentUser, setCurrentUser] = useState<{ id: string; phone: string } | null>(null);
@@ -28,6 +30,10 @@ export default function WalletPage() {
   // Staff get one extra link. am_i_staff is the same gate the admin readers
   // use, so this cannot show a door that will not open.
   const [isStaff, setIsStaff] = useState(false);
+  // A PIN is what stands between an unlocked phone and an empty wallet, so
+  // the prompt to set one is not buried in a settings page.
+  const [hasPin, setHasPin] = useState<boolean | null>(null);
+  const [pinSetup, setPinSetup] = useState(false);
 
   const { balance, loading: balanceLoading } = useKpcBalance(currentUser?.id ?? null);
 
@@ -39,6 +45,9 @@ export default function WalletPage() {
           phone: data.session.user.phone ?? "Unknown",
         });
         supabase.rpc("am_i_staff").then(({ data: s }) => setIsStaff(Boolean(s)));
+        supabase.rpc("my_pin_status").then(({ data: p }) => {
+          setHasPin(Boolean((p as { has_pin?: boolean } | null)?.has_pin));
+        });
       }
       setCheckingSession(false);
     });
@@ -205,6 +214,29 @@ export default function WalletPage() {
               </Link>
             </div>
 
+            {hasPin === false && (
+              <button
+                onClick={() => setPinSetup(true)}
+                className="mt-3 w-full flex items-center justify-center gap-2 py-3 bg-[#FDB813]/10 border border-[#FDB813]/40 rounded-lg"
+              >
+                <Lock size={14} className="text-[#FDB813]" />
+                <span className="text-[9px] font-mono uppercase tracking-widest text-[#FDB813]">
+                  Set a payment PIN
+                </span>
+              </button>
+            )}
+            {hasPin === true && (
+              <button
+                onClick={() => setPinSetup(true)}
+                className="mt-3 w-full flex items-center justify-center gap-2 py-3 bg-[#1F2937] hover:bg-[#374151] border border-[#374151] rounded-lg"
+              >
+                <Lock size={14} className="text-[#94A3B8]" />
+                <span className="text-[9px] font-mono uppercase tracking-widest text-[#94A3B8]">
+                  Change PIN
+                </span>
+              </button>
+            )}
+
             {/* Deliberately not in the grid with Save. Savings is a promise
                 at a fixed rate; this is money that can fall in value, and
                 putting them side by side as equivalent choices would be the
@@ -253,6 +285,14 @@ export default function WalletPage() {
           </div>
         )}
       </div>
+
+      {pinSetup && (
+        <PinSetup
+          hasPin={Boolean(hasPin)}
+          onClose={() => setPinSetup(false)}
+          onDone={() => setHasPin(true)}
+        />
+      )}
     </div>
   );
 }
