@@ -29,6 +29,15 @@ export function middleware(req: NextRequest) {
     return NextResponse.rewrite(url);
   }
 
+  // app.kobpay.app opens the wallet, not the marketing page. Somebody typing
+  // the app subdomain wants their money, not a hero and a coin video — the
+  // landing page belongs on kobpay.app and www.
+  if (pathname === "/" && (host === "app.kobpay.app" || host.startsWith("app."))) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/wallet";
+    return NextResponse.rewrite(url);
+  }
+
   return NextResponse.next();
 }
 
