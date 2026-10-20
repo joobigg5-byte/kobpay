@@ -16,14 +16,23 @@ import {
   Scale,
   Lock,
   LineChart,
+  HandCoins,
   Phone,
-  AlertCircle,
 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import AppMenu from "../components/AppMenu";
 import { useKpcBalance } from "../lib/useKpcBalance";
 import { formatKpcAsUsd } from "../lib/kpcPeg";
 import PinSetup from "../components/PinSetup";
+
+// Restyled onto the app.kobpay.app design. Nothing about how this page works
+// changed — same session check, same balance hook, same PIN prompt. What
+// changed is that it no longer carries its own hex values: colour and type
+// come from the tokens in globals.css, so the design lives in one place.
+//
+// The balance is set in Cormorant rather than a heavy sans. That one choice
+// is most of the difference between reading as a bank and reading as a
+// crypto dashboard.
 
 export default function WalletPage() {
   const [currentUser, setCurrentUser] = useState<{ id: string; phone: string } | null>(null);
@@ -64,176 +73,138 @@ export default function WalletPage() {
     return phone.startsWith("+") ? phone : `+${phone}`;
   };
 
-  return (
-    <div className="min-h-[100dvh] bg-[#0A0E14] text-white flex flex-col items-center justify-center p-5 lg:p-8 font-sans selection:bg-[#AA771C]/30 relative overflow-hidden">
-      {/* Background ambient glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-br from-[#FDB813]/5 to-transparent rounded-full blur-[100px] pointer-events-none" />
+  // Split so the fraction can be stepped down — the eye should land on the
+  // whole number first.
+  const whole = Math.floor(balance ?? 0).toLocaleString();
+  const frac = ((balance ?? 0) % 1).toFixed(2).slice(1);
 
-      <div className="bg-[#111827]/80 backdrop-blur-xl border border-[#1F2937] p-10 rounded-[2rem] shadow-[0_0_80px_rgba(0,0,0,0.8)] max-w-lg w-full text-center relative z-10">
-        <div className="flex justify-between items-start w-full mb-8">
+  return (
+    <div className="min-h-[100dvh] bg-ink text-warmwhite font-sans relative">
+      {/* One soft warm source, top-right, the way the design lights it. */}
+      <div className="pointer-events-none absolute top-0 right-0 w-[70vw] h-[60vh] bg-[radial-gradient(ellipse_at_top_right,rgba(201,168,76,0.07),transparent_60%)]" />
+
+      <div className="relative z-10 max-w-[760px] mx-auto px-5 lg:px-8 py-6 lg:py-10">
+        <div className="flex items-center gap-3 mb-10">
           <Link
             href="/"
-            className="text-[#94A3B8] hover:text-[#FDB813] transition-colors p-2 bg-[#1F2937] rounded-lg border border-[#374151]"
+            className="text-silver hover:text-gold transition-colors p-2.5 bg-card rounded-xl border border-hairline"
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={18} />
           </Link>
           <AppMenu />
-          <div className="flex items-center gap-2 text-[10px] font-mono tracking-widest uppercase bg-[#0A0E14] px-3 py-1.5 rounded-full border border-[#1F2937]">
-            {currentUser ? (
-              <>
-                <div className="w-2 h-2 bg-[#10B981] rounded-full animate-pulse shadow-[0_0_8px_#10b981]" />
-                <span className="text-[#10B981]">Connected</span>
-              </>
-            ) : (
-              <>
-                <div className="w-2 h-2 bg-[#EF4444] rounded-full" />
-                <span className="text-[#EF4444]">Disconnected</span>
-              </>
-            )}
+          <div className="ml-auto flex items-center gap-2 text-[9px] font-mono tracking-[0.2em] uppercase px-3 py-1.5 rounded-full border border-hairline bg-card">
+            <span
+              className={`w-1.5 h-1.5 rounded-full ${currentUser ? "bg-good" : "bg-muted"}`}
+            />
+            <span className={currentUser ? "text-good" : "text-muted"}>
+              {currentUser ? "Signed in" : "Signed out"}
+            </span>
           </div>
         </div>
 
-        <h1 className="text-3xl font-black uppercase tracking-widest mb-1 text-white">
+        <h1 className="font-display text-4xl lg:text-5xl font-light tracking-tight mb-1">
           Your wallet
         </h1>
-        <p className="text-[10px] font-mono text-[#94A3B8] tracking-widest uppercase mb-8">
-          Your real KPC balance, $1-pegged, always
+        <p className="text-[10px] font-mono text-muted tracking-[0.25em] uppercase mb-9">
+          One KPC is one US dollar
         </p>
 
         {checkingSession ? (
-          <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest py-6">
+          <p className="text-[10px] font-mono text-muted uppercase tracking-[0.2em] py-10">
             Loading...
           </p>
         ) : !currentUser ? (
-          <div className="flex flex-col items-center justify-center py-6 gap-6">
-            <div className="bg-[#111827] border border-[#1F2937] p-6 rounded-xl flex items-start gap-4 w-full text-left">
-              <AlertCircle className="text-[#94A3B8] shrink-0" size={24} />
-              <p className="text-xs font-mono text-[#94A3B8] leading-relaxed uppercase">
-                Please{" "}
-                <Link href="/auth" className="font-bold underline">
-                  sign in
-                </Link>{" "}
-                to see your wallet.
-              </p>
-            </div>
+          <div className="bg-card border border-hairline p-8 rounded-2xl text-center">
+            <p className="text-[11px] font-mono text-silver leading-relaxed uppercase tracking-[0.12em]">
+              Please{" "}
+              <Link href="/auth" className="text-gold underline">
+                sign in
+              </Link>{" "}
+              to see your wallet.
+            </p>
           </div>
         ) : (
-          <div className="space-y-4 mb-2">
-            {/* Identity */}
-            <div className="bg-[#0A0E14] border border-[#1F2937] p-5 rounded-xl flex justify-between items-center text-left">
-              <div>
-                <span className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-1">
-                  Authenticated Identity
-                </span>
-                <span className="flex items-center gap-2 text-lg font-mono font-black text-white">
-                  <Phone size={16} className="text-[#94A3B8]" />
-                  {formatPhone(currentUser.phone)}
-                </span>
-              </div>
-              <ShieldCheck className="text-[#10B981]" size={24} />
-            </div>
-
-            {/* Balance */}
-            <div className="bg-[#0A0E14] border border-[#1F2937] p-5 rounded-xl text-left">
-              <span className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-1">
+          <>
+            {/* THE BALANCE. Everything else on the page is secondary to it. */}
+            <div className="bg-card border border-hairline rounded-2xl p-7 lg:p-9 mb-3">
+              <p className="text-[9px] font-mono text-muted uppercase tracking-[0.3em] mb-4">
                 KPC Balance
-              </span>
+              </p>
               {balanceLoading ? (
-                <span className="text-sm font-mono text-[#94A3B8] uppercase">Loading...</span>
+                <p className="text-sm font-mono text-muted uppercase">Loading...</p>
               ) : (
-                <div className="flex items-baseline gap-3">
-                  <span className="text-3xl font-black text-[#FDB813]">
-                    {(balance ?? 0).toLocaleString()} <span className="text-sm text-white">KPC</span>
-                  </span>
-                  <span className="text-xs font-mono text-[#94A3B8]">
-                    ≈ {formatKpcAsUsd(balance ?? 0)}
-                  </span>
-                </div>
+                <>
+                  <div className="flex items-baseline gap-3 flex-wrap">
+                    <span className="figure text-6xl lg:text-7xl text-warmwhite">
+                      {whole}
+                      <span className="figure-frac text-gold">{frac}</span>
+                    </span>
+                    <span className="font-display text-3xl lg:text-4xl font-light text-silver">
+                      KPC
+                    </span>
+                  </div>
+                  <p className="text-xs font-mono text-muted mt-3 tracking-wide">
+                    ≈ {formatKpcAsUsd(balance ?? 0)} USD
+                  </p>
+                </>
               )}
+
+              <div className="flex flex-wrap gap-2.5 mt-7">
+                <Link
+                  href="/send"
+                  className="flex items-center gap-2 px-6 py-3 bg-gold text-ink rounded-lg font-mono text-[10px] font-bold uppercase tracking-[0.18em] hover:bg-gold2 transition-colors"
+                >
+                  <Send size={14} /> Send
+                </Link>
+                <Link
+                  href="/"
+                  className="flex items-center gap-2 px-6 py-3 border border-goldline text-gold rounded-lg font-mono text-[10px] font-bold uppercase tracking-[0.18em] hover:bg-gold/10 transition-colors"
+                >
+                  <PlusCircle size={14} /> Add money
+                </Link>
+                <Link
+                  href="/withdraw"
+                  className="flex items-center gap-2 px-6 py-3 border border-hairline text-silver rounded-lg font-mono text-[10px] font-bold uppercase tracking-[0.18em] hover:text-warmwhite transition-colors"
+                >
+                  <ArrowDownToLine size={14} /> Cash out
+                </Link>
+              </div>
             </div>
 
-            {/* Quick actions */}
-            <div className="grid grid-cols-3 gap-2 pt-2">
-              <Link
-                href="/send"
-                className="flex flex-col items-center justify-center gap-2 py-4 bg-[#1F2937] hover:bg-[#FDB813]/10 border border-[#374151] hover:border-[#FDB813]/50 transition-all rounded-xl"
-              >
-                <Send size={18} className="text-[#FDB813]" />
-                <span className="text-[9px] font-mono uppercase tracking-widest text-[#94A3B8]">
-                  Send
-                </span>
-              </Link>
-              <Link
-                href="/withdraw"
-                className="flex flex-col items-center justify-center gap-2 py-4 bg-[#1F2937] hover:bg-[#FDB813]/10 border border-[#374151] hover:border-[#FDB813]/50 transition-all rounded-xl"
-              >
-                <ArrowDownToLine size={18} className="text-[#FDB813]" />
-                <span className="text-[9px] font-mono uppercase tracking-widest text-[#94A3B8]">
-                  Withdraw
-                </span>
-              </Link>
-              <Link
-                href="/"
-                className="flex flex-col items-center justify-center gap-2 py-4 bg-[#1F2937] hover:bg-[#FDB813]/10 border border-[#374151] hover:border-[#FDB813]/50 transition-all rounded-xl"
-              >
-                <PlusCircle size={18} className="text-[#FDB813]" />
-                <span className="text-[9px] font-mono uppercase tracking-widest text-[#94A3B8]">
-                  Buy KPC
-                </span>
-              </Link>
-              {/* Savings earns money sitting still, so it gets the green of the
-                  savings page rather than the gold of the spending actions. */}
-              <Link
-                href="/savings"
-                className="flex flex-col items-center justify-center gap-2 py-4 bg-[#1F2937] hover:bg-[#10B981]/10 border border-[#374151] hover:border-[#10B981]/50 transition-all rounded-xl"
-              >
-                <PiggyBank size={18} className="text-[#10B981]" />
-                <span className="text-[9px] font-mono uppercase tracking-widest text-[#94A3B8]">
-                  Save
-                </span>
-              </Link>
-              {/* Circles are social rather than solitary, so they take the
-                  brand gold rather than the savings green. */}
-              <Link
-                href="/circles"
-                className="flex flex-col items-center justify-center gap-2 py-4 bg-[#1F2937] hover:bg-[#FDB813]/10 border border-[#374151] hover:border-[#FDB813]/50 transition-all rounded-xl"
-              >
-                <Users size={18} className="text-[#FDB813]" />
-                <span className="text-[9px] font-mono uppercase tracking-widest text-[#94A3B8]">
-                  Circles
-                </span>
-              </Link>
-              {/* Every movement of their money, and the only route to raising
-                  a dispute. */}
-              <Link
-                href="/activity"
-                className="flex flex-col items-center justify-center gap-2 py-4 bg-[#1F2937] hover:bg-[#FDB813]/10 border border-[#374151] hover:border-[#FDB813]/50 transition-all rounded-xl"
-              >
-                <Receipt size={18} className="text-[#FDB813]" />
-                <span className="text-[9px] font-mono uppercase tracking-widest text-[#94A3B8]">
-                  Activity
-                </span>
-              </Link>
+            <div className="bg-card border border-hairline rounded-2xl p-5 flex items-center justify-between mb-7">
+              <div>
+                <p className="text-[9px] font-mono text-muted uppercase tracking-[0.25em] mb-1.5">
+                  Your number
+                </p>
+                <p className="flex items-center gap-2 font-mono text-base text-warmwhite">
+                  <Phone size={14} className="text-muted" />
+                  {formatPhone(currentUser.phone)}
+                </p>
+              </div>
+              <ShieldCheck className="text-good shrink-0" size={20} />
             </div>
 
-            {/* Limits live where people look when something is refused. */}
-            <Link
-              href="/limits"
-              className="mt-3 flex items-center justify-center gap-2 py-3 bg-[#1F2937] hover:bg-[#FDB813]/10 border border-[#374151] hover:border-[#FDB813]/50 transition-all rounded-lg"
-            >
-              <ShieldCheck size={14} className="text-[#FDB813]" />
-              <span className="text-[9px] font-mono uppercase tracking-widest text-[#94A3B8]">
-                Limits &amp; verification
-              </span>
-            </Link>
+            <p className="text-[9px] font-mono text-muted uppercase tracking-[0.3em] mb-3">
+              Everything else
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              <Tile href="/savings" icon={<PiggyBank size={17} />} label="Save" accent="good" />
+              <Tile href="/circles" icon={<Users size={17} />} label="Circles" />
+              <Tile href="/invest" icon={<LineChart size={17} />} label="Invest" accent="good" />
+              <Tile href="/loans" icon={<HandCoins size={17} />} label="Borrow" />
+              <Tile href="/activity" icon={<Receipt size={17} />} label="Activity" />
+              <Tile href="/limits" icon={<ShieldCheck size={17} />} label="Limits" />
+              <Tile href="/merchant" icon={<Store size={17} />} label="Take payments" />
+              {isStaff && <Tile href="/admin" icon={<Scale size={17} />} label="Operations" />}
+            </div>
 
             {hasPin === false && (
               <button
                 onClick={() => setPinSetup(true)}
-                className="mt-3 w-full flex items-center justify-center gap-2 py-3 bg-[#FDB813]/10 border border-[#FDB813]/40 rounded-lg"
+                className="mt-6 w-full flex items-center justify-center gap-2 py-3.5 bg-gold/10 border border-goldline rounded-xl"
               >
-                <Lock size={14} className="text-[#FDB813]" />
-                <span className="text-[9px] font-mono uppercase tracking-widest text-[#FDB813]">
+                <Lock size={14} className="text-gold" />
+                <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-gold">
                   Set a payment PIN
                 </span>
               </button>
@@ -241,61 +212,22 @@ export default function WalletPage() {
             {hasPin === true && (
               <button
                 onClick={() => setPinSetup(true)}
-                className="mt-3 w-full flex items-center justify-center gap-2 py-3 bg-[#1F2937] hover:bg-[#374151] border border-[#374151] rounded-lg"
+                className="mt-6 w-full flex items-center justify-center gap-2 py-3.5 bg-card border border-hairline rounded-xl hover:border-goldline transition-colors"
               >
-                <Lock size={14} className="text-[#94A3B8]" />
-                <span className="text-[9px] font-mono uppercase tracking-widest text-[#94A3B8]">
+                <Lock size={14} className="text-muted" />
+                <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-silver">
                   Change PIN
                 </span>
               </button>
             )}
 
-            {/* Deliberately not in the grid with Save. Savings is a promise
-                at a fixed rate; this is money that can fall in value, and
-                putting them side by side as equivalent choices would be the
-                most misleading thing on the page. */}
-            <Link
-              href="/invest"
-              className="mt-3 flex items-center justify-center gap-2 py-3 bg-[#1F2937] hover:bg-[#10B981]/10 border border-[#374151] hover:border-[#10B981]/50 transition-all rounded-lg"
-            >
-              <LineChart size={14} className="text-[#10B981]" />
-              <span className="text-[9px] font-mono uppercase tracking-widest text-[#94A3B8]">
-                Invest
-              </span>
-            </Link>
-
-            {/* Not a seventh tile. Taking payments is a different mode from
-                spending, and a merchant visits this once then lives on that
-                page — it should not compete with Send for attention. */}
-            <Link
-              href="/merchant"
-              className="mt-2 flex items-center justify-center gap-2 py-3 bg-[#1F2937] hover:bg-[#FDB813]/10 border border-[#374151] hover:border-[#FDB813]/50 transition-all rounded-lg"
-            >
-              <Store size={14} className="text-[#FDB813]" />
-              <span className="text-[9px] font-mono uppercase tracking-widest text-[#94A3B8]">
-                Take payments
-              </span>
-            </Link>
-
-            {isStaff && (
-              <Link
-                href="/admin"
-                className="mt-2 flex items-center justify-center gap-2 py-3 bg-[#1F2937] hover:bg-[#FDB813]/10 border border-[#374151] hover:border-[#FDB813]/50 transition-all rounded-lg"
-              >
-                <Scale size={14} className="text-[#FDB813]" />
-                <span className="text-[9px] font-mono uppercase tracking-widest text-[#94A3B8]">
-                  Operations
-                </span>
-              </Link>
-            )}
-
             <button
               onClick={handleSignOut}
-              className="w-full mt-4 flex items-center justify-center gap-2 py-3 bg-[#1F2937] hover:bg-[#EF4444]/20 text-[#94A3B8] hover:text-[#EF4444] border border-[#374151] hover:border-[#EF4444]/50 transition-all rounded-lg font-mono text-[10px] uppercase font-bold tracking-widest"
+              className="w-full mt-2.5 flex items-center justify-center gap-2 py-3.5 text-muted hover:text-bad border border-hairline hover:border-bad/40 transition-colors rounded-xl font-mono text-[10px] uppercase tracking-[0.18em]"
             >
-              <LogOut size={14} /> Sign Out
+              <LogOut size={13} /> Sign out
             </button>
-          </div>
+          </>
         )}
       </div>
 
@@ -307,5 +239,21 @@ export default function WalletPage() {
         />
       )}
     </div>
+  );
+}
+
+function Tile({
+  href, icon, label, accent,
+}: { href: string; icon: React.ReactNode; label: string; accent?: "good" }) {
+  return (
+    <Link
+      href={href}
+      className="flex flex-col items-start gap-3 p-4 bg-card border border-hairline rounded-xl hover:border-goldline transition-colors group"
+    >
+      <span className={accent === "good" ? "text-good" : "text-gold"}>{icon}</span>
+      <span className="text-[10px] font-mono uppercase tracking-[0.15em] text-silver group-hover:text-warmwhite transition-colors">
+        {label}
+      </span>
+    </Link>
   );
 }

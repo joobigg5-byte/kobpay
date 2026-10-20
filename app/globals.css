@@ -1,26 +1,84 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Syne:wght@400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap');
+
+/* ===========================================================================
+   KOBPAY DESIGN TOKENS
+   Taken from the app.kobpay.app design so the live app and the design are
+   one thing rather than two. Hex values are not repeated in components any
+   more — they are referenced through these names, so a palette change is one
+   edit instead of a search across twenty files.
+   =========================================================================== */
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Surfaces, darkest to lightest */
+  --ink:        #07070A;
+  --deep:       #0E0E14;
+  --surface:    #141419;
+  --card:       #1A1A22;
+  --card2:      #1E1E28;
+
+  /* Type */
+  --white:      #F5F2EC;   /* warm white, not pure — easier to read at night */
+  --warm:       #EDE8DC;
+  --silver:     #A0A0A8;
+  --muted:      #72727A;
+
+  /* Accent */
+  --gold:       #C9A84C;
+  --gold2:      #E8C97A;
+  --gold-dim:   rgba(201,168,76,0.10);
+  --gold-line:  rgba(201,168,76,0.20);
+
+  /* Meaning */
+  --green:      #2ECC71;
+  --red:        #E74C3C;
+  --blue:       #3498DB;
+
+  --border:      rgba(255,255,255,0.055);
+  --border-gold: rgba(201,168,76,0.18);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-ink:        var(--ink);
+  --color-deep:       var(--deep);
+  --color-surface:    var(--surface);
+  --color-card:       var(--card);
+  --color-card2:      var(--card2);
+  --color-warmwhite:  var(--white);
+  --color-warm:       var(--warm);
+  --color-silver:     var(--silver);
+  --color-muted:      var(--muted);
+  --color-gold:       var(--gold);
+  --color-gold2:      var(--gold2);
+  --color-goldline:   var(--gold-line);
+  --color-hairline:   var(--border);
+  --color-good:       var(--green);
+  --color-bad:        var(--red);
+  --color-info:       var(--blue);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Cormorant for numbers and headings is what makes this read as a bank
+     rather than a crypto dashboard. Syne carries the interface, DM Mono the
+     labels. */
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-sans:    'Syne', system-ui, sans-serif;
+  --font-mono:    'DM Mono', ui-monospace, monospace;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ink);
+  color: var(--white);
+  font-family: 'Syne', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
+
+/* A large monetary figure, set the way the design sets it: light serif, tight,
+   with the fraction stepped down so the eye lands on the whole number. */
+.figure {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.figure-frac { font-size: 0.62em; }
+
+.hairline { border-color: var(--border); }

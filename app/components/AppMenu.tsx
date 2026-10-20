@@ -60,6 +60,7 @@ export default function AppMenu() {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isStaff, setIsStaff] = useState(false);
+  const [isAgent, setIsAgent] = useState(false);
   const pathname = usePathname();
 
   // The panel has to be portalled to <body>.
@@ -79,6 +80,10 @@ export default function AppMenu() {
     supabase.auth.getSession().then(({ data }) => {
       if (!data.session) return;
       supabase.rpc("am_i_staff").then(({ data: staff }) => setIsStaff(Boolean(staff)));
+      // Agents get their till. Same idea as staff: never show a door that
+      // will not open — my_agent() answers is_agent:false for everyone else.
+      supabase.rpc("my_agent").then(({ data: ag }) =>
+        setIsAgent(Boolean((ag as { is_agent?: boolean } | null)?.is_agent)));
     });
   }, []);
 
@@ -155,6 +160,18 @@ export default function AppMenu() {
                   ))}
                 </div>
               ))}
+              {isAgent && (
+                <div>
+                  <p className="text-[8px] font-mono text-[#4B5563] uppercase tracking-[0.25em] px-3 pt-4 pb-1.5">
+                    Agent
+                  </p>
+                  <Row
+                    item={{ label: "Till", href: "/agent", icon: <Store size={16} /> }}
+                    active={pathname === "/agent"}
+                    onClick={close}
+                  />
+                </div>
+              )}
               {/* Only for staff, gated on the same am_i_staff() the admin
                   readers use, so this never shows a door that will not open. */}
               {isStaff && (
