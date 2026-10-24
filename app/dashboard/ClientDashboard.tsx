@@ -339,13 +339,9 @@ export default function KPCSovereignDashboard() {
     }
   }, [isMobileMenuOpen, activeDrawer]);
 
-  const handleFeatureClick = (featureName: string) => {
-    setIsMobileMenuOpen(false);
-    toast(`Connecting to ${featureName} Protocol...`, {
-      icon: '⚡',
-      style: { borderRadius: '10px', background: '#111827', color: '#fff', border: '1px solid #1F2937', fontSize: '12px', fontFamily: 'monospace' }
-    });
-  };
+  // handleFeatureClick was removed with its last caller. It raised a toast
+  // reading "Connecting to <X> Protocol..." for buttons that then did
+  // nothing — the shape of a feature without the feature.
 
   const handleExecuteFunction = () => {
     toast.success('Done', {
@@ -514,7 +510,11 @@ export default function KPCSovereignDashboard() {
                   <motion.div className="absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white/70 to-transparent skew-x-[-20deg]" initial={{ left: '-100%' }} animate={{ left: '200%' }} transition={{ repeat: Infinity, duration: 2.5, ease: "linear", repeatDelay: 1 }} />
                   Buy KPC <Zap size={14} className="animate-pulse" />
                 </motion.button>
-                <button onClick={() => handleFeatureClick('Explorer')} className="w-1/2 px-2 sm:px-6 py-3.5 sm:py-4 bg-[#111827] text-[#F9FAFB] border border-[#1F2937] font-mono font-bold tracking-[0.06em] sm:tracking-[0.2em] text-[10px] sm:text-[11px] uppercase whitespace-nowrap hover:border-[#FDB813]/50 rounded-lg flex items-center justify-center transition-all">Explore Network</button>
+                {/* Was a button that raised a toast saying "Connecting to Explorer
+                    Protocol..." and did nothing else. There is no protocol to
+                    connect to; the thing it was pretending to open is the
+                    Ledger, which is real and public. Now it goes there. */}
+                <Link href="/explorer" className="w-1/2 px-2 sm:px-6 py-3.5 sm:py-4 bg-[#111827] text-[#F9FAFB] border border-[#1F2937] font-mono font-bold tracking-[0.06em] sm:tracking-[0.2em] text-[10px] sm:text-[11px] uppercase whitespace-nowrap hover:border-[#FDB813]/50 rounded-lg flex items-center justify-center transition-all">Explore Network</Link>
               </div>
             </div>
 
