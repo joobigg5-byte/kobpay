@@ -7,21 +7,42 @@ import { supabase } from "../lib/supabaseClient";
 import AppMenu from "../components/AppMenu";
 import { useKpcBalance } from "../lib/useKpcBalance";
 
-const COUNTRY_PROVIDERS: Record<string, { label: string; code: string; wired: boolean }[]> = {
-  Ghana: [
-    { label: "MTN Mobile Money", code: "MTN", wired: true },
-    { label: "Vodafone Cash / Telecel", code: "VOD", wired: true },
-    { label: "AirtelTigo Money", code: "ATL", wired: true },
-  ],
-  Nigeria: [{ label: "Bank Transfer", code: "NUBAN", wired: true }],
-  Kenya: [{ label: "M-Pesa", code: "MPESA", wired: false }],
-  Philippines: [{ label: "GCash", code: "GCASH", wired: false }],
-  "Côte d'Ivoire": [
-    { label: "Orange Money", code: "ORANGE", wired: false },
-    { label: "MTN Mobile Money", code: "MTN_CI", wired: false },
-  ],
-  Other: [{ label: "Contact support for your region", code: "OTHER", wired: false }],
+// WHERE THIS LIST USED TO LIVE
+//
+// It was a constant in this file: five countries, each provider carrying a
+// `wired: true | false` flag. Three problems, and the short list was the
+// least of them.
+//
+//   Opening a market was a code change and a deploy rather than a decision.
+//
+//   `wired` was a claim the frontend made with nothing behind it. This page
+//   could offer a rail the backend had no way to pay, and nothing anywhere
+//   would catch the disagreement.
+//
+//   Nothing else could see it. Admin could not report on it, limits could
+//   not vary by rail, and the database could not refuse a payout to a rail
+//   that was not live, because the database had never heard of rails.
+//
+// 047 moves it into payout_rails. This page now draws whatever is live, so
+// a new market is a row rather than a release — and assert_rail_payable()
+// is the same source of truth on the way out, so the page and the ledger
+// cannot disagree.
+//
+// Planned rails are deliberately not returned. A dropdown full of countries
+// that do not work is a list of promises; somebody whose country is missing
+// gets a box to tell us where they are instead, which is worth more.
+
+type Rail = {
+  code: string;
+  label: string;
+  kind: "mobile_money" | "bank" | "cash_agent";
+  currency: string;
+  destination_label: string;
+  destination_regex: string | null;
+  min_amount: number | null;
+  max_amount: number | null;
 };
+type RailCountry = { country: string; country_name: string; rails: Rail[] };
 
 export default function WithdrawPage() {
   const [currentUser, setCurrentUser] = useState<{ id: string; accessToken: string } | null>(null);
@@ -38,13 +59,42 @@ export default function WithdrawPage() {
 
   const { balance } = useKpcBalance(currentUser?.id ?? null);
 
-  const providersForCountry = COUNTRY_PROVIDERS[country] ?? COUNTRY_PROVIDERS.Other;
+  const [railCountries, setRailCountries] = useState<RailCountry[]>([]);
+  const [railsLoaded, setRailsLoaded] = useState(false);
+  const [askCountry, setAskCountry] = useState("");
+  const [asked, setAsked] = useState(false);
+
+  useEffect(() => {
+    supabase.rpc("public_payout_rails").then(({ data, error }) => {
+      const list = (data as { countries?: RailCountry[] } | null)?.countries;
+      if (!error && Array.isArray(list)) {
+        setRailCountries(list);
+        // Default to the first country we can actually pay rather than a
+        // hardcoded "Ghana" that may not be live.
+        if (list.length > 0 && !list.some((c) => c.country_name === country)) {
+          setCountry(list[0].country_name);
+        }
+      }
+      setRailsLoaded(true);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const providersForCountry =
+    railCountries.find((c) => c.country_name === country)?.rails ?? [];
   const selectedProviderInfo = providersForCountry.find((p) => p.code === provider);
-  const isProviderWired = selectedProviderInfo?.wired ?? false;
 
   useEffect(() => {
     setProvider(providersForCountry[0]?.code ?? "");
-  }, [country]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [country, railCountries]);
+
+  const requestCountry = async () => {
+    if (!askCountry.trim()) return;
+    await supabase.rpc("request_payout_rail", { p_country: askCountry.trim() });
+    setAsked(true);
+    setAskCountry("");
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -58,9 +108,26 @@ export default function WithdrawPage() {
     e.preventDefault();
     if (!currentUser) return;
 
-    if (payoutType === "mobile_money" && !isProviderWired) {
-      setError("This region isn't connected to a live payout processor yet.");
-      return;
+    // Every rail on the list is live, so there is nothing left to warn
+    // about. What is worth checking is the destination itself: catching a
+    // mistyped number here saves a failed payout, a reversal and a
+    // confused customer. The pattern comes from the rail's own row, so
+    // adding a market brings its number format with it.
+    if (payoutType === "mobile_money") {
+      if (!selectedProviderInfo) {
+        setError("Choose where you would like the money sent.");
+        return;
+      }
+      const pattern = selectedProviderInfo.destination_regex;
+      if (pattern) {
+        let valid = true;
+        try { valid = new RegExp(pattern).test(phone.replace(/\s/g, "")); }
+        catch { valid = true; }   // a bad pattern in the table must not block a real payout
+        if (!valid) {
+          setError(`That does not look like a ${selectedProviderInfo.label} number. Please check it.`);
+          return;
+        }
+      }
     }
 
     setIsSubmitting(true);
@@ -168,9 +235,9 @@ export default function WithdrawPage() {
                     onChange={(e) => setCountry(e.target.value)}
                     className="w-full bg-[#0A0E14] border border-[#374151] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#FDB813] transition-colors"
                   >
-                    {Object.keys(COUNTRY_PROVIDERS).map((c) => (
-                      <option key={c} value={c}>
-                        {c}
+                    {railCountries.map((c) => (
+                      <option key={c.country} value={c.country_name}>
+                        {c.country_name}
                       </option>
                     ))}
                   </select>
@@ -191,12 +258,54 @@ export default function WithdrawPage() {
                     ))}
                   </select>
                 </div>
-                {!isProviderWired && (
+                {/* Every rail offered here is live, because
+                    public_payout_rails() returns nothing else. So there is
+                    no "this might not work" warning any more — if it is on
+                    the list, it pays.
+
+                    What replaces it is the case the old page handled worst:
+                    somebody whose country is not here at all. They used to
+                    get an "Other" option that silently did nothing. */}
+                {railsLoaded && railCountries.length === 0 && (
                   <div className="bg-[#FDB813]/10 border border-[#FDB813]/30 p-4 rounded-xl flex items-start gap-3">
                     <AlertCircle className="text-[#FDB813] shrink-0" size={16} />
-                    <p className="text-[10px] font-mono text-[#FDB813] leading-relaxed uppercase">
-                      This network isn't connected to a live payout processor yet. Submitting will not actually send money — support for this region is coming soon.
+                    <p className="text-[11px] text-[#FDB813] leading-relaxed">
+                      Cash withdrawals are not open yet. Your KPC is safe and you can
+                      still send and spend it.
                     </p>
+                  </div>
+                )}
+
+                {railsLoaded && railCountries.length > 0 && (
+                  <div className="bg-[#111827] border border-[#1F2937] p-4 rounded-xl">
+                    {asked ? (
+                      <p className="text-[11px] text-[#10B981] leading-relaxed">
+                        Noted — we will let you know when we can pay out there.
+                      </p>
+                    ) : (
+                      <>
+                        <p className="text-[11px] text-[#94A3B8] leading-relaxed mb-3">
+                          Not seeing your country? Tell us where you are and we will
+                          take it into account when we open the next one.
+                        </p>
+                        <div className="flex gap-2">
+                          <input
+                            value={askCountry}
+                            onChange={(e) => setAskCountry(e.target.value)}
+                            placeholder="Your country"
+                            maxLength={56}
+                            className="flex-1 min-w-0 bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#FDB813]/40"
+                          />
+                          <button
+                            type="button"
+                            onClick={requestCountry}
+                            className="px-4 py-2.5 border border-[#1F2937] rounded-lg text-[10px] font-mono uppercase tracking-[0.15em] text-[#94A3B8] hover:border-[#FDB813]/40 hover:text-white shrink-0"
+                          >
+                            Tell us
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
                 <div className="space-y-2">

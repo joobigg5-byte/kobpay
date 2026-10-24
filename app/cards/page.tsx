@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
-import { ArrowLeft, CreditCard, Snowflake, Plus, AlertTriangle, Lock } from "lucide-react";
+import { ArrowLeft, CreditCard, Snowflake, Plus, AlertTriangle, Lock, X } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import AppMenu from "../components/AppMenu";
+import CardFace from "../components/CardFace";
 
 // A card per thing, each with its own cap.
 //
@@ -65,6 +67,7 @@ export default function CardsPage() {
   const [busy, setBusy] = useState(false);
   const [name, setName] = useState("");
   const [limit, setLimit] = useState("");
+  const [open, setOpen] = useState<Card | null>(null);
 
   const load = useCallback(() => {
     supabase.rpc("my_cards").then(({ data: d, error }) => {
@@ -169,7 +172,7 @@ export default function CardsPage() {
 
             <div className="space-y-3 mb-8">
               {(data?.cards ?? []).map((c) => (
-                <CardRow key={c.id} card={c} busy={busy} onStatus={setStatus} />
+                <CardRow key={c.id} card={c} busy={busy} onStatus={setStatus} onOpen={() => setOpen(c)} />
               ))}
               {(data?.cards ?? []).length === 0 && (
                 <div className="bg-[#111827] border border-[#1F2937] rounded-2xl p-8 text-center">
@@ -223,12 +226,81 @@ export default function CardsPage() {
           </>
         )}
       </div>
+
+      {open && <CardSheet card={open} busy={busy} onStatus={setStatus} onClose={() => setOpen(null)} />}
     </div>
   );
 }
 
-function CardRow({ card, busy, onStatus }: {
-  card: Card; busy: boolean; onStatus: (id: string, status: string) => void;
+// Portalled to document.body on purpose. position:fixed resolves against the
+// nearest ancestor with a transform or backdrop-filter, and several of this
+// app's headers have one — that is what collapsed the first menu panel to
+// 63px wide.
+function CardSheet({ card, busy, onStatus, onClose }: {
+  card: Card; busy: boolean; onStatus: (id: string, s: string) => void; onClose: () => void;
+}) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [onClose]);
+
+  if (!mounted) return null;
+  const frozen = card.status === "frozen";
+
+  return createPortal(
+    <div className="fixed inset-0 z-[300] flex items-end sm:items-center justify-center">
+      <div className="absolute inset-0 bg-black/70" onClick={onClose} />
+      <div className="relative w-full sm:max-w-sm bg-[#111827] border border-[#1F2937] rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 max-h-[92dvh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-[11px] font-black uppercase tracking-widest">Your card</h2>
+          <button onClick={onClose} aria-label="Close" className="text-[#6B7280] hover:text-white p-1">
+            <X size={18} />
+          </button>
+        </div>
+
+        <CardFace
+          name={card.name}
+          last4={card.last4}
+          expiry={card.expiry}
+          status={card.status}
+          limit={n(card.limit)}
+          spent={n(card.spent)}
+        />
+
+        <div className="flex gap-2 mt-6">
+          {card.issued && (
+            <button
+              onClick={() => { onStatus(card.id, frozen ? "active" : "frozen"); onClose(); }}
+              disabled={busy}
+              className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#0A0E14] border border-[#1F2937] rounded-xl text-[10px] font-mono uppercase tracking-[0.15em] text-[#94A3B8] hover:border-[#22D3EE]/40 disabled:opacity-50"
+            >
+              <Snowflake size={12} /> {frozen ? "Turn on" : "Freeze"}
+            </button>
+          )}
+          <button
+            onClick={() => { onStatus(card.id, "closed"); onClose(); }}
+            disabled={busy}
+            className="flex-1 py-3 border border-[#1F2937] rounded-xl text-[10px] font-mono uppercase tracking-[0.15em] text-[#6B7280] hover:text-[#EF4444] hover:border-[#EF4444]/40 disabled:opacity-50"
+          >
+            Close card
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+function CardRow({ card, busy, onStatus, onOpen }: {
+  card: Card; busy: boolean; onStatus: (id: string, status: string) => void; onOpen: () => void;
 }) {
   const pct = card.limit > 0 ? Math.min((n(card.spent) / n(card.limit)) * 100, 100) : 0;
   const frozen = card.status === "frozen";
@@ -236,12 +308,17 @@ function CardRow({ card, busy, onStatus }: {
   return (
     <div className={`bg-[#111827] border rounded-2xl p-5 ${frozen ? "border-[#22D3EE]/30" : "border-[#1F2937]"}`}>
       <div className="flex items-start justify-between gap-3 mb-4">
-        <div className="min-w-0">
-          <p className="font-bold text-sm truncate">{card.name}</p>
+        {/* Tapping the card opens its face. The whole left side is the
+            target, because a small chevron is a poor thing to hit on a
+            phone. */}
+        <button onClick={onOpen} className="min-w-0 text-left group">
+          <p className="font-bold text-sm truncate group-hover:text-[#FDB813] transition-colors">
+            {card.name}
+          </p>
           <p className="text-[10px] font-mono text-[#6B7280] uppercase tracking-[0.15em] mt-1">
             {card.last4 ? `•••• ${card.last4}${card.expiry ? ` · ${card.expiry}` : ""}` : "No number yet"}
           </p>
-        </div>
+        </button>
         <span className={`text-[9px] font-mono uppercase tracking-[0.15em] px-2.5 py-1 rounded-full shrink-0 ${
           frozen ? "bg-[#22D3EE]/10 text-[#22D3EE]"
           : card.status === "active" ? "bg-[#10B981]/10 text-[#10B981]"
