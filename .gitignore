@@ -45,3 +45,6 @@ _audit.txt
 _schema.sql
 
 *.bak-*
+
+# installer backups
+*.backup
