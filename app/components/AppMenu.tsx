@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import {
   Menu, X, Wallet, Send, PiggyBank, LineChart, Users, ShieldCheck, Gauge,
   Receipt, ShoppingCart, Store, TrendingUp, Activity, Scale, LayoutDashboard, HandCoins,
+  CreditCard,
 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 
@@ -30,6 +31,7 @@ const GROUPS: { group: string; items: Item[] }[] = [
     items: [
       { label: "Wallet", href: "/wallet", icon: <Wallet size={16} /> },
       { label: "Send", href: "/send", icon: <Send size={16} /> },
+      { label: "Cards", href: "/cards", icon: <CreditCard size={16} /> },
       { label: "Savings", href: "/savings", icon: <PiggyBank size={16} /> },
       { label: "Invest", href: "/invest", icon: <LineChart size={16} /> },
       { label: "Circles", href: "/circles", icon: <Users size={16} /> },
