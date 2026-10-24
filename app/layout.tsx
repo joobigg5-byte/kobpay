@@ -14,7 +14,7 @@ const inter = { className: "" };
 export const metadata: Metadata = {
   title: "KobPay",
   description:
-    "Hold your money as dollars and send it for free. One KPC is one US dollar, backed by money we hold and published daily.",
+    "Hold your money as dollars and send it for free. One KPC is one US dollar.",
 };
 
 export default function RootLayout({
