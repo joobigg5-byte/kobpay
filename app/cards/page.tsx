@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { ArrowLeft, CreditCard, Snowflake, Plus, AlertTriangle, Lock, X } from "lucide-react";
+import { ArrowLeft, CreditCard, Snowflake, Plus, AlertTriangle, Lock, X, Check } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import AppMenu from "../components/AppMenu";
 import CardFace from "../components/CardFace";
@@ -37,6 +37,11 @@ type Card = {
   last4: string | null;
   expiry: string | null;
   issued: boolean;
+  valid_until: string | null;
+  // Both computed in the database, so the browser's clock cannot disagree
+  // with the one that actually decides whether a card still works.
+  ended: boolean;
+  days_left: number | null;
   created_at: string;
 };
 type Data = { cards: Card[]; held: number; issuing_live: boolean };
@@ -67,6 +72,8 @@ export default function CardsPage() {
   const [busy, setBusy] = useState(false);
   const [name, setName] = useState("");
   const [limit, setLimit] = useState("");
+  const [days, setDays] = useState("");
+  const [singleUse, setSingleUse] = useState(false);
   const [open, setOpen] = useState<Card | null>(null);
 
   const load = useCallback(() => {
@@ -93,12 +100,19 @@ export default function CardsPage() {
     if (!name.trim()) { setNote("Give the card a name, so you can tell it from the others."); return; }
     if (!Number.isFinite(amount) || amount <= 0) { setNote("Set a spending limit for this card."); return; }
     setBusy(true);
+    const d = Number(days);
     const { error } = await supabase.rpc("create_card", {
-      p_name: name.trim(), p_limit: amount, p_window: "per_month",
+      p_name: name.trim(),
+      p_limit: amount,
+      p_window: "per_month",
+      // Blank means no end date, which is the common case. Only send a
+      // number when one was actually typed.
+      p_valid_days: days.trim() && Number.isFinite(d) && d > 0 ? Math.floor(d) : null,
+      p_single_use: singleUse,
     });
     setBusy(false);
     if (error) { setNote(friendly(error.message)); return; }
-    setName(""); setLimit("");
+    setName(""); setLimit(""); setDays(""); setSingleUse(false);
     load();
   };
 
@@ -210,10 +224,55 @@ export default function CardsPage() {
                 placeholder="15"
                 className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#FDB813]/40 mb-2"
               />
-              <p className="text-[10px] text-[#6B7280] mb-5">
+              <p className="text-[10px] text-[#6B7280] mb-4">
                 Nothing can take more than this from the card in a month, even if you
                 are asked to pay more.
               </p>
+
+              <label className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-2">
+                Stop working after (optional)
+              </label>
+              <div className="flex items-center gap-2 mb-2">
+                <input
+                  value={days}
+                  onChange={(e) => setDays(e.target.value.replace(/[^0-9]/g, ""))}
+                  inputMode="numeric"
+                  placeholder="30"
+                  className="w-24 bg-[#0A0E14] border border-[#1F2937] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#FDB813]/40"
+                />
+                <span className="text-[11px] text-[#6B7280]">days</span>
+              </div>
+              <p className="text-[10px] text-[#6B7280] mb-4">
+                Leave this blank for a card with no end date. A date is the thing that
+                stops a free trial charging you in three months.
+              </p>
+
+              {/* The strongest of the three. A number that is worthless the
+                  instant after it has done its job means a shop breached
+                  next month is a breach of nothing. */}
+              <button
+                type="button"
+                onClick={() => setSingleUse(!singleUse)}
+                aria-pressed={singleUse}
+                className={`w-full flex items-start gap-3 p-4 rounded-xl border text-left mb-5 transition-colors ${
+                  singleUse ? "border-[#FDB813]/40 bg-[#FDB813]/5" : "border-[#1F2937] bg-[#0A0E14]"
+                }`}
+              >
+                <span className={`mt-0.5 w-4 h-4 rounded border shrink-0 flex items-center justify-center ${
+                  singleUse ? "bg-[#FDB813] border-[#FDB813]" : "border-[#374151]"
+                }`}>
+                  {singleUse && <Check size={11} className="text-[#0A0E14]" />}
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[11px] font-bold text-white mb-1">
+                    Use it once, then stop
+                  </span>
+                  <span className="block text-[10px] text-[#6B7280] leading-relaxed">
+                    The card stops working as soon as one payment goes through. Good for
+                    a shop you are buying from once and do not want holding your details.
+                  </span>
+                </span>
+              </button>
 
               <button
                 onClick={create}
@@ -320,22 +379,33 @@ function CardRow({ card, busy, onStatus, onOpen }: {
           </p>
         </button>
         <span className={`text-[9px] font-mono uppercase tracking-[0.15em] px-2.5 py-1 rounded-full shrink-0 ${
-          frozen ? "bg-[#22D3EE]/10 text-[#22D3EE]"
+          card.ended ? "bg-[#1F2937] text-[#6B7280]"
+          : frozen ? "bg-[#22D3EE]/10 text-[#22D3EE]"
           : card.status === "active" ? "bg-[#10B981]/10 text-[#10B981]"
           : "bg-[#1F2937] text-[#94A3B8]"
         }`}>
-          {frozen ? "Frozen" : card.status === "active" ? "On" : "Waiting"}
+          {card.ended ? "Ended" : frozen ? "Frozen" : card.status === "active" ? "On" : "Waiting"}
         </span>
       </div>
 
       <div className="h-1.5 bg-[#0A0E14] rounded-full overflow-hidden border border-[#1F2937] mb-2">
         <div className="h-full bg-[#FDB813] transition-all" style={{ width: `${pct}%` }} />
       </div>
-      <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mb-4">
+      <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mb-1.5">
         {money(card.spent)} of {money(card.limit)} KPC used this month
         {" · "}
         <span className="text-white">{money(card.remaining)} left</span>
       </p>
+      {card.valid_until && (
+        <p className={`text-[10px] font-mono uppercase tracking-[0.15em] mb-4 ${card.ended ? "text-[#6B7280]" : "text-[#94A3B8]"}`}>
+          {card.ended
+            ? `Stopped working ${new Date(card.valid_until).toLocaleDateString()}`
+            : card.days_left === 0
+            ? "Stops working today"
+            : `Stops working in ${card.days_left} day${card.days_left === 1 ? "" : "s"}`}
+        </p>
+      )}
+      {!card.valid_until && <div className="mb-4" />}
 
       <div className="flex gap-2">
         {/* An unissued card has nothing to freeze, so the control is simply
