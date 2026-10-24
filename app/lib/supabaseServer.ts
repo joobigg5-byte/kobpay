@@ -12,7 +12,7 @@
 // `next build` imports every route module during "Collecting page data", so
 // that line runs at BUILD time, not at request time. If the variable is not
 // present in the build environment, createClient throws "supabaseUrl is
-// required" and the whole build fails - naming a route nobody touched, for a
+// required" and the whole build fails — naming a route nobody touched, for a
 // reason unrelated to the commit.
 //
 // That is what killed the kpc-upgrade preview build: the variables existed but
@@ -20,14 +20,14 @@
 // /api/apps/payout brought the deployment down.
 //
 // The `!` suffix made it worse. It told TypeScript the values were definitely
-// there, so the compiler never raised the question that the build then
-// answered the hard way.
+// there, so the compiler never raised the question that the build then answered
+// the hard way.
 //
 // HOW THIS FIXES IT
 //
 // Each export is a Proxy. Nothing is constructed until a property is read, and
-// that only happens inside a request handler. Call sites are unchanged -
-// supabaseAdmin.from("accounts") reads exactly as before - so each route needs
+// that only happens inside a request handler. Call sites are unchanged —
+// supabaseAdmin.from("accounts") reads exactly as before — so each route needs
 // only its header replaced, with no behavioural difference at runtime.
 //
 // If a variable really is missing, the failure now arrives at request time,
@@ -67,7 +67,7 @@ function lazy<T extends object>(make: () => T): T {
 /**
  * Service role. Bypasses RLS and is the only identity that may call
  * record_ledger_transaction (004 revoked it from anon and authenticated).
- * Server only - this key must never reach a browser bundle.
+ * Server only — this key must never reach a browser bundle.
  */
 export const supabaseAdmin: SupabaseClient = lazy(() =>
   createClient(
@@ -92,7 +92,7 @@ export const supabaseAuth: SupabaseClient = lazy(() =>
 /**
  * A client that acts AS the caller, so RLS applies and auth.uid() is them.
  * Anything calling a function that checks auth.uid() needs this rather than
- * supabaseAdmin - the savings functions, for instance, where the service role
+ * supabaseAdmin — the savings functions, for instance, where the service role
  * would be the wrong identity entirely.
  */
 export function supabaseAs(accessToken: string): SupabaseClient {

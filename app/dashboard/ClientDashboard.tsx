@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
@@ -17,10 +18,17 @@ import {
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend 
 } from 'recharts';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import toast, { Toaster } from 'react-hot-toast';
 import BuyKpcModal from '../components/BuyKpcModal';
 import { supabase } from '../lib/supabaseClient';
+
+// Loaded only when this component renders, in its own chunk. ssr:false
+// because wagmi and rainbowkit reach for window during render, and because
+// a wallet connection is a client-side concern by definition.
+const WalletConnect = dynamic(() => import('../components/WalletConnect'), {
+  ssr: false,
+  loading: () => <span className="w-[7.5rem] h-[34px]" aria-hidden />,
+});
 
 // --- HYDRATION SHIELD ---
 const useIsMounted = () => {
@@ -457,41 +465,21 @@ export default function KPCSovereignDashboard() {
               </AnimatePresence>
             </div>
             
-            <ConnectButton.Custom>
-              {({ account, chain, openAccountModal, openChainModal, openConnectModal, mounted }) => {
-                const ready = mounted;
-                const connected = ready && account && chain;
-                return (
-                  <div {...(!ready && { 'aria-hidden': true, style: { opacity: 0, pointerEvents: 'none', userSelect: 'none' }})}>
-                    {(() => {
-                      if (!connected) {
-                        return (
-                          <button onClick={openConnectModal} className="text-[9px] sm:text-[10px] font-mono font-bold tracking-[0.1em] sm:tracking-[0.2em] bg-[#FDB813] text-[#0A0E14] px-3 sm:px-6 py-2 rounded uppercase whitespace-nowrap shadow-[0_0_15px_rgba(253,184,19,0.3)] hover:bg-[#F59E0B] transition-colors">
-                            Launch Wallet
-                          </button>
-                        );
-                      }
-                      return (
-                        <div className="flex gap-3">
-                          <button onClick={openChainModal} className="hidden sm:flex items-center text-[10px] font-mono border border-[#1F2937] px-3 py-2 rounded text-[#94A3B8] hover:bg-[#1F2937] transition-all">
-                            {chain.hasIcon && (
-                              <div style={{ background: chain.iconBackground, width: 14, height: 14, borderRadius: 999, overflow: 'hidden', display: 'inline-block', marginRight: 6 }}>
-                                {chain.iconUrl && (<img alt={chain.name ?? 'Chain icon'} src={chain.iconUrl} style={{ width: 14, height: 14 }} />)}
-                              </div>
-                            )}
-                            {chain.name}
-                          </button>
-                          <button onClick={openAccountModal} className="text-[10px] font-mono font-bold bg-[#1F2937] text-white px-4 py-2 rounded border border-[#FDB813]/30 hover:border-[#FDB813] transition-all">
-                            {account.displayName}
-                            {account.displayBalance ? ` (${account.displayBalance})` : ''}
-                          </button>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                );
-              }}
-            </ConnectButton.Custom>
+            {/* Two separate things, which the old page conflated into one
+                gold button labelled "Launch Wallet" that opened MetaMask.
+                Somebody clicking the primary action on a money app wants
+                their money, so that is what it does now. Connecting an
+                external wallet is still here, as its own control, loaded
+                only when someone asks for it. */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <WalletConnect />
+              <Link
+                href="/wallet"
+                className="text-[9px] sm:text-[10px] font-mono font-bold tracking-[0.1em] sm:tracking-[0.2em] bg-[#FDB813] text-[#0A0E14] px-3 sm:px-6 py-2 rounded uppercase whitespace-nowrap shadow-[0_0_15px_rgba(253,184,19,0.3)] hover:bg-[#F59E0B] transition-colors"
+              >
+                Launch Wallet
+              </Link>
+            </div>
           </div>
         </header>
 

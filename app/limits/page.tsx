@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, ShieldCheck, Clock, Loader2, Check } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import AppMenu from "../components/AppMenu";
+import PasskeyCard from "../components/PasskeyCard";
 import toast, { Toaster } from "react-hot-toast";
 
 type NextTier = {
@@ -286,6 +287,12 @@ export default function LimitsPage() {
                 <Check size={14} /> You are on the highest tier
               </div>
             )}
+
+            {/* Verification and security belong on the same screen: both
+                answer "what stands between somebody and my money". */}
+            <div className="mt-5">
+              <PasskeyCard />
+            </div>
           </>
         )}
       </div>
