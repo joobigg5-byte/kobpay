@@ -43,22 +43,28 @@ function RollingNum({ value, decimals = 0, prefix = "", suffix = "" }: { value: 
 }
 
 // --- INITIAL CHART DATA ---
-const initialChartData = [
-  { month: 'Jan 24', KPC: 1.00, GHS: 1.00, NGN: 1.00, ZAR: 1.00 },
-  { month: 'Apr 24', KPC: 1.00, GHS: 0.88, NGN: 0.75, ZAR: 0.92 },
-  { month: 'Jul 24', KPC: 1.00, GHS: 0.76, NGN: 0.55, ZAR: 0.85 },
-  { month: 'Oct 24', KPC: 1.00, GHS: 0.65, NGN: 0.40, ZAR: 0.78 },
-  { month: 'Jan 25', KPC: 1.00, GHS: 0.60, NGN: 0.35, ZAR: 0.75 },
-  { month: 'Current', KPC: 1.00, GHS: 0.55, NGN: 0.30, ZAR: 0.70 },
-];
+// WHAT THIS CHART USED TO BE
+//
+// A hardcoded six-point series — GHS ending at 0.55, NGN at 0.30, ZAR at
+// 0.70 — that nobody measured, on an axis labelled in percent, on the front
+// page of a financial product. The ZAR figure was the clearest tell: the
+// rand was broadly flat against the dollar over the period the chart showed
+// it losing 30%. And a setInterval added a random walk to all three series
+// every 2.5 seconds, so it was not merely wrong once, it was animated.
+//
+// 007 has been writing every rate change to fx_rate_history since the day it
+// went in. 043 adds a reader. The chart now draws what was actually
+// recorded, and says how far back the recording goes.
+type RatePoint = { day: string; index: number };
+type RateSeries = { currency: string; name: string; points: number; from: string; to: string; series: RatePoint[] };
 
-const initialTxns = [
-  { id: "tx1", hash: "0x8f...3c9a", from: "0x12...99a1", to: "0x44...bb2c", amount: 1500, type: "TRANSFER", app: "KobPay Coins", time: "Just now" },
-  { id: "tx2", hash: "0x2a...11f8", from: "0x77...ee33", to: "0x99...dd44", amount: 32, type: "SUBSCRIPTION", app: "KobBot", time: "2s ago" },
-  { id: "tx3", hash: "0x9c...bb21", from: "0x22...cc11", to: "0x55...ff88", amount: 45000, type: "ESCROW", app: "Ready Markets", time: "5s ago" },
-  { id: "tx4", hash: "0x1d...aa44", from: "0x88...dd22", to: "0x33...aa99", amount: 250, type: "REWARD", app: "KobPlay", time: "8s ago" },
-  { id: "tx5", hash: "0x5e...cc77", from: "0x44...aa55", to: "0x11...bb66", amount: 8900, type: "TRANSFER", app: "Direct", time: "12s ago" },
-];
+// The currencies the chart argues about. Each one has to be priced and
+// recorded before it draws; anything missing is simply absent rather than
+// filled in.
+const CHART_CODES = ['GHS', 'NGN', 'KES', 'ZAR'];
+const CHART_COLOURS: Record<string, string> = {
+  GHS: '#EF4444', NGN: '#22D3EE', KES: '#A78BFA', ZAR: '#F97316',
+};
 
 // Was six invented products carrying invented metrics, scrolling across the
 // top of a live payments site:
@@ -76,7 +82,10 @@ const initialTxns = [
 // out rather than printed as "0 countries", so the banner is short before
 // launch and grows on its own.
 const staticTickerItems = [
-  "⚡ 1 KPC = $1.00, always",
+  // "always" was a promise no issuer can keep unconditionally — it survives
+  // insolvency, which nothing does. "Backed 1:1" is the claim that is both
+  // true and checkable, and the reserve panel on this page checks it.
+  "⚡ 1 KPC = $1.00, backed 1:1",
   "💸 Sending KPC is free",
   "🔍 Reserve published on the Ledger page",
 ];
@@ -95,7 +104,7 @@ const staticTickerItems = [
 // stablecoin know what this means, and is it actually true of KobPay?
 const drawerContent: Record<string, any> = {
   "buy": { title: "Add money", subtitle: "Turn cash into KPC", icon: <Coins className="text-[#FDB813]" size={24} />, color: "text-[#FDB813]", bg: "bg-[#FDB813]/10", border: "border-[#FDB813]/30", details: "Pay with mobile money or a card and the same value lands in your wallet as KPC. One KPC costs one dollar.", metrics: [] },
-  "live_price": { title: "What 1 KPC is worth", subtitle: "Always one dollar", icon: <Activity className="text-[#10B981]" size={24} />, color: "text-[#10B981]", bg: "bg-[#10B981]/10", border: "border-[#10B981]/30", details: "KPC does not go up and down. One KPC is one US dollar, and we hold money to back every one that exists. The Ledger page shows what we hold.", metrics: [] },
+  "live_price": { title: "What 1 KPC is worth", subtitle: "One dollar, backed", icon: <Activity className="text-[#10B981]" size={24} />, color: "text-[#10B981]", bg: "bg-[#10B981]/10", border: "border-[#10B981]/30", details: "KPC does not go up and down. One KPC is one US dollar, and we hold money to back every one that exists. The Ledger page shows what we hold.", metrics: [] },
   "volume": { title: "Moved in 24 hours", subtitle: "Between wallets", icon: <BarChart className="text-[#22D3EE]" size={24} />, color: "text-[#22D3EE]", bg: "bg-[#22D3EE]/10", border: "border-[#22D3EE]/30", details: "How much KPC people sent each other in the last day, counted from the ledger.", metrics: [] },
   "market_cap": { title: "KPC in existence", subtitle: "All wallets and savings", icon: <PieChart className="text-[#FDB813]" size={24} />, color: "text-[#FDB813]", bg: "bg-[#FDB813]/10", border: "border-[#FDB813]/30", details: "Every KPC that exists. Each one is a dollar we owe somebody, so this is also the size of what we have to back.", metrics: [] },
   "txns": { title: "Payments today", subtitle: "In the last 24 hours", icon: <Zap className="text-[#8B5CF6]" size={24} />, color: "text-[#8B5CF6]", bg: "bg-[#8B5CF6]/10", border: "border-[#8B5CF6]/30", details: "How many payments went through in the last day.", metrics: [] },
@@ -128,7 +137,10 @@ export default function KPCSovereignDashboard() {
     });
   }, []);
   
-  const [liveChartData, setLiveChartData] = useState(initialChartData);
+  // Empty until public_rate_history() answers. An empty chart that fills is
+  // honest; a full chart that was never measured is not.
+  const [rateHistory, setRateHistory] = useState<RateSeries[]>([]);
+  const [recordingSince, setRecordingSince] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   // Staff-only nav entry. am_i_staff() is the same gate the admin readers
   // use, so this can never show a door that will not open — and the page
@@ -142,7 +154,27 @@ export default function KPCSovereignDashboard() {
     });
   }, []);
   const [activeDrawer, setActiveDrawer] = useState<string | null>(null);
-  const [liveTxns, setLiveTxns] = useState(initialTxns);
+  // WHAT STOOD HERE
+  //
+  // A "Live Feed" that manufactured a transaction every second or so: a
+  // random 0x hash, random from/to addresses, a random amount up to 25,000
+  // KPC, attributed at random to KobBot, Ready Markets, KobPlay and Axiom.
+  //
+  // Total KPC in existence is 100. The feed showed single transfers of two
+  // hundred times the entire supply, continuously, under a pulsing "LIVE"
+  // dot, on the front page of a payments company.
+  //
+  // It is not replaced with a real transaction feed. With a handful of
+  // customers, publishing every amount and timestamp would expose those
+  // people's financial activity to anyone who loaded the page. Public
+  // blockchains do that because pseudonymity is the bargain; a bank's
+  // customers never agreed to it.
+  //
+  // What replaces it is the reserve: what exists, what backs it, and whether
+  // the backing covers it. Those are already public through public_stats()
+  // and public_reserve(), they are the numbers that should decide whether
+  // somebody trusts this, and they identify nobody.
+  const [reserve, setReserve] = useState<Record<string, number | string> | null>(null);
 
   // Was: the latest Ethereum block height, polled from a public RPC and
   // printed as "MAINNET: #26227870" — a number from a chain KobPay does not
@@ -247,45 +279,49 @@ export default function KPCSovereignDashboard() {
     return () => clearInterval(refresh);
   }, []);
 
+  // Recorded rate history for the chart, and the reserve for the panel beside
+  // it. Both are read once — neither changes second to second, and pretending
+  // otherwise with a timer is how the previous version ended up animating
+  // numbers nobody had measured.
   useEffect(() => {
-    const chartInterval = setInterval(() => {
-      setLiveChartData(prev => {
-        const newData = [...prev];
-        const last = { ...newData[newData.length - 1] };
-        last.GHS = Math.max(0.1, last.GHS + (Math.random() * 0.02 - 0.01));
-        last.NGN = Math.max(0.1, last.NGN + (Math.random() * 0.02 - 0.01));
-        last.ZAR = Math.max(0.1, last.ZAR + (Math.random() * 0.02 - 0.01));
-        newData[newData.length - 1] = last;
-        return newData;
+    supabase.rpc("public_rate_history", { p_codes: CHART_CODES, p_days: 365 })
+      .then(({ data, error }) => {
+        if (error || !data) return;
+        const d = data as { currencies?: RateSeries[]; recording_since?: string };
+        setRateHistory(Array.isArray(d.currencies) ? d.currencies : []);
+        setRecordingSince(d.recording_since ?? null);
       });
-    }, 2500);
 
-    const generateTxn = () => {
-      setLiveTxns(prev => {
-        const types = ["TRANSFER", "ESCROW", "SWAP", "MINT", "REWARD"];
-        const apps = ["KobPay Coins", "Ready Markets", "KobPlay", "Axiom", "Direct"];
-        const newTxn = {
-          id: `tx-${Date.now()}`,
-          hash: `0x${Math.random().toString(16).slice(2, 10)}`,
-          from: `0x${Math.random().toString(16).slice(2, 6)}..${Math.random().toString(16).slice(2, 6)}`,
-          to: `0x${Math.random().toString(16).slice(2, 6)}..${Math.random().toString(16).slice(2, 6)}`,
-          amount: Math.floor(Math.random() * 25000) + 10,
-          type: types[Math.floor(Math.random() * types.length)],
-          app: apps[Math.floor(Math.random() * apps.length)],
-          time: "Just now"
-        };
-        return [newTxn, ...prev.slice(0, 5)];
-      });
-      setTimeout(generateTxn, Math.random() * 1700 + 800);
-    };
-
-    const initialTimeout = setTimeout(generateTxn, 1000);
-
-    return () => {
-      clearInterval(chartInterval);
-      clearTimeout(initialTimeout);
-    };
+    supabase.rpc("public_reserve").then(({ data, error }) => {
+      if (error || !data) return;
+      setReserve(data as Record<string, number | string>);
+    });
   }, []);
+
+  // Fold the per-currency series into one row per day, which is the shape
+  // recharts wants. A day with no recorded rate carries the previous value
+  // forward rather than dropping to zero — the rate did not change, so there
+  // was nothing to record, and a gap would read as a crash.
+  const chartRows = React.useMemo(() => {
+    if (rateHistory.length === 0) return [];
+    const days = Array.from(new Set(
+      rateHistory.flatMap(s => s.series.map(p => p.day))
+    )).sort();
+    const last: Record<string, number> = {};
+    return days.map(day => {
+      const row: Record<string, string | number> = { day, KPC: 1 };
+      for (const s of rateHistory) {
+        const hit = s.series.find(p => p.day === day);
+        if (hit) last[s.currency] = Number(hit.index);
+        if (last[s.currency] !== undefined) row[s.currency] = last[s.currency];
+      }
+      return row;
+    });
+  }, [rateHistory]);
+
+  // Two points is a line between two dots, not a trend. Below this the panel
+  // says what it has rather than drawing a shape the data cannot support.
+  const haveTrend = chartRows.length >= 3;
 
   useEffect(() => {
     if (isMobileMenuOpen || activeDrawer) {
@@ -470,7 +506,7 @@ export default function KPCSovereignDashboard() {
             
             <div className="bg-[#0A0E14]/80 backdrop-blur-xl border border-[#1F2937] rounded-2xl sm:rounded-3xl p-5 sm:p-8 relative overflow-hidden group shadow-[0_0_80px_rgba(0,0,0,0.8)] max-w-4xl mt-0 sm:mt-2 flex flex-col items-center justify-center gap-4 sm:gap-5 text-center mx-auto">
               <div className="absolute top-1/2 left-1/2 w-full lg:w-[80%] h-64 -translate-y-1/2 -translate-x-1/2 bg-gradient-to-r from-[#AA771C]/20 via-[#AA771C]/5 to-transparent blur-[100px]" />
-              <div className="relative z-10 inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 border border-[#FDB813]/30 rounded-full bg-[#0A0E14]/60"><Shield size={12} className="text-[#FDB813] shrink-0" /><span className="text-[9px] sm:text-[10px] font-mono tracking-[0.12em] sm:tracking-[0.2em] text-[#FDB813] uppercase font-bold">One KPC is one US dollar. Always.</span></div>
+              <div className="relative z-10 inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 border border-[#FDB813]/30 rounded-full bg-[#0A0E14]/60"><Shield size={12} className="text-[#FDB813] shrink-0" /><span className="text-[9px] sm:text-[10px] font-mono tracking-[0.12em] sm:tracking-[0.2em] text-[#FDB813] uppercase font-bold">One KPC is one US dollar, backed by money we hold.</span></div>
               <div className="relative z-10 w-full max-w-xl aspect-video rounded-xl overflow-hidden border border-[#FDB813]/30 bg-black shadow-[0_0_50px_rgba(253,184,19,0.1)]"><video src="/kpc-video.mp4" autoPlay loop muted playsInline className="w-full h-full object-cover scale-105" /></div>
               <div className="relative z-10 flex gap-3 sm:gap-4 w-full justify-center max-w-md">
                 <motion.button 
@@ -516,48 +552,110 @@ export default function KPCSovereignDashboard() {
                   <div><h3 className="text-base sm:text-xl font-black uppercase tracking-widest mb-2 flex items-center gap-2 sm:gap-3"><Activity className="text-[#FDB813]" size={20} /> What a dollar is worth</h3><p className="text-[10px] font-mono text-[#94A3B8] tracking-widest uppercase">Local currencies lose value against the dollar. KPC does not.</p></div>
                 </div>
                 <div className="h-[240px] sm:h-[300px] lg:h-[350px] w-full font-mono text-[9px] sm:text-[10px]">
-                  <ResponsiveContainer width="100%" height="100%"><LineChart data={liveChartData}><CartesianGrid strokeDasharray="3 3" stroke="#1F2937" vertical={false} /><XAxis dataKey="month" stroke="#94A3B8" /><YAxis stroke="#94A3B8" tickFormatter={(val: number) => `${(val * 100).toFixed(0)}%`} /><Tooltip contentStyle={{ backgroundColor: '#0A0E14', border: '1px solid #1F2937' }} /><Legend /><Line type="monotone" dataKey="KPC" name="🪙 KPC" stroke="#FDB813" strokeWidth={3} dot={false} /><Line type="monotone" dataKey="GHS" name="🇬🇭 GHS" stroke="#EF4444" strokeWidth={2} strokeOpacity={0.6} dot={false} /><Line type="monotone" dataKey="NGN" name="🇳🇬 NGN" stroke="#22D3EE" strokeWidth={2} strokeOpacity={0.6} dot={false} /></LineChart></ResponsiveContainer>
+                  {haveTrend ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={chartRows}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#1F2937" vertical={false} />
+                        <XAxis dataKey="day" stroke="#94A3B8" />
+                        <YAxis stroke="#94A3B8" domain={['auto', 'auto']} tickFormatter={(val: number) => `${(val * 100).toFixed(0)}%`} />
+                        <Tooltip
+                          contentStyle={{ backgroundColor: '#0A0E14', border: '1px solid #1F2937' }}
+                          formatter={(val) => `${(Number(val) * 100).toFixed(1)}% of starting value`}
+                        />
+                        <Legend />
+                        <Line type="monotone" dataKey="KPC" name="KPC" stroke="#FDB813" strokeWidth={3} dot={false} isAnimationActive={false} />
+                        {rateHistory.map(s => (
+                          <Line
+                            key={s.currency}
+                            type="monotone"
+                            dataKey={s.currency}
+                            name={s.currency}
+                            stroke={CHART_COLOURS[s.currency] ?? '#94A3B8'}
+                            strokeWidth={2}
+                            strokeOpacity={0.7}
+                            dot={false}
+                            isAnimationActive={false}
+                            connectNulls
+                          />
+                        ))}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    // The honest empty state. The previous version filled this
+                    // space with six invented points rather than admit the
+                    // series was short.
+                    <div className="h-full flex flex-col items-center justify-center text-center gap-3 px-4">
+                      <Activity className="text-[#1F2937]" size={40} />
+                      <p className="text-[11px] font-mono text-[#94A3B8] uppercase tracking-widest max-w-xs leading-relaxed">
+                        {recordingSince
+                          ? `Recording rates since ${new Date(recordingSince).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}. This chart draws once there are enough days to show a direction.`
+                          : "This chart draws from rates we record ourselves, once there are enough days of them."}
+                      </p>
+                      <p className="text-[10px] font-mono text-[#4B5563] uppercase tracking-widest">
+                        1 KPC = $1.00 throughout
+                      </p>
+                    </div>
+                  )}
                 </div>
+                {haveTrend && recordingSince && (
+                  <p className="text-[9px] font-mono text-[#4B5563] tracking-widest uppercase mt-3">
+                    Rates recorded by KobPay since {new Date(recordingSince).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })} · 100% = value on the first day recorded
+                  </p>
+                )}
               </div>
 
               <div className="lg:col-span-4 bg-[#111827]/80 border border-[#1F2937] rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 flex flex-col shadow-2xl overflow-hidden relative">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#22D3EE] to-transparent opacity-50" />
                 <h3 className="text-sm font-black uppercase tracking-widest flex items-center gap-3 mb-6 relative z-10">
-                  <Globe2 className="text-[#22D3EE] animate-pulse" size={16} /> Live Feed
-                  <div className="w-1.5 h-1.5 bg-[#22D3EE] rounded-full animate-ping ml-auto" />
+                  <Shield className="text-[#22D3EE]" size={16} /> The reserve
                 </h3>
-                <div className="flex-1 overflow-hidden relative h-[280px] sm:h-[380px]">
-                  <div className="absolute inset-0 overflow-y-auto pr-2 [&::-webkit-scrollbar]:hidden">
-                    <div className="space-y-4">
-                      <AnimatePresence initial={false}>
-                        {liveTxns.map((txn, i) => (
-                          <motion.div 
-                            key={txn.id}
-                            layout 
-                            initial={{ opacity: 0, y: -20, scale: 0.95 }}
-                            animate={{ opacity: 1, y: 0, scale: 1, backgroundColor: ["#1F2937", "#0A0E14"] }}
-                            exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-                            transition={{ duration: 0.4, ease: "easeOut" }}
-                            className="p-4 bg-[#0A0E14] border border-[#1F2937] rounded-2xl flex flex-col gap-3 group hover:border-[#FDB813]/30 transition-colors"
-                          >
-                            <div className="flex justify-between items-center border-b border-[#1F2937] pb-2">
-                              <span className="text-[9px] font-mono text-[#FDB813] tracking-widest bg-[#FDB813]/10 px-2 py-0.5 rounded">{txn.type}</span>
-                              <span className="text-[9px] font-mono text-[#10B981] animate-pulse">{txn.time}</span>
-                            </div>
-                            <div className="flex justify-between items-end">
-                              <div>
-                                <span className="block text-xs font-mono text-[#94A3B8] uppercase">From: <span className="text-white">{txn.from}</span></span>
-                                <span className="block text-xs font-mono text-[#94A3B8] uppercase">To: <span className="text-white">{txn.to}</span></span>
-                              </div>
-                              <div className="text-right font-black font-mono text-white text-lg">
-                                {txn.amount.toLocaleString()} <span className="text-[#FDB813] text-[10px]">KPC</span>
-                              </div>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </AnimatePresence>
-                    </div>
+                <div className="flex-1 flex flex-col gap-4">
+                  <div>
+                    <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-widest mb-1.5">KPC in existence</p>
+                    <p className="text-3xl font-black font-mono text-white">
+                      {reserve ? Number(reserve.owed_to_customers ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "—"}
+                      <span className="text-[#FDB813] text-sm ml-2">KPC</span>
+                    </p>
+                    <p className="text-[10px] font-mono text-[#4B5563] mt-1">Each one is a dollar we owe somebody</p>
                   </div>
+
+                  <div className="border-t border-[#1F2937] pt-4">
+                    <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-widest mb-1.5">Money held to back it</p>
+                    <p className="text-3xl font-black font-mono text-white">
+                      <span className="text-[#10B981] text-sm mr-1">$</span>
+                      {reserve ? Number(reserve.backing_total ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "—"}
+                    </p>
+                  </div>
+
+                  <div className="border-t border-[#1F2937] pt-4">
+                    <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-widest mb-1.5">Cover</p>
+                    {(() => {
+                      // Below 100 the reserve does not cover what is owed, and
+                      // that has to look like what it is rather than being
+                      // coloured green because it is our own number.
+                      const c = reserve?.coverage_percent == null ? null : Number(reserve.coverage_percent);
+                      const tone = c == null ? "text-[#94A3B8]" : c >= 100 ? "text-[#10B981]" : "text-[#EF4444]";
+                      return (
+                        <>
+                          <p className={`text-3xl font-black font-mono ${tone}`}>
+                            {c == null ? "—" : `${c.toFixed(2)}%`}
+                          </p>
+                          <p className="text-[10px] font-mono text-[#4B5563] mt-1">
+                            {c == null ? "No KPC issued yet"
+                              : c >= 100 ? "Every KPC is covered"
+                              : "Backing is short of what is owed"}
+                          </p>
+                        </>
+                      );
+                    })()}
+                  </div>
+
+                  <Link
+                    href="/explorer"
+                    className="mt-auto flex items-center justify-center gap-2 py-3 border border-[#1F2937] rounded-xl text-[10px] font-mono uppercase tracking-widest text-[#94A3B8] hover:border-[#FDB813]/40 hover:text-white transition-colors"
+                  >
+                    See every account <ChevronRight size={12} />
+                  </Link>
                 </div>
               </div>
             </div>
@@ -583,7 +681,7 @@ export default function KPCSovereignDashboard() {
                     fact from platform_settings, not a number waiting to
                     grow. Apps stays a real count: 2 is small but true. */}
                 <WhyCard index={0} icon={<Globe2 size={24} className="text-[#22D3EE]" />} title="Send Globally" desc="All you need is their phone number. No bank account, no fee." statLabel="Countries" statValue={networkStats.countries} onClick={() => setActiveDrawer("global")} />
-                <WhyCard index={1} icon={<Shield size={24} className="text-[#FDB813]" />} title="Protect Savings" desc="Hold your money as dollars so it keeps its value." statLabel="Always worth" statText="$1.00" onClick={() => setActiveDrawer("hedge")} />
+                <WhyCard index={1} icon={<Shield size={24} className="text-[#FDB813]" />} title="Protect Savings" desc="Hold your money as dollars so it keeps its value." statLabel="Backed at" statText="$1.00" onClick={() => setActiveDrawer("hedge")} />
                 <WhyCard index={2} icon={<TrendingUp size={24} className="text-[#10B981]" />} title="Earn Daily" desc="Collect KC points as you use KobPay, and swap them for KPC." statLabel="Live Apps" statValue={networkStats.activeApps} onClick={() => setActiveDrawer("earn")} />
                 <WhyCard index={3} icon={<ShoppingCart size={24} className="text-[#8B5CF6]" />} title="Universal Pay" desc="One balance that works across every shop and app on KobPay." statLabel={networkStats.merchants > 0 ? "Businesses" : "Merchant fee"} statValue={networkStats.merchants > 0 ? networkStats.merchants : undefined} statText={networkStats.merchants > 0 ? undefined : "1%"} onClick={() => setActiveDrawer("pay")} />
               </div>
@@ -771,7 +869,10 @@ function KobBotChat() {
         onClick={() => setIsOpen(!isOpen)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-br from-[#111827] to-[#0A0E14] rounded-full shadow-[0_0_20px_rgba(253,184,19,0.3)] flex items-center justify-center z-[100] overflow-hidden border border-[#FDB813]/30"
+        // Lifted clear of the bottom bar on phones. The bar is 56px plus the
+        // home-indicator inset, so 96px leaves a thumb's worth of gap; on
+        // desktop there is no bar and it returns to where it was.
+        className="fixed bottom-24 md:bottom-8 right-6 md:right-8 w-14 h-14 bg-gradient-to-br from-[#111827] to-[#0A0E14] rounded-full shadow-[0_0_20px_rgba(253,184,19,0.3)] flex items-center justify-center z-[100] overflow-hidden border border-[#FDB813]/30"
       >
         {isOpen ? <X size={24} className="text-[#FDB813]" /> : <KobBotAvatar className="w-12 h-12 drop-shadow-[0_0_10px_rgba(253,184,19,0.5)]" />}
       </motion.button>
@@ -783,7 +884,9 @@ function KobBotChat() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-          className="fixed bottom-28 right-8 w-[350px] h-[500px] max-h-[calc(100vh-140px)] bg-[#111827]/95 backdrop-blur-xl border border-[#1F2937] rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.8)] z-[100] flex flex-col overflow-hidden"
+          // Same lift, and a width that cannot exceed the screen — 350px was
+          // wider than a 320px phone.
+          className="fixed bottom-40 md:bottom-28 right-6 md:right-8 w-[min(350px,calc(100vw-3rem))] h-[500px] max-h-[calc(100dvh-230px)] md:max-h-[calc(100vh-140px)] bg-[#111827]/95 backdrop-blur-xl border border-[#1F2937] rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.8)] z-[100] flex flex-col overflow-hidden"
           >
             <div className="p-4 border-b border-[#1F2937] bg-[#0A0E14]/50 flex items-center justify-between">
               <div className="flex items-center gap-3">
