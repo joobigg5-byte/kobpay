@@ -144,18 +144,18 @@ export default function PayTerminal() {
     }
   };
 
-  if (!mounted) return <div className="min-h-[100dvh] bg-[#0A0E14]" />;
+  if (!mounted) return <div className="min-h-[100dvh] bg-[#07070A]" />;
 
   return (
-    <div className="min-h-[100dvh] bg-[#0A0E14] text-[#F9FAFB] font-sans selection:bg-[#AA771C]/30 flex flex-col">
+    <div className="min-h-[100dvh] bg-[#07070A] text-[#F5F2EC] font-sans selection:bg-[#8A6D2F]/30 flex flex-col">
       <Toaster position="top-center" />
 
-      <header className="h-16 lg:h-20 border-b border-[#1F2937] bg-[#111827]/80 backdrop-blur-xl sticky top-0 z-40 flex items-center px-4 lg:px-8">
+      <header className="h-16 lg:h-20 border-b border-[#26262E] bg-[#16161C]/80 backdrop-blur-xl sticky top-0 z-40 flex items-center px-4 lg:px-8">
         <Link
           href="/wallet"
-          className="flex items-center gap-3 text-[#94A3B8] hover:text-[#FDB813] transition-colors group"
+          className="flex items-center gap-3 text-[#A0A0A8] hover:text-[#C9A84C] transition-colors group"
         >
-          <div className="p-2 bg-[#1F2937] rounded-lg group-hover:bg-[#FDB813]/20 transition-colors">
+          <div className="p-2 bg-[#26262E] rounded-lg group-hover:bg-[#C9A84C]/20 transition-colors">
             <ArrowLeft size={18} />
           </div>
           <span className="font-mono font-bold tracking-widest uppercase text-[10px] lg:text-xs">
@@ -168,14 +168,14 @@ export default function PayTerminal() {
       </header>
 
       <main className="flex-1 flex items-start justify-center p-4 lg:p-6">
-        <div className="w-full max-w-md bg-[#111827] border border-[#1F2937] rounded-3xl shadow-2xl overflow-hidden flex flex-col">
-          <div className="flex p-2 bg-[#0A0E14] m-3 lg:m-4 rounded-2xl border border-[#1F2937]">
+        <div className="w-full max-w-md bg-[#16161C] border border-[#26262E] rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+          <div className="flex p-2 bg-[#07070A] m-3 lg:m-4 rounded-2xl border border-[#26262E]">
             <button
               onClick={() => setActiveTab("scan")}
               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-mono text-[10px] lg:text-[11px] font-bold uppercase tracking-widest transition-all ${
                 activeTab === "scan"
-                  ? "bg-[#1F2937] text-[#FDB813] shadow-lg"
-                  : "text-[#94A3B8] hover:text-white"
+                  ? "bg-[#26262E] text-[#C9A84C] shadow-lg"
+                  : "text-[#A0A0A8] hover:text-white"
               }`}
             >
               <ScanLine size={15} /> Scan to pay
@@ -184,8 +184,8 @@ export default function PayTerminal() {
               onClick={() => setActiveTab("receive")}
               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-mono text-[10px] lg:text-[11px] font-bold uppercase tracking-widest transition-all ${
                 activeTab === "receive"
-                  ? "bg-[#1F2937] text-[#10B981] shadow-lg"
-                  : "text-[#94A3B8] hover:text-white"
+                  ? "bg-[#26262E] text-[#2ECC71] shadow-lg"
+                  : "text-[#A0A0A8] hover:text-white"
               }`}
             >
               <QrCode size={15} /> Get paid
@@ -194,25 +194,25 @@ export default function PayTerminal() {
 
           {activeTab === "scan" ? (
             <div className="px-5 pb-6">
-              <h2 className="text-lg font-black uppercase tracking-widest text-center">
+              <h2 className="font-display text-xl font-light tracking-tight text-center">
                 Scan a code
               </h2>
-              <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.12em] text-center mt-1 mb-5">
+              <p className="text-[13px] text-[#A0A0A8] text-center mt-1 mb-5">
                 Point at a KobPay QR to pay it
               </p>
 
               {typing || cameraError ? (
-                <div className="bg-[#0A0E14] border border-[#1F2937] rounded-2xl p-5">
+                <div className="bg-[#07070A] border border-[#26262E] rounded-2xl p-5">
                   {cameraError && !typing && (
                     <div className="flex gap-3 mb-4">
-                      <CameraOff size={16} className="text-[#94A3B8] shrink-0 mt-0.5" />
-                      <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.1em] leading-relaxed">
+                      <CameraOff size={16} className="text-[#A0A0A8] shrink-0 mt-0.5" />
+                      <p className="text-[13px] text-[#A0A0A8] leading-relaxed">
                         {cameraError}
                       </p>
                     </div>
                   )}
 
-                  <label className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-2">
+                  <label className="block text-[12px] text-[#A0A0A8] mb-2">
                     Phone number, @tag or payment link
                   </label>
                   <input
@@ -221,12 +221,12 @@ export default function PayTerminal() {
                     onKeyDown={(e) => e.key === "Enter" && route(typed)}
                     autoFocus
                     placeholder="233244123456"
-                    className="w-full bg-[#111827] border border-[#1F2937] rounded-lg px-3 py-3 text-sm font-mono text-white placeholder-[#4B5563] focus:border-[#FDB813] outline-none"
+                    className="w-full bg-[#16161C] border border-[#26262E] rounded-lg px-3 py-3 text-sm font-mono text-white placeholder-[#72727A] focus:border-[#C9A84C] outline-none"
                   />
                   <button
                     disabled={resolving || !typed.trim()}
                     onClick={() => route(typed)}
-                    className="w-full mt-3 py-3.5 bg-[#FDB813] hover:bg-[#E0A411] disabled:opacity-40 text-[#0A0E14] font-black font-mono text-[10px] uppercase tracking-[0.2em] rounded-xl flex items-center justify-center gap-2"
+                    className="w-full mt-3 py-3.5 bg-[#C9A84C] hover:bg-[#B8963F] disabled:opacity-40 text-[#07070A] font-black font-mono text-[10px] uppercase tracking-[0.2em] rounded-xl flex items-center justify-center gap-2"
                   >
                     {resolving && <Loader2 size={13} className="animate-spin" />}
                     Continue
@@ -238,7 +238,7 @@ export default function PayTerminal() {
                         setCameraError(null);
                         setTyping(false);
                       }}
-                      className="w-full mt-3 text-[9px] font-mono uppercase tracking-[0.15em] text-[#4B5563] hover:text-[#94A3B8]"
+                      className="w-full mt-3 text-[9px] font-mono uppercase tracking-[0.15em] text-[#72727A] hover:text-[#A0A0A8]"
                     >
                       Try the camera again
                     </button>
@@ -246,7 +246,7 @@ export default function PayTerminal() {
                   {!cameraError && (
                     <button
                       onClick={() => setTyping(false)}
-                      className="w-full mt-3 text-[9px] font-mono uppercase tracking-[0.15em] text-[#4B5563] hover:text-[#94A3B8]"
+                      className="w-full mt-3 text-[9px] font-mono uppercase tracking-[0.15em] text-[#72727A] hover:text-[#A0A0A8]"
                     >
                       Back to the camera
                     </button>
@@ -254,7 +254,7 @@ export default function PayTerminal() {
                 </div>
               ) : (
                 <>
-                  <div className="relative rounded-2xl overflow-hidden border border-[#1F2937] bg-black aspect-square">
+                  <div className="relative rounded-2xl overflow-hidden border border-[#26262E] bg-black aspect-square">
                     <Scanner
                       onScan={(result: Array<{ rawValue: string }>) => {
                         if (result?.[0]?.rawValue) route(result[0].rawValue);
@@ -264,7 +264,7 @@ export default function PayTerminal() {
                       styles={{ container: { width: "100%", height: "100%" } }}
                     />
                     <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                      <div className="w-2/3 aspect-square border-2 border-[#FDB813]/70 rounded-2xl" />
+                      <div className="w-2/3 aspect-square border-2 border-[#C9A84C]/70 rounded-2xl" />
                     </div>
                   </div>
 
@@ -272,7 +272,7 @@ export default function PayTerminal() {
                       rather type, and a desktop with no camera is normal. */}
                   <button
                     onClick={() => setTyping(true)}
-                    className="w-full mt-4 flex items-center justify-center gap-2 py-3 bg-[#1F2937] hover:bg-[#374151] border border-[#374151] rounded-lg text-[9px] font-mono uppercase tracking-[0.15em] text-[#94A3B8]"
+                    className="w-full mt-4 flex items-center justify-center gap-2 py-3 bg-[#26262E] hover:bg-[#33333C] border border-[#33333C] rounded-lg text-[9px] font-mono uppercase tracking-[0.15em] text-[#A0A0A8]"
                   >
                     <Keyboard size={13} /> Type it instead
                   </button>
@@ -281,18 +281,18 @@ export default function PayTerminal() {
             </div>
           ) : (
             <div className="px-5 pb-6">
-              <h2 className="text-lg font-black uppercase tracking-widest text-center">
+              <h2 className="font-display text-xl font-light tracking-tight text-center">
                 Get paid
               </h2>
-              <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.12em] text-center mt-1 mb-5">
+              <p className="text-[13px] text-[#A0A0A8] text-center mt-1 mb-5">
                 Let someone scan this to send you KPC
               </p>
 
               {!phone ? (
-                <div className="bg-[#0A0E14] border border-[#1F2937] rounded-2xl p-6 text-center">
-                  <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.12em] leading-relaxed">
+                <div className="bg-[#07070A] border border-[#26262E] rounded-2xl p-6 text-center">
+                  <p className="text-[13px] text-[#A0A0A8] leading-relaxed">
                     Please{" "}
-                    <Link href="/auth" className="text-[#FDB813] underline">
+                    <Link href="/auth" className="text-[#C9A84C] underline">
                       sign in
                     </Link>{" "}
                     to show your code.
@@ -305,7 +305,7 @@ export default function PayTerminal() {
                   </div>
 
                   <div className="mt-4">
-                    <label className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-2">
+                    <label className="block text-[12px] text-[#A0A0A8] mb-2">
                       Ask for a set amount (optional)
                     </label>
                     <input
@@ -313,21 +313,21 @@ export default function PayTerminal() {
                       onChange={(e) => setAskAmount(e.target.value)}
                       inputMode="decimal"
                       placeholder="Any amount"
-                      className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-3 text-sm font-mono text-white placeholder-[#4B5563] focus:border-[#10B981] outline-none text-center"
+                      className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-3 text-sm font-mono text-white placeholder-[#72727A] focus:border-[#2ECC71] outline-none text-center"
                     />
                   </div>
 
-                  <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.12em] text-center mt-4">
+                  <p className="text-[13px] text-[#A0A0A8] text-center mt-4">
                     {phone.startsWith("+") ? phone : `+${phone}`}
                   </p>
 
                   <button
                     onClick={handleCopy}
-                    className="w-full mt-3 flex items-center justify-center gap-2 py-3 bg-[#1F2937] hover:bg-[#374151] border border-[#374151] rounded-lg text-[9px] font-mono uppercase tracking-[0.15em] text-[#94A3B8]"
+                    className="w-full mt-3 flex items-center justify-center gap-2 py-3 bg-[#26262E] hover:bg-[#33333C] border border-[#33333C] rounded-lg text-[9px] font-mono uppercase tracking-[0.15em] text-[#A0A0A8]"
                   >
                     {copied ? (
                       <>
-                        <CheckCircle2 size={13} className="text-[#10B981]" /> Copied
+                        <CheckCircle2 size={13} className="text-[#2ECC71]" /> Copied
                       </>
                     ) : (
                       <>
@@ -338,7 +338,7 @@ export default function PayTerminal() {
 
                   <Link
                     href="/merchant"
-                    className="block text-center text-[9px] font-mono uppercase tracking-[0.15em] text-[#4B5563] hover:text-[#FDB813] mt-4"
+                    className="block text-center text-[9px] font-mono uppercase tracking-[0.15em] text-[#72727A] hover:text-[#C9A84C] mt-4"
                   >
                     Taking payments for a business? Make a payment link
                   </Link>

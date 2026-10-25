@@ -27,11 +27,11 @@ type Score = {
 };
 
 const BANDS: Record<string, { label: string; color: string; ring: string }> = {
-  excellent: { label: "Excellent", color: "#10B981", ring: "#10B981" },
-  good: { label: "Good", color: "#22D3EE", ring: "#22D3EE" },
-  fair: { label: "Fair", color: "#FDB813", ring: "#FDB813" },
-  building: { label: "Building", color: "#94A3B8", ring: "#94A3B8" },
-  "needs work": { label: "Starting out", color: "#94A3B8", ring: "#94A3B8" },
+  excellent: { label: "Excellent", color: "#2ECC71", ring: "#2ECC71" },
+  good: { label: "Good", color: "#8FB8D4", ring: "#8FB8D4" },
+  fair: { label: "Fair", color: "#C9A84C", ring: "#C9A84C" },
+  building: { label: "Building", color: "#A0A0A8", ring: "#A0A0A8" },
+  "needs work": { label: "Starting out", color: "#A0A0A8", ring: "#A0A0A8" },
 };
 
 export default function ScorePage() {
@@ -80,44 +80,44 @@ export default function ScorePage() {
     : 0;
 
   return (
-    <div className="min-h-[100dvh] bg-[#0A0E14] text-white font-sans p-5 lg:p-10">
+    <div className="min-h-[100dvh] bg-[#07070A] text-white font-sans p-5 lg:p-10">
       <div className="max-w-[640px] mx-auto">
         <div className="flex items-center gap-3 lg:gap-4 mb-8">
           <Link
             href="/"
-            className="text-[#94A3B8] hover:text-[#22D3EE] p-2.5 lg:p-3 bg-[#111827] rounded-xl border border-[#1F2937]"
+            className="text-[#A0A0A8] hover:text-[#C9A84C] p-2.5 lg:p-3 bg-[#16161C] rounded-xl border border-[#26262E]"
           >
             <ArrowLeft size={18} />
           </Link>
           <AppMenu />
-          <h1 className="text-xl lg:text-3xl font-black uppercase tracking-widest flex items-center gap-3">
-            <Gauge className="text-[#FDB813]" /> Your score
+          <h1 className="font-display text-2xl lg:text-4xl font-light tracking-tight flex items-center gap-3">
+            <Gauge className="text-[#C9A84C]" /> Your score
           </h1>
         </div>
 
         {loading ? (
-          <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest py-20 text-center">
+          <p className="text-[13px] text-[#72727A] py-20 text-center">
             Loading...
           </p>
         ) : !signedIn ? (
-          <div className="bg-[#111827] border border-[#1F2937] rounded-2xl p-8 text-center">
-            <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.15em]">
+          <div className="bg-[#16161C] border border-[#26262E] rounded-2xl p-8 text-center">
+            <p className="text-[13px] text-[#A0A0A8]">
               Please{" "}
-              <Link href="/auth" className="text-[#FDB813] underline">
+              <Link href="/auth" className="text-[#C9A84C] underline">
                 sign in
               </Link>{" "}
               to see your score.
             </p>
           </div>
         ) : error || !data ? (
-          <div className="bg-[#111827] border border-[#1F2937] rounded-2xl p-8 text-center">
-            <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.15em]">
+          <div className="bg-[#16161C] border border-[#26262E] rounded-2xl p-8 text-center">
+            <p className="text-[13px] text-[#A0A0A8]">
               {error || "Your score could not be read just now."}
             </p>
           </div>
         ) : (
           <>
-            <div className="bg-[#111827] border border-[#1F2937] rounded-2xl p-7 lg:p-9 mb-4 text-center">
+            <div className="bg-[#16161C] border border-[#26262E] rounded-2xl p-7 lg:p-9 mb-4 text-center">
               <p
                 className="text-6xl lg:text-7xl font-black leading-none"
                 style={{ color: band.color }}
@@ -131,24 +131,24 @@ export default function ScorePage() {
                 {band.label}
               </p>
 
-              <div className="mt-6 h-2 bg-[#1F2937] rounded-full relative">
+              <div className="mt-6 h-2 bg-[#26262E] rounded-full relative">
                 <div
                   className="h-2 rounded-full transition-all duration-700"
                   style={{ width: `${pct * 100}%`, backgroundColor: band.ring }}
                 />
               </div>
               <div className="flex justify-between mt-2">
-                <span className="text-[9px] font-mono text-[#4B5563]">{data.min}</span>
-                <span className="text-[9px] font-mono text-[#4B5563]">{data.max}</span>
+                <span className="text-[9px] font-mono text-[#72727A]">{data.min}</span>
+                <span className="text-[9px] font-mono text-[#72727A]">{data.max}</span>
               </div>
             </div>
 
             {/* The single most useful thing we can tell them, given pride of
                 place rather than buried under the breakdown. */}
-            <div className="bg-[#FDB813]/5 border border-[#FDB813]/30 rounded-2xl p-5 mb-4 flex gap-3">
-              <TrendingUp size={18} className="text-[#FDB813] shrink-0 mt-0.5" />
+            <div className="bg-[#C9A84C]/5 border border-[#C9A84C]/30 rounded-2xl p-5 mb-4 flex gap-3">
+              <TrendingUp size={18} className="text-[#C9A84C] shrink-0 mt-0.5" />
               <div>
-                <p className="text-[9px] font-mono text-[#FDB813] uppercase tracking-[0.2em] mb-1">
+                <p className="text-[9px] font-mono text-[#C9A84C] uppercase tracking-[0.2em] mb-1">
                   What would raise it
                 </p>
                 <p className="text-sm font-bold">{data.improve}</p>
@@ -157,37 +157,37 @@ export default function ScorePage() {
 
             <button
               onClick={() => setShowWorkings((v) => !v)}
-              className="w-full bg-[#111827] border border-[#1F2937] rounded-2xl p-4 flex items-center justify-between hover:border-[#22D3EE]/40 transition-colors"
+              className="w-full bg-[#16161C] border border-[#26262E] rounded-2xl p-4 flex items-center justify-between hover:border-[#8FB8D4]/40 transition-colors"
             >
-              <span className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.2em]">
+              <span className="text-[13px] text-[#A0A0A8]">
                 How this is worked out
               </span>
               <ChevronDown
                 size={16}
-                className={`text-[#94A3B8] transition-transform ${showWorkings ? "rotate-180" : ""}`}
+                className={`text-[#A0A0A8] transition-transform ${showWorkings ? "rotate-180" : ""}`}
               />
             </button>
 
             {showWorkings && (
-              <div className="mt-3 bg-[#111827] border border-[#1F2937] rounded-2xl p-5">
+              <div className="mt-3 bg-[#16161C] border border-[#26262E] rounded-2xl p-5">
                 {data.components.map((c, i) => (
                   <div
                     key={i}
-                    className="flex justify-between items-start gap-4 py-2.5 border-b border-[#1F2937] last:border-0"
+                    className="flex justify-between items-start gap-4 py-2.5 border-b border-[#26262E] last:border-0"
                   >
                     <div>
                       <p className="text-[11px] font-bold">{c.name}</p>
-                      <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.12em] mt-0.5">
+                      <p className="text-[9px] font-mono text-[#72727A] uppercase tracking-[0.12em] mt-0.5">
                         {c.detail}
                       </p>
                     </div>
                     <p
                       className={`text-xs font-mono font-bold shrink-0 ${
                         Number(c.points) > 0
-                          ? "text-[#10B981]"
+                          ? "text-[#2ECC71]"
                           : Number(c.points) < 0
-                            ? "text-[#EF4444]"
-                            : "text-[#4B5563]"
+                            ? "text-[#E74C3C]"
+                            : "text-[#72727A]"
                       }`}
                     >
                       {Number(c.points) > 0 ? "+" : ""}
@@ -195,7 +195,7 @@ export default function ScorePage() {
                     </p>
                   </div>
                 ))}
-                <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.12em] leading-relaxed mt-4 pt-4 border-t border-[#1F2937]">
+                <p className="text-[12px] text-[#A0A0A8] leading-relaxed mt-4 pt-4 border-t border-[#26262E]">
                   Everyone starts at 500. A new account is not a bad one — there is
                   simply nothing to go on yet.
                 </p>
@@ -204,7 +204,7 @@ export default function ScorePage() {
 
             {/* Not a bureau score, and saying so is the difference between a
                 useful feature and a misleading one. */}
-            <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.12em] leading-relaxed mt-5 text-center">
+            <p className="text-[12px] text-[#72727A] leading-relaxed mt-5 text-center">
               This is KobPay&apos;s own score, built from how you use KobPay. It is not
               a credit bureau rating and is not shared with other lenders. Updated{" "}
               {new Date(data.as_of).toLocaleTimeString()}.

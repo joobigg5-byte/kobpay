@@ -73,36 +73,36 @@ export default function PayLinkPage() {
   const short = userId !== null && payable > num(balance);
 
   return (
-    <div className="min-h-[100dvh] bg-[#0A0E14] text-white font-sans selection:bg-[#AA771C]/30 relative overflow-hidden flex items-center justify-center p-5">
+    <div className="min-h-[100dvh] bg-[#07070A] text-white font-sans selection:bg-[#8A6D2F]/30 relative overflow-hidden flex items-center justify-center p-5">
       <Toaster position="top-center" reverseOrder={false} />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-gradient-to-br from-[#FDB813]/5 to-transparent rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-gradient-to-br from-[#C9A84C]/5 to-transparent rounded-full blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-md">
         {loading ? (
-          <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest py-10 text-center">
+          <p className="text-[13px] text-[#72727A] py-10 text-center">
             Loading...
           </p>
         ) : !info || info.reason === "not_found" ? (
           <Panel>
-            <AlertCircle size={28} className="text-[#EF4444] mx-auto mb-3" />
-            <p className="text-xs font-mono text-[#EF4444] uppercase tracking-widest text-center">
+            <AlertCircle size={28} className="text-[#E74C3C] mx-auto mb-3" />
+            <p className="text-[13px] text-[#E74C3C] text-center">
               That payment link does not exist
             </p>
           </Panel>
         ) : done ? (
           <Panel>
-            <div className="w-14 h-14 rounded-full bg-[#10B981]/10 border border-[#10B981]/30 flex items-center justify-center mx-auto mb-4">
-              <Check size={26} className="text-[#10B981]" />
+            <div className="w-14 h-14 rounded-full bg-[#2ECC71]/10 border border-[#2ECC71]/30 flex items-center justify-center mx-auto mb-4">
+              <Check size={26} className="text-[#2ECC71]" />
             </div>
-            <p className="text-lg font-black uppercase tracking-wide text-center mb-1">Paid</p>
-            <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] text-center leading-relaxed">
+            <p className="font-display text-xl font-light tracking-tight text-center mb-1">Paid</p>
+            <p className="text-[13px] text-[#A0A0A8] text-center leading-relaxed">
               {payable.toLocaleString()} KPC to {info.business_name}
               <br />
               for {info.title}
             </p>
             <Link
               href="/activity"
-              className="mt-6 block w-full text-center bg-[#1F2937] hover:bg-[#374151] text-white font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
+              className="mt-6 block w-full text-center bg-[#26262E] hover:bg-[#33333C] text-white font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
             >
               See it in your activity
             </Link>
@@ -110,32 +110,32 @@ export default function PayLinkPage() {
         ) : (
           <Panel>
             <div className="flex items-center justify-center gap-2 mb-5">
-              <Store size={13} className="text-[#FDB813]" />
-              <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#FDB813]">
+              <Store size={13} className="text-[#C9A84C]" />
+              <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#C9A84C]">
                 {info.business_name}
               </span>
             </div>
 
             <p className="text-center text-sm font-bold mb-1">{info.title}</p>
             {info.description && (
-              <p className="text-center text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.1em] mb-4 leading-relaxed">
+              <p className="text-center text-[13px] text-[#A0A0A8] mb-4 leading-relaxed">
                 {info.description}
               </p>
             )}
 
             {!info.open_amount && (
-              <p className="text-center text-4xl font-black text-[#FDB813] my-6">
+              <p className="text-center text-4xl font-black text-[#C9A84C] my-6">
                 {num(info.amount).toLocaleString()}
                 <span className="text-sm text-white ml-2">KPC</span>
-                <span className="block text-[10px] font-mono text-[#94A3B8] mt-1 tracking-widest">
+                <span className="block text-[10px] font-mono text-[#A0A0A8] mt-1 tracking-widest">
                   {formatKpcAsUsd(num(info.amount))}
                 </span>
               </p>
             )}
 
             {!info.ok ? (
-              <div className="bg-[#1F2937] border border-[#374151] rounded-lg p-4 mt-4">
-                <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] text-center leading-relaxed">
+              <div className="bg-[#26262E] border border-[#33333C] rounded-lg p-4 mt-4">
+                <p className="text-[13px] text-[#A0A0A8] text-center leading-relaxed">
                   {info.message}
                 </p>
               </div>
@@ -143,11 +143,11 @@ export default function PayLinkPage() {
               <>
                 <Link
                   href="/auth"
-                  className="mt-6 block w-full text-center bg-[#FDB813] hover:bg-[#E0A411] text-[#0A0E14] font-black uppercase tracking-widest text-xs py-4 rounded-xl transition-colors"
+                  className="mt-6 block w-full text-center bg-[#C9A84C] hover:bg-[#B8963F] text-[#07070A] font-black uppercase tracking-widest text-xs py-4 rounded-xl transition-colors"
                 >
                   Sign in to pay
                 </Link>
-                <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.15em] text-center mt-3 leading-relaxed">
+                <p className="text-[9px] font-mono text-[#72727A] uppercase tracking-[0.15em] text-center mt-3 leading-relaxed">
                   1 KPC = $1.00, always
                 </p>
               </>
@@ -155,7 +155,7 @@ export default function PayLinkPage() {
               <>
                 {info.open_amount && (
                   <div className="mt-4">
-                    <span className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-1.5">
+                    <span className="block text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.2em] mb-1.5">
                       How much
                     </span>
                     <input
@@ -164,7 +164,7 @@ export default function PayLinkPage() {
                       inputMode="decimal"
                       placeholder="0.00"
                       autoFocus
-                      className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-3 text-xl font-black text-white placeholder-[#4B5563] focus:border-[#FDB813] outline-none text-center"
+                      className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-3 text-xl font-black text-white placeholder-[#72727A] focus:border-[#C9A84C] outline-none text-center"
                     />
                   </div>
                 )}
@@ -173,11 +173,11 @@ export default function PayLinkPage() {
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder="Add a note (optional)"
-                  className="w-full mt-3 bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#4B5563] focus:border-[#FDB813] outline-none"
+                  className="w-full mt-3 bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#72727A] focus:border-[#C9A84C] outline-none"
                 />
 
                 {short && (
-                  <p className="text-[10px] font-mono text-[#EF4444] uppercase tracking-[0.15em] text-center mt-3">
+                  <p className="text-[10px] font-mono text-[#E74C3C] uppercase tracking-[0.15em] text-center mt-3">
                     You have {num(balance).toLocaleString()} KPC
                   </p>
                 )}
@@ -185,7 +185,7 @@ export default function PayLinkPage() {
                 <button
                   disabled={paying || payable <= 0 || short}
                   onClick={pay}
-                  className="mt-4 w-full flex items-center justify-center gap-2 bg-[#FDB813] hover:bg-[#E0A411] disabled:opacity-40 text-[#0A0E14] font-black uppercase tracking-widest text-xs py-4 rounded-xl transition-colors"
+                  className="mt-4 w-full flex items-center justify-center gap-2 bg-[#C9A84C] hover:bg-[#B8963F] disabled:opacity-40 text-[#07070A] font-black uppercase tracking-widest text-xs py-4 rounded-xl transition-colors"
                 >
                   {paying ? (
                     <>
@@ -200,7 +200,7 @@ export default function PayLinkPage() {
                     somebody they found on Instagram. */}
                 <Link
                   href="/safe"
-                  className="mt-3 flex items-center justify-center gap-1.5 text-[9px] font-mono uppercase tracking-[0.15em] text-[#4B5563] hover:text-[#10B981] transition-colors"
+                  className="mt-3 flex items-center justify-center gap-1.5 text-[9px] font-mono uppercase tracking-[0.15em] text-[#72727A] hover:text-[#2ECC71] transition-colors"
                 >
                   <ShieldCheck size={11} />
                   Buying something? Hold it until it arrives
@@ -216,7 +216,7 @@ export default function PayLinkPage() {
 
 function Panel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-[#111827]/80 backdrop-blur-xl border border-[#1F2937] rounded-2xl p-6">
+    <div className="bg-[#16161C]/80 backdrop-blur-xl border border-[#26262E] rounded-2xl p-6">
       {children}
     </div>
   );

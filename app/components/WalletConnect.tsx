@@ -62,8 +62,8 @@ export default function WalletConnect() {
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider
           theme={darkTheme({
-            accentColor: "#AA771C",
-            accentColorForeground: "#0A0E14",
+            accentColor: "#8A6D2F",
+            accentColorForeground: "#07070A",
             borderRadius: "large",
           })}
         >
@@ -76,7 +76,7 @@ export default function WalletConnect() {
                   {!connected ? (
                     <button
                       onClick={openConnectModal}
-                      className="text-[9px] sm:text-[10px] font-mono font-bold tracking-[0.1em] sm:tracking-[0.2em] border border-[#1F2937] text-[#94A3B8] px-3 sm:px-5 py-2 rounded uppercase whitespace-nowrap hover:border-[#FDB813]/40 hover:text-white transition-colors"
+                      className="text-[9px] sm:text-[10px] font-mono font-bold tracking-[0.1em] sm:tracking-[0.2em] border border-[#26262E] text-[#A0A0A8] px-3 sm:px-5 py-2 rounded uppercase whitespace-nowrap hover:border-[#C9A84C]/40 hover:text-white transition-colors"
                     >
                       Connect wallet
                     </button>
@@ -84,7 +84,7 @@ export default function WalletConnect() {
                     <div className="flex gap-3">
                       <button
                         onClick={openChainModal}
-                        className="hidden sm:flex items-center text-[10px] font-mono border border-[#1F2937] px-3 py-2 rounded text-[#94A3B8] hover:bg-[#1F2937] transition-all"
+                        className="hidden sm:flex items-center text-[10px] font-mono border border-[#26262E] px-3 py-2 rounded text-[#A0A0A8] hover:bg-[#26262E] transition-all"
                       >
                         {chain.hasIcon && (
                           <div style={{ background: chain.iconBackground, width: 14, height: 14, borderRadius: 999, overflow: "hidden", display: "inline-block", marginRight: 6 }}>
@@ -95,7 +95,7 @@ export default function WalletConnect() {
                       </button>
                       <button
                         onClick={openAccountModal}
-                        className="text-[10px] font-mono font-bold bg-[#1F2937] text-white px-4 py-2 rounded border border-[#FDB813]/30 hover:border-[#FDB813] transition-all"
+                        className="text-[10px] font-mono font-bold bg-[#26262E] text-white px-4 py-2 rounded border border-[#C9A84C]/30 hover:border-[#C9A84C] transition-all"
                       >
                         {account.displayName}
                         {account.displayBalance ? ` (${account.displayBalance})` : ""}

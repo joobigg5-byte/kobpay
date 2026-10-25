@@ -76,23 +76,23 @@ export default function PinPrompt() {
 
   return (
     <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
-      <div className="w-full max-w-sm bg-[#111827] border border-[#1F2937] rounded-3xl p-6 relative">
+      <div className="w-full max-w-sm bg-[#16161C] border border-[#26262E] rounded-3xl p-6 relative">
         <button
           onClick={() => close(false)}
-          className="absolute top-4 right-4 text-[#4B5563] hover:text-white"
+          className="absolute top-4 right-4 text-[#72727A] hover:text-white"
           aria-label="Cancel"
         >
           <X size={18} />
         </button>
 
-        <div className="w-11 h-11 rounded-full bg-[#FDB813]/10 border border-[#FDB813]/30 flex items-center justify-center mx-auto mb-4">
-          <Lock size={18} className="text-[#FDB813]" />
+        <div className="w-11 h-11 rounded-full bg-[#C9A84C]/10 border border-[#C9A84C]/30 flex items-center justify-center mx-auto mb-4">
+          <Lock size={18} className="text-[#C9A84C]" />
         </div>
 
-        <p className="text-center text-sm font-black uppercase tracking-widest mb-1">
+        <p className="text-center font-display text-lg font-light tracking-tight mb-1">
           Enter your PIN
         </p>
-        <p className="text-center text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.12em] mb-5">
+        <p className="text-center text-[13px] text-[#A0A0A8] mb-5">
           To confirm this payment
         </p>
 
@@ -104,16 +104,16 @@ export default function PinPrompt() {
           autoFocus
           disabled={busy}
           placeholder="••••"
-          className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-xl px-4 py-4 text-2xl font-black tracking-[0.5em] text-center text-white placeholder-[#374151] focus:border-[#FDB813] outline-none disabled:opacity-50"
+          className="w-full bg-[#07070A] border border-[#26262E] rounded-xl px-4 py-4 text-2xl font-black tracking-[0.5em] text-center text-white placeholder-[#33333C] focus:border-[#C9A84C] outline-none disabled:opacity-50"
         />
 
         <div className="min-h-[20px] mt-3">
           {busy ? (
-            <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] text-center flex items-center justify-center gap-2">
+            <p className="text-[13px] text-[#A0A0A8] text-center flex items-center justify-center gap-2">
               <Loader2 size={11} className="animate-spin" /> Checking
             </p>
           ) : message ? (
-            <p className="text-[10px] font-mono text-[#EF4444] uppercase tracking-[0.12em] text-center">
+            <p className="text-[10px] font-mono text-[#E74C3C] uppercase tracking-[0.12em] text-center">
               {message}
             </p>
           ) : null}
@@ -121,7 +121,7 @@ export default function PinPrompt() {
 
         <button
           onClick={() => close(false)}
-          className="w-full mt-3 text-[9px] font-mono uppercase tracking-[0.2em] text-[#4B5563] hover:text-[#94A3B8]"
+          className="w-full mt-3 text-[9px] font-mono uppercase tracking-[0.2em] text-[#72727A] hover:text-[#A0A0A8]"
         >
           Cancel this payment
         </button>

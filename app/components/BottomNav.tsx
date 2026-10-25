@@ -53,7 +53,7 @@ export default function BottomNav() {
   const bar = (
     <nav
       aria-label="Primary"
-      className="md:hidden fixed bottom-0 inset-x-0 z-[90] bg-[#0A0E14]/95 backdrop-blur-xl border-t border-[#1F2937]"
+      className="md:hidden fixed bottom-0 inset-x-0 z-[90] bg-[#07070A]/95 backdrop-blur-xl border-t border-[#26262E]"
       // Keeps the bar clear of the home indicator on phones that have one,
       // and costs nothing on phones that do not.
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
@@ -72,7 +72,7 @@ export default function BottomNav() {
               // 56px of height keeps every target above the 44px minimum
               // that is comfortable to hit without looking.
               className={`flex flex-col items-center justify-center gap-1 h-14 text-[9px] font-mono uppercase tracking-[0.12em] transition-colors ${
-                active ? "text-[#FDB813]" : "text-[#6B7280] hover:text-[#94A3B8]"
+                active ? "text-[#C9A84C]" : "text-[#6B7280] hover:text-[#A0A0A8]"
               }`}
             >
               {item.icon}

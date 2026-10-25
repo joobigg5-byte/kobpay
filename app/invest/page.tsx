@@ -148,29 +148,29 @@ export default function InvestPage() {
   const pending = redemptions.filter((r) => r.status === "pending");
 
   return (
-    <div className="min-h-[100dvh] bg-[#0A0E14] text-white font-sans p-5 selection:bg-[#AA771C]/30">
+    <div className="min-h-[100dvh] bg-[#07070A] text-white font-sans p-5 selection:bg-[#8A6D2F]/30">
       <Toaster position="top-center" />
       <div className="max-w-xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
           <Link
             href="/wallet"
-            className="text-[#94A3B8] hover:text-[#FDB813] p-2 bg-[#1F2937] rounded-lg border border-[#374151]"
+            className="text-[#A0A0A8] hover:text-[#C9A84C] p-2 bg-[#26262E] rounded-lg border border-[#33333C]"
           >
             <ArrowLeft size={18} />
           </Link>
           <AppMenu />
-          <h1 className="text-lg font-black uppercase tracking-widest">Invest</h1>
+          <h1 className="font-display text-xl font-light tracking-tight">Invest</h1>
         </div>
 
         {checking ? (
-          <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest py-20 text-center">
+          <p className="text-[13px] text-[#72727A] py-20 text-center">
             Loading...
           </p>
         ) : !userId ? (
           <Panel>
-            <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-[0.15em] text-center leading-relaxed">
+            <p className="text-xs font-mono text-[#A0A0A8] uppercase tracking-[0.15em] text-center leading-relaxed">
               Please{" "}
-              <Link href="/auth" className="text-[#FDB813] underline">
+              <Link href="/auth" className="text-[#C9A84C] underline">
                 sign in
               </Link>{" "}
               to invest.
@@ -193,24 +193,24 @@ export default function InvestPage() {
                 <h2 className="text-xl font-black leading-tight mb-2">
                   Put your KPC to work
                 </h2>
-                <p className="text-[11px] font-mono text-[#94A3B8] uppercase tracking-[0.12em] leading-relaxed">
+                <p className="text-[13px] text-[#A0A0A8] leading-relaxed">
                   Treasury bills and funds, in dollars, from small amounts.
                 </p>
               </div>
             )}
 
             {holdings.length > 0 && (
-              <div className="mb-5 bg-[#111827] border border-[#1F2937] rounded-xl p-5">
-                <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-1">
+              <div className="mb-5 bg-[#16161C] border border-[#26262E] rounded-xl p-5">
+                <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.2em] mb-1">
                   What you hold
                 </p>
                 <div className="flex items-baseline gap-3">
-                  <span className="text-3xl font-black text-[#FDB813]">
+                  <span className="text-3xl font-black text-[#C9A84C]">
                     {money(totalValue)} <span className="text-sm text-white">KPC</span>
                   </span>
                   <span
                     className={`text-xs font-mono font-bold flex items-center gap-1 ${
-                      totalGain >= 0 ? "text-[#10B981]" : "text-[#EF4444]"
+                      totalGain >= 0 ? "text-[#2ECC71]" : "text-[#E74C3C]"
                     }`}
                   >
                     {totalGain >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
@@ -218,7 +218,7 @@ export default function InvestPage() {
                     {money(totalGain)}
                   </span>
                 </div>
-                <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-widest mt-1">
+                <p className="text-[9px] font-mono text-[#72727A] uppercase tracking-widest mt-1">
                   {formatKpcAsUsd(totalValue)}
                 </p>
               </div>
@@ -227,12 +227,12 @@ export default function InvestPage() {
             {holdings.map((h) => (
               <div
                 key={h.instrument_id}
-                className="mb-3 bg-[#111827] border border-[#1F2937] rounded-xl p-4"
+                className="mb-3 bg-[#16161C] border border-[#26262E] rounded-xl p-4"
               >
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <p className="text-sm font-bold">{h.name}</p>
-                    <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mt-0.5">
+                    <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.15em] mt-0.5">
                       {n(h.units).toFixed(4)} units · {h.issuer}
                     </p>
                   </div>
@@ -240,7 +240,7 @@ export default function InvestPage() {
                     <p className="text-sm font-black">{money(h.value)} KPC</p>
                     <p
                       className={`text-[10px] font-mono font-bold ${
-                        n(h.gain) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"
+                        n(h.gain) >= 0 ? "text-[#2ECC71]" : "text-[#E74C3C]"
                       }`}
                     >
                       {n(h.gain) >= 0 ? "+" : ""}
@@ -250,7 +250,7 @@ export default function InvestPage() {
                 </div>
 
                 {h.price_stale && (
-                  <p className="text-[9px] font-mono text-[#EF4444] uppercase tracking-[0.12em] flex items-center gap-1.5 mb-2">
+                  <p className="text-[9px] font-mono text-[#E74C3C] uppercase tracking-[0.12em] flex items-center gap-1.5 mb-2">
                     <AlertTriangle size={11} /> Price out of date — selling is paused
                   </p>
                 )}
@@ -258,7 +258,7 @@ export default function InvestPage() {
                 <button
                   disabled={busy || h.price_stale}
                   onClick={() => sell(h)}
-                  className="w-full py-2.5 bg-[#1F2937] hover:bg-[#EF4444]/15 border border-[#374151] hover:border-[#EF4444]/50 text-[#94A3B8] hover:text-[#EF4444] rounded-lg text-[9px] font-mono uppercase tracking-[0.15em] transition-colors disabled:opacity-40"
+                  className="w-full py-2.5 bg-[#26262E] hover:bg-[#E74C3C]/15 border border-[#33333C] hover:border-[#E74C3C]/50 text-[#A0A0A8] hover:text-[#E74C3C] rounded-lg text-[9px] font-mono uppercase tracking-[0.15em] transition-colors disabled:opacity-40"
                 >
                   Sell · pays out in {h.settles_in_days} days
                   {h.exit_fee_bps > 0 && ` · ${(h.exit_fee_bps / 100).toFixed(2)}% exit fee`}
@@ -270,7 +270,7 @@ export default function InvestPage() {
               <Panel title="Money on the way">
                 {pending.map((r) => (
                   <div key={r.reference} className="flex justify-between items-baseline gap-3 py-1">
-                    <span className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.12em] flex items-center gap-1.5">
+                    <span className="text-[13px] text-[#A0A0A8] flex items-center gap-1.5">
                       <Clock size={11} /> {r.name}
                     </span>
                     <span className="text-xs font-mono font-bold">
@@ -285,7 +285,7 @@ export default function InvestPage() {
               </Panel>
             )}
 
-            <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mt-6 mb-3">
+            <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.2em] mt-6 mb-3">
               Open to invest in
             </p>
 
@@ -298,9 +298,9 @@ export default function InvestPage() {
                 <p className="text-[11px] font-bold text-center mb-2">
                   New products coming soon
                 </p>
-                <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.15em] text-center leading-relaxed">
+                <p className="text-[12px] text-[#72727A] text-center leading-relaxed">
                   Meanwhile your KPC can earn in{" "}
-                  <Link href="/savings" className="text-[#10B981] underline">
+                  <Link href="/savings" className="text-[#2ECC71] underline">
                     savings
                   </Link>
                 </p>
@@ -312,19 +312,19 @@ export default function InvestPage() {
                 return (
                   <div
                     key={inst.id}
-                    className="mb-3 bg-[#111827] border border-[#1F2937] rounded-xl p-4"
+                    className="mb-3 bg-[#16161C] border border-[#26262E] rounded-xl p-4"
                   >
                     <div className="flex justify-between items-start">
                       <div>
                         <p className="text-sm font-bold">{inst.name}</p>
-                        <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mt-0.5">
+                        <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.15em] mt-0.5">
                           {KIND[inst.kind] ?? inst.kind} · {inst.issuer}
                         </p>
                       </div>
                       {inst.expected_yield_bps != null && (
-                        <span className="text-sm font-black text-[#10B981]">
+                        <span className="text-sm font-black text-[#2ECC71]">
                           {(inst.expected_yield_bps / 100).toFixed(1)}%
-                          <span className="text-[8px] font-mono text-[#4B5563] block text-right tracking-widest">
+                          <span className="text-[8px] font-mono text-[#72727A] block text-right tracking-widest">
                             EXPECTED
                           </span>
                         </span>
@@ -332,12 +332,12 @@ export default function InvestPage() {
                     </div>
 
                     {inst.blurb && (
-                      <p className="text-[10px] font-mono text-[#94A3B8] mt-2 leading-relaxed">
+                      <p className="text-[10px] font-mono text-[#A0A0A8] mt-2 leading-relaxed">
                         {inst.blurb}
                       </p>
                     )}
 
-                    <p className="text-[9px] font-mono text-[#FDB813]/80 uppercase tracking-[0.12em] mt-2 leading-relaxed">
+                    <p className="text-[9px] font-mono text-[#C9A84C]/80 uppercase tracking-[0.12em] mt-2 leading-relaxed">
                       {inst.risk_note}
                     </p>
 
@@ -349,9 +349,9 @@ export default function InvestPage() {
                           inputMode="decimal"
                           autoFocus
                           placeholder={`Minimum ${money(inst.min_investment)} KPC`}
-                          className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-3 text-lg font-black text-white placeholder-[#4B5563] focus:border-[#FDB813] outline-none text-center"
+                          className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-3 text-lg font-black text-white placeholder-[#72727A] focus:border-[#C9A84C] outline-none text-center"
                         />
-                        <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.12em] text-center mt-2">
+                        <p className="text-[9px] font-mono text-[#72727A] uppercase tracking-[0.12em] text-center mt-2">
                           You have {money(balance ?? 0)} KPC ·{" "}
                           {Number(amount) > 0
                             ? `${(Number(amount) / n(inst.unit_price)).toFixed(4)} units`
@@ -363,14 +363,14 @@ export default function InvestPage() {
                               setOpen(null);
                               setAmount("");
                             }}
-                            className="py-3 bg-[#1F2937] border border-[#374151] text-[#94A3B8] rounded-lg text-[9px] font-mono uppercase tracking-[0.15em]"
+                            className="py-3 bg-[#26262E] border border-[#33333C] text-[#A0A0A8] rounded-lg text-[9px] font-mono uppercase tracking-[0.15em]"
                           >
                             Cancel
                           </button>
                           <button
                             disabled={busy || Number(amount) <= 0}
                             onClick={() => buy(inst)}
-                            className="py-3 bg-[#FDB813] hover:bg-[#E0A411] disabled:opacity-40 text-[#0A0E14] rounded-lg text-[9px] font-mono font-black uppercase tracking-[0.15em] flex items-center justify-center gap-1.5"
+                            className="py-3 bg-[#C9A84C] hover:bg-[#B8963F] disabled:opacity-40 text-[#07070A] rounded-lg text-[9px] font-mono font-black uppercase tracking-[0.15em] flex items-center justify-center gap-1.5"
                           >
                             {busy && <Loader2 size={11} className="animate-spin" />}
                             Confirm
@@ -381,7 +381,7 @@ export default function InvestPage() {
                       <button
                         disabled={stale}
                         onClick={() => setOpen(inst.id)}
-                        className="w-full mt-3 py-2.5 bg-[#1F2937] hover:bg-[#FDB813]/10 border border-[#374151] hover:border-[#FDB813]/50 text-[#94A3B8] hover:text-[#FDB813] rounded-lg text-[9px] font-mono uppercase tracking-[0.15em] transition-colors disabled:opacity-40"
+                        className="w-full mt-3 py-2.5 bg-[#26262E] hover:bg-[#C9A84C]/10 border border-[#33333C] hover:border-[#C9A84C]/50 text-[#A0A0A8] hover:text-[#C9A84C] rounded-lg text-[9px] font-mono uppercase tracking-[0.15em] transition-colors disabled:opacity-40"
                       >
                         {stale
                           ? "Price out of date — closed"
@@ -396,7 +396,7 @@ export default function InvestPage() {
                 wants to know how it works can open it; nobody is made to read
                 it before they can see a product. */}
             <details className="mt-6 group">
-              <summary className="cursor-pointer list-none flex items-center justify-between py-3 px-4 bg-[#111827] border border-[#1F2937] rounded-xl text-[10px] font-mono uppercase tracking-[0.15em] text-[#94A3B8]">
+              <summary className="cursor-pointer list-none flex items-center justify-between py-3 px-4 bg-[#16161C] border border-[#26262E] rounded-xl text-[10px] font-mono uppercase tracking-[0.15em] text-[#A0A0A8]">
                 How this works
                 <ChevronDown
                   size={14}
@@ -419,7 +419,7 @@ export default function InvestPage() {
               </div>
             </details>
 
-            <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.12em] leading-relaxed text-center mt-6 mb-2">
+            <p className="text-[12px] text-[#72727A] leading-relaxed text-center mt-6 mb-2">
               Investments can fall as well as rise. Capital is at risk.
             </p>
           </>
@@ -433,16 +433,16 @@ function Point({ t, children }: { t: string; children: React.ReactNode }) {
   return (
     <div>
       <p className="text-[10px] font-bold mb-0.5">{t}</p>
-      <p className="text-[10px] font-mono text-[#94A3B8] leading-relaxed">{children}</p>
+      <p className="text-[10px] font-mono text-[#A0A0A8] leading-relaxed">{children}</p>
     </div>
   );
 }
 
 function Panel({ title, children }: { title?: string; children: React.ReactNode }) {
   return (
-    <div className="bg-[#111827] border border-[#1F2937] rounded-xl p-4">
+    <div className="bg-[#16161C] border border-[#26262E] rounded-xl p-4">
       {title && (
-        <p className="text-[9px] font-mono text-[#FDB813] uppercase tracking-[0.2em] mb-3">
+        <p className="text-[9px] font-mono text-[#C9A84C] uppercase tracking-[0.2em] mb-3">
           {title}
         </p>
       )}

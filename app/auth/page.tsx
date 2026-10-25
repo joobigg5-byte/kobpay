@@ -139,10 +139,10 @@ function AuthForm() {
       : null;
 
   return (
-    <div className="min-h-[100dvh] bg-[#0A0E14] text-white flex items-center justify-center p-4 lg:p-6">
-      <div className="w-full max-w-sm bg-[#111827] border border-[#1F2937] rounded-[2rem] p-8 shadow-2xl">
-        <div className="flex items-center gap-2 mb-8 text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]">
-          <ShieldCheck size={14} className="text-[#FDB813]" />
+    <div className="min-h-[100dvh] bg-[#07070A] text-white flex items-center justify-center p-4 lg:p-6">
+      <div className="w-full max-w-sm bg-[#16161C] border border-[#26262E] rounded-[2rem] p-8 shadow-2xl">
+        <div className="flex items-center gap-2 mb-8 text-[10px] font-mono uppercase tracking-widest text-[#A0A0A8]">
+          <ShieldCheck size={14} className="text-[#C9A84C]" />
           {redirectUri
             ? `Signing in to continue to ${new URL(redirectUri).hostname}`
             : "Sign in to KobPay"}
@@ -150,13 +150,13 @@ function AuthForm() {
 
         {step === "phone" ? (
           <>
-            <label className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-widest block mb-2">
+            <label className="text-[10px] font-mono text-[#A0A0A8] uppercase tracking-widest block mb-2">
               Country
             </label>
             <select
               value={dial}
               onChange={(e) => setDial(e.target.value)}
-              className="w-full mb-4 bg-[#0A0E14] border border-[#374151] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#FDB813] appearance-none"
+              className="w-full mb-4 bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C] appearance-none"
             >
               {dialCodes.length === 0 ? (
                 <option value={dial}>Loading…</option>
@@ -169,15 +169,15 @@ function AuthForm() {
               )}
             </select>
 
-            <label className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-widest block mb-2">
+            <label className="text-[10px] font-mono text-[#A0A0A8] uppercase tracking-widest block mb-2">
               Phone Number
             </label>
             <div className="relative mb-2">
               <Phone
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-[#374151]"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-[#33333C]"
                 size={16}
               />
-              <span className="absolute left-11 top-1/2 -translate-y-1/2 text-sm font-mono text-[#94A3B8]">
+              <span className="absolute left-11 top-1/2 -translate-y-1/2 text-sm font-mono text-[#A0A0A8]">
                 {dial}
               </span>
               <input
@@ -187,34 +187,34 @@ function AuthForm() {
                 onChange={(e) => setNational(e.target.value)}
                 placeholder="24 412 3456"
                 style={{ paddingLeft: `${44 + dial.length * 9}px` }}
-                className="w-full bg-[#0A0E14] border border-[#374151] rounded-xl pr-4 py-4 text-sm font-mono text-white outline-none focus:border-[#FDB813]"
+                className="w-full bg-[#07070A] border border-[#33333C] rounded-xl pr-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C]"
               />
             </div>
 
             {/* Show the number exactly as it will be stored, so a wrong
                 country is obvious before an SMS goes to the wrong place. */}
-            <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.15em] mb-4 min-h-[14px]">
+            <p className="text-[9px] font-mono text-[#72727A] uppercase tracking-[0.15em] mb-4 min-h-[14px]">
               {national.replace(/\D/g, "") ? `Sending to ${phone}` : " "}
             </p>
 
             <button
               onClick={handleSendCode}
               disabled={isLoading}
-              className="w-full py-4 bg-[#FDB813] disabled:bg-[#374151] text-[#0A0E14] font-black font-mono text-[11px] uppercase tracking-[0.2em] rounded-xl flex items-center justify-center gap-2"
+              className="w-full py-4 bg-[#C9A84C] disabled:bg-[#33333C] text-[#07070A] font-black font-mono text-[11px] uppercase tracking-[0.2em] rounded-xl flex items-center justify-center gap-2"
             >
               {isLoading && <Loader2 size={16} className="animate-spin" />}
               Send Code
             </button>
 
             {topUpNote && (
-              <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.15em] text-center mt-4 leading-relaxed">
+              <p className="text-[9px] font-mono text-[#72727A] uppercase tracking-[0.15em] text-center mt-4 leading-relaxed">
                 {topUpNote}
               </p>
             )}
           </>
         ) : (
           <>
-            <label className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-widest block mb-2">
+            <label className="text-[13px] text-[#A0A0A8] block mb-2">
               Enter the code sent to {phone}
             </label>
             <input
@@ -223,12 +223,12 @@ function AuthForm() {
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
               placeholder="123456"
-              className="w-full bg-[#0A0E14] border border-[#374151] rounded-xl px-4 py-4 text-xl font-black font-mono text-white outline-none focus:border-[#FDB813] mb-4 tracking-widest text-center"
+              className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-xl font-black font-mono text-white outline-none focus:border-[#C9A84C] mb-4 tracking-widest text-center"
             />
             <button
               onClick={handleVerifyCode}
               disabled={isLoading}
-              className="w-full py-4 bg-[#FDB813] disabled:bg-[#374151] text-[#0A0E14] font-black font-mono text-[11px] uppercase tracking-[0.2em] rounded-xl flex items-center justify-center gap-2"
+              className="w-full py-4 bg-[#C9A84C] disabled:bg-[#33333C] text-[#07070A] font-black font-mono text-[11px] uppercase tracking-[0.2em] rounded-xl flex items-center justify-center gap-2"
             >
               {isLoading && <Loader2 size={16} className="animate-spin" />}
               Verify &amp; Continue
@@ -239,7 +239,7 @@ function AuthForm() {
                 setOtp("");
                 setError(null);
               }}
-              className="w-full mt-3 text-[9px] font-mono uppercase tracking-[0.2em] text-[#4B5563] hover:text-[#94A3B8]"
+              className="w-full mt-3 text-[9px] font-mono uppercase tracking-[0.2em] text-[#72727A] hover:text-[#A0A0A8]"
             >
               Wrong number? Go back
             </button>
@@ -247,7 +247,7 @@ function AuthForm() {
         )}
 
         {error && (
-          <div className="text-[10px] font-mono text-[#EF4444] uppercase tracking-widest mt-4">
+          <div className="text-[10px] font-mono text-[#E74C3C] uppercase tracking-widest mt-4">
             {error}
           </div>
         )}
@@ -258,7 +258,7 @@ function AuthForm() {
 
 export default function AuthPage() {
   return (
-    <Suspense fallback={<div className="min-h-[100dvh] bg-[#0A0E14]" />}>
+    <Suspense fallback={<div className="min-h-[100dvh] bg-[#07070A]" />}>
       <AuthForm />
     </Suspense>
   );

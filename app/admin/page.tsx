@@ -230,7 +230,7 @@ export default function AdminPage() {
   if (staff === null) {
     return (
       <Shell>
-        <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest py-20 text-center">
+        <p className="text-[13px] text-[#72727A] py-20 text-center">
           Loading...
         </p>
       </Shell>
@@ -240,9 +240,9 @@ export default function AdminPage() {
   if (!staff) {
     return (
       <Shell>
-        <div className="bg-[#111827] border border-[#1F2937] rounded-2xl p-8 text-center">
-          <ShieldAlert size={28} className="text-[#94A3B8] mx-auto mb-4" />
-          <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-[0.15em] leading-relaxed">
+        <div className="bg-[#16161C] border border-[#26262E] rounded-2xl p-8 text-center">
+          <ShieldAlert size={28} className="text-[#A0A0A8] mx-auto mb-4" />
+          <p className="text-[13px] text-[#A0A0A8] leading-relaxed">
             This page is for KobPay staff.
             <br />
             If that should be you, your profile needs a staff role.
@@ -282,24 +282,24 @@ export default function AdminPage() {
             onClick={() => setTab(key)}
             className={`flex-1 min-w-[92px] flex items-center justify-center gap-1.5 py-3 rounded-xl border text-[9px] font-mono uppercase tracking-[0.15em] transition-colors ${
               tab === key
-                ? "bg-[#FDB813]/10 border-[#FDB813]/50 text-[#FDB813]"
-                : "bg-[#1F2937] border-[#374151] text-[#94A3B8] hover:text-white"
+                ? "bg-[#C9A84C]/10 border-[#C9A84C]/50 text-[#C9A84C]"
+                : "bg-[#26262E] border-[#33333C] text-[#A0A0A8] hover:text-white"
             }`}
           >
             <Icon size={13} />
             {label}
             {key === "risk" && risk && risk.queue.length > 0 && (
-              <span className="ml-1 px-1.5 py-0.5 rounded bg-[#EF4444] text-white font-black">
+              <span className="ml-1 px-1.5 py-0.5 rounded bg-[#E74C3C] text-white font-black">
                 {risk.queue.length}
               </span>
             )}
             {key === "kyc" && kyc && kyc.queue.length > 0 && (
-              <span className="ml-1 px-1.5 py-0.5 rounded bg-[#FDB813] text-[#0A0E14] font-black">
+              <span className="ml-1 px-1.5 py-0.5 rounded bg-[#C9A84C] text-[#07070A] font-black">
                 {kyc.queue.length}
               </span>
             )}
             {key === "disputes" && disputes && disputes.queue.length > 0 && (
-              <span className="ml-1 px-1.5 py-0.5 rounded bg-[#FDB813] text-[#0A0E14] font-black">
+              <span className="ml-1 px-1.5 py-0.5 rounded bg-[#C9A84C] text-[#07070A] font-black">
                 {disputes.queue.length}
               </span>
             )}
@@ -310,13 +310,13 @@ export default function AdminPage() {
       {/* The single most important thing on this page: if any drift view has a
           row, the ledger and the balances disagree and nothing else matters. */}
       {driftRows.length > 0 && (
-        <div className="mb-6 bg-[#EF4444]/10 border border-[#EF4444]/40 rounded-xl p-4 flex items-start gap-3">
-          <AlertTriangle size={18} className="text-[#EF4444] shrink-0 mt-0.5" />
+        <div className="mb-6 bg-[#E74C3C]/10 border border-[#E74C3C]/40 rounded-xl p-4 flex items-start gap-3">
+          <AlertTriangle size={18} className="text-[#E74C3C] shrink-0 mt-0.5" />
           <div>
-            <p className="text-[10px] font-mono text-[#EF4444] uppercase tracking-[0.15em] font-bold">
+            <p className="text-[10px] font-mono text-[#E74C3C] uppercase tracking-[0.15em] font-bold">
               {driftRows.length} account{driftRows.length === 1 ? "" : "s"} out of balance
             </p>
-            <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.12em] mt-1 leading-relaxed">
+            <p className="text-[12px] text-[#A0A0A8] mt-1 leading-relaxed">
               The ledger and the stored balances disagree. Stop and investigate before
               approving anything.
             </p>
@@ -344,33 +344,33 @@ export default function AdminPage() {
               {disputes.queue.map((d) => (
                 <div
                   key={d.id}
-                  className={`bg-[#111827] border rounded-xl p-4 ${
+                  className={`bg-[#16161C] border rounded-xl p-4 ${
                     d.decision_overdue
-                      ? "border-[#EF4444]/50"
+                      ? "border-[#E74C3C]/50"
                       : d.response_overdue
-                        ? "border-[#FDB813]/40"
-                        : "border-[#1F2937]"
+                        ? "border-[#C9A84C]/40"
+                        : "border-[#26262E]"
                   }`}
                 >
                   <div className="flex justify-between items-start mb-3">
                     <div>
                       <p className="text-sm font-black">{money(d.amount)} KPC</p>
-                      <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mt-0.5">
+                      <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.15em] mt-0.5">
                         {REASONS[d.reason] ?? d.reason} · {d.reference}
                       </p>
                     </div>
                     <span
                       className={`text-[9px] font-mono uppercase tracking-[0.15em] px-2 py-1 rounded ${
                         d.decision_overdue
-                          ? "bg-[#EF4444]/15 text-[#EF4444]"
-                          : "bg-[#1F2937] text-[#94A3B8]"
+                          ? "bg-[#E74C3C]/15 text-[#E74C3C]"
+                          : "bg-[#26262E] text-[#A0A0A8]"
                       }`}
                     >
                       {until(d.resolve_by)}
                     </span>
                   </div>
 
-                  <div className="text-[10px] font-mono text-[#94A3B8] leading-relaxed mb-3">
+                  <div className="text-[10px] font-mono text-[#A0A0A8] leading-relaxed mb-3">
                     <span className="text-white">{d.raised_by}</span> ({d.raiser_phone})
                     {d.against && (
                       <>
@@ -456,7 +456,7 @@ export default function AdminPage() {
           ))}
 
           {driftRows.length === 0 && (
-            <div className="flex items-center justify-center gap-2 py-4 text-[9px] font-mono uppercase tracking-[0.15em] text-[#10B981]">
+            <div className="flex items-center justify-center gap-2 py-4 text-[9px] font-mono uppercase tracking-[0.15em] text-[#2ECC71]">
               <Check size={13} /> Every balance matches its ledger
             </div>
           )}
@@ -469,20 +469,20 @@ export default function AdminPage() {
             <Empty>Nobody waiting to be verified</Empty>
           ) : (
             kyc.queue.map((k, i) => (
-              <div key={i} className="bg-[#111827] border border-[#1F2937] rounded-xl p-4">
+              <div key={i} className="bg-[#16161C] border border-[#26262E] rounded-xl p-4">
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <p className="text-sm font-bold">{String(k.full_name)}</p>
-                    <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mt-0.5">
+                    <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.15em] mt-0.5">
                       {String(k.phone)} · {String(k.tier_now)} → {String(k.tier_wanted)}
                     </p>
                   </div>
-                  <span className="text-[9px] font-mono uppercase tracking-[0.15em] px-2 py-1 rounded bg-[#1F2937] text-[#94A3B8]">
+                  <span className="text-[9px] font-mono uppercase tracking-[0.15em] px-2 py-1 rounded bg-[#26262E] text-[#A0A0A8]">
                     {n(k.hours_waiting) < 1 ? "just now" : `${Math.round(n(k.hours_waiting))}h`}
                   </span>
                 </div>
 
-                <div className="bg-[#0A0E14] border border-[#1F2937] rounded-lg p-3 mb-3 space-y-1">
+                <div className="bg-[#07070A] border border-[#26262E] rounded-lg p-3 mb-3 space-y-1">
                   <KV k="ID" v={`${String(k.id_type).replace(/_/g, " ")} · ${String(k.id_reference ?? "—")}`} />
                   {k.address ? <KV k="Address" v={String(k.address)} /> : null}
                   {/* Blank is normal — it is optional on the form and asked
@@ -525,8 +525,8 @@ export default function AdminPage() {
             risk.queue.map((r, i) => (
               <div
                 key={i}
-                className={`bg-[#111827] border rounded-xl p-4 ${
-                  r.severity === "high" ? "border-[#EF4444]/50" : "border-[#1F2937]"
+                className={`bg-[#16161C] border rounded-xl p-4 ${
+                  r.severity === "high" ? "border-[#E74C3C]/50" : "border-[#26262E]"
                 }`}
               >
                 <div className="flex justify-between items-start mb-2">
@@ -534,7 +534,7 @@ export default function AdminPage() {
                     <p className="text-sm font-bold capitalize">
                       {String(r.kind).replace(/_/g, " ")}
                     </p>
-                    <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mt-0.5">
+                    <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.15em] mt-0.5">
                       {String(r.full_name ?? "unknown")} · {String(r.phone ?? "—")} ·{" "}
                       {String(r.kyc_tier ?? "—")}
                     </p>
@@ -542,15 +542,15 @@ export default function AdminPage() {
                   <span
                     className={`text-[9px] font-mono uppercase tracking-[0.15em] px-2 py-1 rounded ${
                       r.severity === "high"
-                        ? "bg-[#EF4444]/15 text-[#EF4444]"
-                        : "bg-[#1F2937] text-[#94A3B8]"
+                        ? "bg-[#E74C3C]/15 text-[#E74C3C]"
+                        : "bg-[#26262E] text-[#A0A0A8]"
                     }`}
                   >
                     {String(r.severity)}
                   </span>
                 </div>
 
-                <p className="text-[10px] font-mono text-[#94A3B8] leading-relaxed mb-3">
+                <p className="text-[10px] font-mono text-[#A0A0A8] leading-relaxed mb-3">
                   {String(r.detail)}
                 </p>
 
@@ -590,23 +590,23 @@ export default function AdminPage() {
           <div
             className={`rounded-xl p-5 border ${
               n(reserve.health.coverage_percent) >= 100
-                ? "bg-[#10B981]/5 border-[#10B981]/30"
-                : "bg-[#EF4444]/10 border-[#EF4444]/40"
+                ? "bg-[#2ECC71]/5 border-[#2ECC71]/30"
+                : "bg-[#E74C3C]/10 border-[#E74C3C]/40"
             }`}
           >
-            <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-1">
+            <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.2em] mb-1">
               Every KPC backed?
             </p>
             <p
               className={`text-3xl font-black ${
-                n(reserve.health.coverage_percent) >= 100 ? "text-[#10B981]" : "text-[#EF4444]"
+                n(reserve.health.coverage_percent) >= 100 ? "text-[#2ECC71]" : "text-[#E74C3C]"
               }`}
             >
               {reserve.health.coverage_percent == null
                 ? "—"
                 : `${n(reserve.health.coverage_percent).toFixed(2)}%`}
             </p>
-            <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.12em] mt-2 leading-relaxed">
+            <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.12em] mt-2 leading-relaxed">
               {money(reserve.health.total_backing)} held against{" "}
               {money(reserve.health.owed_to_customers)} owed
             </p>
@@ -615,9 +615,9 @@ export default function AdminPage() {
           {/* Liquid share: the books can balance and a withdrawal still fail. */}
           {reserve.health.liquid_percent != null &&
             n(reserve.health.liquid_percent) < n(reserve.health.liquid_floor_percent) && (
-              <div className="bg-[#EF4444]/10 border border-[#EF4444]/40 rounded-xl p-4 flex gap-3">
-                <AlertTriangle size={16} className="text-[#EF4444] shrink-0 mt-0.5" />
-                <p className="text-[10px] font-mono text-[#EF4444] uppercase tracking-[0.12em] leading-relaxed">
+              <div className="bg-[#E74C3C]/10 border border-[#E74C3C]/40 rounded-xl p-4 flex gap-3">
+                <AlertTriangle size={16} className="text-[#E74C3C] shrink-0 mt-0.5" />
+                <p className="text-[10px] font-mono text-[#E74C3C] uppercase tracking-[0.12em] leading-relaxed">
                   Only {n(reserve.health.liquid_percent).toFixed(1)}% liquid, under the{" "}
                   {n(reserve.health.liquid_floor_percent).toFixed(0)}% floor. A withdrawal
                   could fail even though the books balance.
@@ -635,25 +635,25 @@ export default function AdminPage() {
               <div
                 className={`rounded-xl p-4 border ${
                   n(reserveFx.coverage_percent_stressed) >= 100
-                    ? "bg-[#10B981]/5 border-[#10B981]/30"
-                    : "bg-[#EF4444]/10 border-[#EF4444]/40"
+                    ? "bg-[#2ECC71]/5 border-[#2ECC71]/30"
+                    : "bg-[#E74C3C]/10 border-[#E74C3C]/40"
                 }`}
               >
-                <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-1">
+                <p className="text-[12px] text-[#A0A0A8] mb-1">
                   Covered after a currency move?
                 </p>
                 <p
                   className={`text-3xl font-black ${
                     n(reserveFx.coverage_percent_stressed) >= 100
-                      ? "text-[#10B981]"
-                      : "text-[#EF4444]"
+                      ? "text-[#2ECC71]"
+                      : "text-[#E74C3C]"
                   }`}
                 >
                   {reserveFx.coverage_percent_stressed == null
                     ? "—"
                     : `${n(reserveFx.coverage_percent_stressed).toFixed(2)}%`}
                 </p>
-                <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.12em] mt-2 leading-relaxed">
+                <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.12em] mt-2 leading-relaxed">
                   {reserveFx.stress_case}
                 </p>
                 <p className="text-[10px] font-mono text-white uppercase tracking-[0.12em] mt-3 leading-relaxed">
@@ -702,14 +702,14 @@ export default function AdminPage() {
               {(reserveFx.breaches ?? []).length > 0 && (
                 <Panel title="Policy breaches">
                   {(reserveFx.breaches ?? []).map((b, i) => (
-                    <div key={i} className="py-2 border-b border-[#1F2937] last:border-0">
-                      <p className="text-[10px] font-bold text-[#EF4444]">
+                    <div key={i} className="py-2 border-b border-[#26262E] last:border-0">
+                      <p className="text-[10px] font-bold text-[#E74C3C]">
                         {b.says} — now {b.actual}
                       </p>
-                      <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.12em] mt-1">
+                      <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.12em] mt-1">
                         {b.fix}
                       </p>
-                      <p className="text-[8px] font-mono text-[#4B5563] tracking-[0.12em] mt-0.5">
+                      <p className="text-[8px] font-mono text-[#72727A] tracking-[0.12em] mt-0.5">
                         {b.setting}
                       </p>
                     </div>
@@ -791,19 +791,19 @@ export default function AdminPage() {
             return (
               <div
                 key={i}
-                className={`bg-[#111827] border rounded-xl p-4 ${
-                  losing ? "border-[#EF4444]/50" : "border-[#1F2937]"
+                className={`bg-[#16161C] border rounded-xl p-4 ${
+                  losing ? "border-[#E74C3C]/50" : "border-[#26262E]"
                 }`}
               >
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <p className="text-sm font-bold capitalize">{String(r.product)}</p>
-                    <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mt-0.5">
+                    <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.15em] mt-0.5">
                       funded from {String(r.funded_from)} · {String(r.basis)}
                     </p>
                   </div>
                   <p
-                    className={`text-xl font-black ${losing ? "text-[#EF4444]" : "text-[#FDB813]"}`}
+                    className={`text-xl font-black ${losing ? "text-[#E74C3C]" : "text-[#C9A84C]"}`}
                   >
                     {(n(r.current_bps) / 100).toFixed(2)}%
                   </p>
@@ -813,7 +813,7 @@ export default function AdminPage() {
                 <KV k="Target, with margin" v={`${(n(r.ceiling_bps) / 100).toFixed(2)}%`} />
                 <p
                   className={`text-[10px] font-mono uppercase tracking-[0.12em] mt-2 ${
-                    losing ? "text-[#EF4444]" : "text-[#94A3B8]"
+                    losing ? "text-[#E74C3C]" : "text-[#A0A0A8]"
                   }`}
                 >
                   {String(r.verdict)}
@@ -919,14 +919,14 @@ export default function AdminPage() {
               return (
                 <>
                   {stale > 0 && (
-                    <p className="text-[9px] font-mono text-[#EF4444] uppercase tracking-[0.12em] mt-3 pt-3 border-t border-[#1F2937] leading-relaxed">
+                    <p className="text-[9px] font-mono text-[#E74C3C] uppercase tracking-[0.12em] mt-3 pt-3 border-t border-[#26262E] leading-relaxed">
                       {stale} rate{stale === 1 ? "" : "s"} over a day old. At 48 hours
                       payments in {stale === 1 ? "that currency" : "those currencies"}{" "}
                       stop.
                     </p>
                   )}
                   {off > 0 && (
-                    <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.12em] mt-3 pt-3 border-t border-[#1F2937]">
+                    <p className="text-[9px] font-mono text-[#72727A] uppercase tracking-[0.12em] mt-3 pt-3 border-t border-[#26262E]">
                       {off} other currencies not switched on
                     </p>
                   )}
@@ -937,7 +937,7 @@ export default function AdminPage() {
 
           <Panel title="Nightly jobs">
             {ops.jobs.length === 0 ? (
-              <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.15em] py-2">
+              <p className="text-[9px] font-mono text-[#72727A] uppercase tracking-[0.15em] py-2">
                 No runs recorded yet
               </p>
             ) : (
@@ -959,17 +959,17 @@ export default function AdminPage() {
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-[100dvh] bg-[#0A0E14] text-white font-sans p-5 selection:bg-[#AA771C]/30">
+    <div className="min-h-[100dvh] bg-[#07070A] text-white font-sans p-5 selection:bg-[#8A6D2F]/30">
       <div className="max-w-xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
           <Link
             href="/wallet"
-            className="text-[#94A3B8] hover:text-[#FDB813] p-2 bg-[#1F2937] rounded-lg border border-[#374151]"
+            className="text-[#A0A0A8] hover:text-[#C9A84C] p-2 bg-[#26262E] rounded-lg border border-[#33333C]"
           >
             <ArrowLeft size={18} />
           </Link>
           <AppMenu />
-          <h1 className="text-lg font-black uppercase tracking-widest">Operations</h1>
+          <h1 className="font-display text-xl font-light tracking-tight">Operations</h1>
         </div>
         {children}
       </div>
@@ -982,8 +982,8 @@ const kpcShort = (v: unknown) =>
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-[#111827] border border-[#1F2937] rounded-xl p-4">
-      <p className="text-[9px] font-mono text-[#FDB813] uppercase tracking-[0.2em] mb-3">
+    <div className="bg-[#16161C] border border-[#26262E] rounded-xl p-4">
+      <p className="text-[9px] font-mono text-[#C9A84C] uppercase tracking-[0.2em] mb-3">
         {title}
       </p>
       <div className="space-y-1.5">{children}</div>
@@ -994,9 +994,9 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
 function KV({ k, v, bad }: { k: string; v: string; bad?: boolean }) {
   return (
     <div className="flex justify-between items-baseline gap-3">
-      <span className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.12em]">{k}</span>
+      <span className="text-[13px] text-[#A0A0A8]">{k}</span>
       <span
-        className={`text-xs font-mono font-bold ${bad ? "text-[#EF4444]" : "text-white"}`}
+        className={`text-xs font-mono font-bold ${bad ? "text-[#E74C3C]" : "text-white"}`}
       >
         {v}
       </span>
@@ -1006,11 +1006,11 @@ function KV({ k, v, bad }: { k: string; v: string; bad?: boolean }) {
 
 function Stat({ label, value, bad }: { label: string; value: string; bad?: boolean }) {
   return (
-    <div className="bg-[#111827] border border-[#1F2937] rounded-xl p-3">
-      <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mb-1">
+    <div className="bg-[#16161C] border border-[#26262E] rounded-xl p-3">
+      <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.15em] mb-1">
         {label}
       </p>
-      <p className={`text-sm font-black ${bad ? "text-[#EF4444]" : "text-white"}`}>{value}</p>
+      <p className={`text-sm font-black ${bad ? "text-[#E74C3C]" : "text-white"}`}>{value}</p>
     </div>
   );
 }
@@ -1028,15 +1028,15 @@ function Act({
 }) {
   const colour =
     tone === "good"
-      ? "hover:bg-[#10B981]/15 hover:border-[#10B981]/50 hover:text-[#10B981]"
+      ? "hover:bg-[#2ECC71]/15 hover:border-[#2ECC71]/50 hover:text-[#2ECC71]"
       : tone === "bad"
-        ? "hover:bg-[#EF4444]/15 hover:border-[#EF4444]/50 hover:text-[#EF4444]"
-        : "hover:bg-[#FDB813]/10 hover:border-[#FDB813]/50 hover:text-[#FDB813]";
+        ? "hover:bg-[#E74C3C]/15 hover:border-[#E74C3C]/50 hover:text-[#E74C3C]"
+        : "hover:bg-[#C9A84C]/10 hover:border-[#C9A84C]/50 hover:text-[#C9A84C]";
   return (
     <button
       disabled={busy}
       onClick={onClick}
-      className={`flex items-center justify-center gap-1.5 py-2.5 bg-[#1F2937] border border-[#374151] text-[#94A3B8] rounded-lg text-[9px] font-mono uppercase tracking-[0.12em] transition-colors disabled:opacity-40 ${colour}`}
+      className={`flex items-center justify-center gap-1.5 py-2.5 bg-[#26262E] border border-[#33333C] text-[#A0A0A8] rounded-lg text-[9px] font-mono uppercase tracking-[0.12em] transition-colors disabled:opacity-40 ${colour}`}
     >
       {busy && <Loader2 size={11} className="animate-spin" />}
       {children}
@@ -1046,7 +1046,7 @@ function Act({
 
 function Empty({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-center gap-2 py-12 text-[10px] font-mono uppercase tracking-[0.15em] text-[#4B5563]">
+    <div className="flex items-center justify-center gap-2 py-12 text-[10px] font-mono uppercase tracking-[0.15em] text-[#72727A]">
       <Check size={14} /> {children}
     </div>
   );

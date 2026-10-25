@@ -71,7 +71,7 @@ type RateSeries = { currency: string; name: string; points: number; from: string
 // filled in.
 const CHART_CODES = ['GHS', 'NGN', 'KES', 'ZAR'];
 const CHART_COLOURS: Record<string, string> = {
-  GHS: '#EF4444', NGN: '#22D3EE', KES: '#A78BFA', ZAR: '#F97316',
+  GHS: '#E74C3C', NGN: '#8FB8D4', KES: '#9A8FC4', ZAR: '#D98B4A',
 };
 
 // Was six invented products carrying invented metrics, scrolling across the
@@ -111,20 +111,20 @@ const staticTickerItems = [
 // test applied to every line: would somebody who has never heard of a
 // stablecoin know what this means, and is it actually true of KobPay?
 const drawerContent: Record<string, any> = {
-  "buy": { title: "Add money", subtitle: "Turn cash into KPC", icon: <Coins className="text-[#FDB813]" size={24} />, color: "text-[#FDB813]", bg: "bg-[#FDB813]/10", border: "border-[#FDB813]/30", details: "Pay with mobile money or a card and the same value lands in your wallet as KPC. One KPC costs one dollar.", metrics: [] },
-  "live_price": { title: "What 1 KPC is worth", subtitle: "One US dollar", icon: <Activity className="text-[#10B981]" size={24} />, color: "text-[#10B981]", bg: "bg-[#10B981]/10", border: "border-[#10B981]/30", details: "KPC does not go up and down. One KPC is one US dollar, and we hold money to back every one that exists. The Ledger page shows what we hold.", metrics: [] },
-  "volume": { title: "Moved in 24 hours", subtitle: "Between wallets", icon: <BarChart className="text-[#22D3EE]" size={24} />, color: "text-[#22D3EE]", bg: "bg-[#22D3EE]/10", border: "border-[#22D3EE]/30", details: "How much KPC people sent each other in the last day, counted from the ledger.", metrics: [] },
-  "market_cap": { title: "KPC in existence", subtitle: "All wallets and savings", icon: <PieChart className="text-[#FDB813]" size={24} />, color: "text-[#FDB813]", bg: "bg-[#FDB813]/10", border: "border-[#FDB813]/30", details: "Every KPC that exists. Each one is a dollar we owe somebody, so this is also the size of what we have to back.", metrics: [] },
-  "txns": { title: "Payments today", subtitle: "In the last 24 hours", icon: <Zap className="text-[#8B5CF6]" size={24} />, color: "text-[#8B5CF6]", bg: "bg-[#8B5CF6]/10", border: "border-[#8B5CF6]/30", details: "How many payments went through in the last day.", metrics: [] },
+  "buy": { title: "Add money", subtitle: "Turn cash into KPC", icon: <Coins className="text-[#C9A84C]" size={24} />, color: "text-[#C9A84C]", bg: "bg-[#C9A84C]/10", border: "border-[#C9A84C]/30", details: "Pay with mobile money or a card and the same value lands in your wallet as KPC. One KPC costs one dollar.", metrics: [] },
+  "live_price": { title: "What 1 KPC is worth", subtitle: "One US dollar", icon: <Activity className="text-[#2ECC71]" size={24} />, color: "text-[#2ECC71]", bg: "bg-[#2ECC71]/10", border: "border-[#2ECC71]/30", details: "KPC does not go up and down. One KPC is one US dollar, and we hold money to back every one that exists. The Ledger page shows what we hold.", metrics: [] },
+  "volume": { title: "Moved in 24 hours", subtitle: "Between wallets", icon: <BarChart className="text-[#8FB8D4]" size={24} />, color: "text-[#8FB8D4]", bg: "bg-[#8FB8D4]/10", border: "border-[#8FB8D4]/30", details: "How much KPC people sent each other in the last day, counted from the ledger.", metrics: [] },
+  "market_cap": { title: "KPC in existence", subtitle: "All wallets and savings", icon: <PieChart className="text-[#C9A84C]" size={24} />, color: "text-[#C9A84C]", bg: "bg-[#C9A84C]/10", border: "border-[#C9A84C]/30", details: "Every KPC that exists. Each one is a dollar we owe somebody, so this is also the size of what we have to back.", metrics: [] },
+  "txns": { title: "Payments today", subtitle: "In the last 24 hours", icon: <Zap className="text-[#9A8FC4]" size={24} />, color: "text-[#9A8FC4]", bg: "bg-[#9A8FC4]/10", border: "border-[#9A8FC4]/30", details: "How many payments went through in the last day.", metrics: [] },
   "holders": { title: "People holding KPC", subtitle: "Wallets with money in them", icon: <Users className="text-[#F472B6]" size={24} />, color: "text-[#F472B6]", bg: "bg-[#F472B6]/10", border: "border-[#F472B6]/30", details: "How many wallets have some KPC in them right now.", metrics: [] },
-  "network": { title: "Countries", subtitle: "Where you can send", icon: <Globe2 className="text-[#10B981]" size={24} />, color: "text-[#10B981]", bg: "bg-[#10B981]/10", border: "border-[#10B981]/30", details: "You can send KPC to a phone number in any of these countries. Putting money in needs a payment provider that covers your country, which is fewer places for now.", metrics: [] },
-  "fee": { title: "What sending costs", subtitle: "Nothing", icon: <Code className="text-[#94A3B8]" size={24} />, color: "text-[#94A3B8]", bg: "bg-[#1F2937]/50", border: "border-[#374151]/50", details: "Sending KPC to another person is free. Moving money out to a bank or mobile money has a small fee, and you see it before you confirm.", metrics: [] },
-  "circulating": { title: "Held by people", subtitle: "Not counting savings", icon: <Layers className="text-[#FDB813]" size={24} />, color: "text-[#FDB813]", bg: "bg-[#FDB813]/10", border: "border-[#FDB813]/30", details: "KPC sitting in everyday wallets, ready to spend. Money locked in savings plans is counted separately.", metrics: [] },
-  "global": { title: "Send anywhere", subtitle: "A phone number is enough", icon: <Globe2 className="text-[#22D3EE]" size={24} />, color: "text-[#22D3EE]", bg: "bg-[#22D3EE]/10", border: "border-[#22D3EE]/30", details: "You need the other person\u2019s phone number, not their bank details. It arrives straight away, and it does not cost anything to send.", metrics: [] },
-  "hedge": { title: "Protect your savings", subtitle: "Hold dollars instead", icon: <Shield className="text-[#FDB813]" size={24} />, color: "text-[#FDB813]", bg: "bg-[#FDB813]/10", border: "border-[#FDB813]/30", details: "When your local currency loses value against the dollar, money you hold as KPC keeps its dollar value. That is the whole idea.", metrics: [] },
-  "earn": { title: "Earn points", subtitle: "For using KobPay", icon: <TrendingUp className="text-[#10B981]" size={24} />, color: "text-[#10B981]", bg: "bg-[#10B981]/10", border: "border-[#10B981]/30", details: "You collect KC points as you use KobPay. Points are not money and do not hold a value \u2014 you swap them for KPC when you have enough.", metrics: [] },
-  "pay": { title: "Pay with KPC", subtitle: "Shops and apps", icon: <ShoppingCart className="text-[#8B5CF6]" size={24} />, color: "#8B5CF6", bg: "bg-[#8B5CF6]/10", border: "border-[#8B5CF6]/30", details: "Any business or app signed up to KobPay can take KPC, so the same balance works everywhere.", metrics: [] },
-  "protect": { title: "Keep your value", subtitle: "Swap into dollars", icon: <Lock className="text-[#10B981]" size={24} />, color: "text-[#10B981]", bg: "bg-[#10B981]/10", border: "border-[#10B981]/30", details: "Change your local currency into KPC and it stops tracking the local currency. A dollar today is still a dollar later.", metrics: [] }
+  "network": { title: "Countries", subtitle: "Where you can send", icon: <Globe2 className="text-[#2ECC71]" size={24} />, color: "text-[#2ECC71]", bg: "bg-[#2ECC71]/10", border: "border-[#2ECC71]/30", details: "You can send KPC to a phone number in any of these countries. Putting money in needs a payment provider that covers your country, which is fewer places for now.", metrics: [] },
+  "fee": { title: "What sending costs", subtitle: "Nothing", icon: <Code className="text-[#A0A0A8]" size={24} />, color: "text-[#A0A0A8]", bg: "bg-[#26262E]/50", border: "border-[#33333C]/50", details: "Sending KPC to another person is free. Moving money out to a bank or mobile money has a small fee, and you see it before you confirm.", metrics: [] },
+  "circulating": { title: "Held by people", subtitle: "Not counting savings", icon: <Layers className="text-[#C9A84C]" size={24} />, color: "text-[#C9A84C]", bg: "bg-[#C9A84C]/10", border: "border-[#C9A84C]/30", details: "KPC sitting in everyday wallets, ready to spend. Money locked in savings plans is counted separately.", metrics: [] },
+  "global": { title: "Send anywhere", subtitle: "A phone number is enough", icon: <Globe2 className="text-[#8FB8D4]" size={24} />, color: "text-[#8FB8D4]", bg: "bg-[#8FB8D4]/10", border: "border-[#8FB8D4]/30", details: "You need the other person\u2019s phone number, not their bank details. It arrives straight away, and it does not cost anything to send.", metrics: [] },
+  "hedge": { title: "Protect your savings", subtitle: "Hold dollars instead", icon: <Shield className="text-[#C9A84C]" size={24} />, color: "text-[#C9A84C]", bg: "bg-[#C9A84C]/10", border: "border-[#C9A84C]/30", details: "When your local currency loses value against the dollar, money you hold as KPC keeps its dollar value. That is the whole idea.", metrics: [] },
+  "earn": { title: "Earn points", subtitle: "For using KobPay", icon: <TrendingUp className="text-[#2ECC71]" size={24} />, color: "text-[#2ECC71]", bg: "bg-[#2ECC71]/10", border: "border-[#2ECC71]/30", details: "You collect KC points as you use KobPay. Points are not money and do not hold a value \u2014 you swap them for KPC when you have enough.", metrics: [] },
+  "pay": { title: "Pay with KPC", subtitle: "Shops and apps", icon: <ShoppingCart className="text-[#9A8FC4]" size={24} />, color: "#9A8FC4", bg: "bg-[#9A8FC4]/10", border: "border-[#9A8FC4]/30", details: "Any business or app signed up to KobPay can take KPC, so the same balance works everywhere.", metrics: [] },
+  "protect": { title: "Keep your value", subtitle: "Swap into dollars", icon: <Lock className="text-[#2ECC71]" size={24} />, color: "text-[#2ECC71]", bg: "bg-[#2ECC71]/10", border: "border-[#2ECC71]/30", details: "Change your local currency into KPC and it stops tracking the local currency. A dollar today is still a dollar later.", metrics: [] }
 };
 
 export default function KPCSovereignDashboard() {
@@ -346,26 +346,26 @@ export default function KPCSovereignDashboard() {
   const handleExecuteFunction = () => {
     toast.success('Done', {
       icon: '✅',
-      style: { borderRadius: '10px', background: '#10B981', color: '#0A0E14', fontWeight: 'bold', fontSize: '12px', fontFamily: 'monospace' }
+      style: { borderRadius: '10px', background: '#2ECC71', color: '#07070A', fontWeight: 'bold', fontSize: '12px', fontFamily: 'monospace' }
     });
     setActiveDrawer(null); 
   };
 
-  if (!mounted) return <div className="min-h-[100dvh] bg-[#0A0E14]" />;
+  if (!mounted) return <div className="min-h-[100dvh] bg-[#07070A]" />;
   const activeDrawerData = activeDrawer ? drawerContent[activeDrawer] : null;
 
   return (
-    <div className="flex h-[100dvh] bg-[#0A0E14] text-[#F9FAFB] font-sans overflow-hidden selection:bg-[#AA771C]/30 relative">
+    <div className="flex h-[100dvh] bg-[#07070A] text-[#F5F2EC] font-sans overflow-hidden selection:bg-[#8A6D2F]/30 relative">
       <Toaster position="top-center" reverseOrder={false} />
       
-      <aside className={`fixed inset-y-0 left-0 w-64 bg-[#111827] border-r border-[#1F2937] flex flex-col justify-between z-50 transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:translate-x-0 transition-transform duration-300 ease-in-out shrink-0`}>
+      <aside className={`fixed inset-y-0 left-0 w-64 bg-[#16161C] border-r border-[#26262E] flex flex-col justify-between z-50 transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:translate-x-0 transition-transform duration-300 ease-in-out shrink-0`}>
         <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden">
-          <div className="p-4 lg:p-6 border-b border-[#1F2937] flex items-center justify-between">
+          <div className="p-4 lg:p-6 border-b border-[#26262E] flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#FDB813] to-[#F59E0B] flex items-center justify-center shadow-[0_0_15px_rgba(253,184,19,0.4)] shrink-0"><span className="font-black text-[#0A0E14]">K</span></div>
-              <div className="flex flex-col"><h2 className="font-black text-[13px] tracking-widest uppercase leading-none mb-1.5 whitespace-nowrap">KOBPAY</h2><p className="text-[8px] font-mono text-[#FDB813] tracking-[0.3em] uppercase leading-none">Holds its value</p></div>
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#C9A84C] to-[#F59E0B] flex items-center justify-center shadow-[0_0_15px_rgba(253,184,19,0.4)] shrink-0"><span className="font-black text-[#07070A]">K</span></div>
+              <div className="flex flex-col"><h2 className="font-display font-light text-[13px] leading-none mb-1.5 whitespace-nowrap tracking-tight">KOBPAY</h2><p className="text-[8px] font-mono text-[#C9A84C] tracking-[0.3em] uppercase leading-none">Holds its value</p></div>
             </div>
-            <button className="lg:hidden text-[#94A3B8] hover:text-white" onClick={() => setIsMobileMenuOpen(false)}>
+            <button className="lg:hidden text-[#A0A0A8] hover:text-white" onClick={() => setIsMobileMenuOpen(false)}>
               <X size={20} />
             </button>
           </div>
@@ -410,7 +410,7 @@ export default function KPCSovereignDashboard() {
       </aside>
 
       <div className="flex-1 flex flex-col relative h-full overflow-y-auto [&::-webkit-scrollbar]:hidden">
-        <header className="h-16 sm:h-20 border-b border-[#1F2937] bg-[#111827]/80 backdrop-blur-xl sticky top-0 z-30 flex items-center justify-between px-4 sm:px-8 shrink-0">
+        <header className="h-16 sm:h-20 border-b border-[#26262E] bg-[#16161C]/80 backdrop-blur-xl sticky top-0 z-30 flex items-center justify-between px-4 sm:px-8 shrink-0">
           <div className="flex items-center gap-3 sm:gap-6 min-w-0">
             {/* THE PHONE MENU WAS NEVER OPENABLE.
                 The sidebar sits off-canvas at -translate-x-full until
@@ -422,10 +422,14 @@ export default function KPCSovereignDashboard() {
             <div className="lg:hidden">
               <AppMenu />
             </div>
-            <div className="hidden sm:flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest bg-[#1F2937]/50 px-4 py-2 rounded-full border border-[#1F2937]"><span className="text-[#FDB813]">1 KPC</span><span className="text-[#94A3B8]">=</span><span className="text-white">$1.00 USD</span></div>
-            <div className="flex items-center gap-2 text-[9px] sm:text-[10px] font-mono tracking-widest text-[#94A3B8] uppercase whitespace-nowrap">
-              <div className={`w-2 h-2 rounded-full shadow-[0_0_8px_#10b981] ${ledgerLive === true ? 'bg-[#10B981] animate-pulse' : ledgerLive === false ? 'bg-[#EF4444]' : 'bg-[#94A3B8]'}`} />
-              <span>{ledgerLive === true ? 'Ledger live' : ledgerLive === false ? 'Ledger unreachable' : 'Checking...'}</span>
+            <div className="hidden sm:flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest bg-[#26262E]/50 px-4 py-2 rounded-full border border-[#26262E]"><span className="text-[#C9A84C]">1 KPC</span><span className="text-[#A0A0A8]">=</span><span className="text-white">$1.00 USD</span></div>
+            <div className="flex items-center gap-2 text-[9px] sm:text-[10px] font-mono tracking-widest text-[#A0A0A8] uppercase whitespace-nowrap">
+              <div className={`w-2 h-2 rounded-full shadow-[0_0_8px_#2ECC71] ${ledgerLive === true ? 'bg-[#2ECC71] animate-pulse' : ledgerLive === false ? 'bg-[#E74C3C]' : 'bg-[#A0A0A8]'}`} />
+              {/* The dot is the signal; the words are the caption. At phone
+                  width the caption is what pushed Connect Wallet into the
+                  status text and made the header overlap itself, so below
+                  sm the dot carries it alone. */}
+              <span className="hidden sm:inline">{ledgerLive === true ? 'Ledger live' : ledgerLive === false ? 'Ledger unreachable' : 'Checking...'}</span>
             </div>
           </div>
           
@@ -433,7 +437,7 @@ export default function KPCSovereignDashboard() {
            <div className="relative">
               <button 
                 onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
-                className="flex items-center gap-2 px-3 py-2 text-[#94A3B8] hover:text-white bg-[#111827] hover:bg-[#1F2937] border border-[#1F2937] rounded-lg transition-colors font-mono text-[10px] uppercase tracking-widest"
+                className="flex items-center gap-2 px-3 py-2 text-[#A0A0A8] hover:text-white bg-[#16161C] hover:bg-[#26262E] border border-[#26262E] rounded-lg transition-colors font-mono text-[10px] uppercase tracking-widest"
               >
                 <Globe size={14} />
                 <span className="hidden sm:inline">
@@ -448,14 +452,14 @@ export default function KPCSovereignDashboard() {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="absolute right-0 mt-2 w-32 bg-[#111827] border border-[#1F2937] rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.8)] overflow-hidden z-50 flex flex-col"
+                    className="absolute right-0 mt-2 w-32 bg-[#16161C] border border-[#26262E] rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.8)] overflow-hidden z-50 flex flex-col"
                   >
-                    <button onClick={() => { setCurrentLang('en'); setIsLangMenuOpen(false); }} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#1F2937] transition-colors ${currentLang === 'en' ? 'text-[#FDB813]' : 'text-white'}`}>English</button>
-                    <button onClick={() => { setCurrentLang('es'); setIsLangMenuOpen(false); }} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#1F2937] transition-colors border-t border-[#1F2937] ${currentLang === 'es' ? 'text-[#FDB813]' : 'text-white'}`}>Español</button>
-                    <button onClick={() => { setCurrentLang('fr'); setIsLangMenuOpen(false); }} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#1F2937] transition-colors border-t border-[#1F2937] ${currentLang === 'fr' ? 'text-[#FDB813]' : 'text-white'}`}>Français</button>
-                    <button onClick={() => { setCurrentLang('pt'); setIsLangMenuOpen(false); }} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#1F2937] transition-colors border-t border-[#1F2937] ${currentLang === 'pt' ? 'text-[#FDB813]' : 'text-white'}`}>Português</button>
-                    <button onClick={() => { setCurrentLang('zh'); setIsLangMenuOpen(false); }} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#1F2937] transition-colors border-t border-[#1F2937] ${currentLang === 'zh' ? 'text-[#FDB813]' : 'text-white'}`}>简体中文</button>
-                    <button onClick={() => { setCurrentLang('ja'); setIsLangMenuOpen(false); }} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#1F2937] transition-colors border-t border-[#1F2937] ${currentLang === 'ja' ? 'text-[#FDB813]' : 'text-white'}`}>日本語</button>
+                    <button onClick={() => { setCurrentLang('en'); setIsLangMenuOpen(false); }} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#26262E] transition-colors ${currentLang === 'en' ? 'text-[#C9A84C]' : 'text-white'}`}>English</button>
+                    <button onClick={() => { setCurrentLang('es'); setIsLangMenuOpen(false); }} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#26262E] transition-colors border-t border-[#26262E] ${currentLang === 'es' ? 'text-[#C9A84C]' : 'text-white'}`}>Español</button>
+                    <button onClick={() => { setCurrentLang('fr'); setIsLangMenuOpen(false); }} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#26262E] transition-colors border-t border-[#26262E] ${currentLang === 'fr' ? 'text-[#C9A84C]' : 'text-white'}`}>Français</button>
+                    <button onClick={() => { setCurrentLang('pt'); setIsLangMenuOpen(false); }} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#26262E] transition-colors border-t border-[#26262E] ${currentLang === 'pt' ? 'text-[#C9A84C]' : 'text-white'}`}>Português</button>
+                    <button onClick={() => { setCurrentLang('zh'); setIsLangMenuOpen(false); }} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#26262E] transition-colors border-t border-[#26262E] ${currentLang === 'zh' ? 'text-[#C9A84C]' : 'text-white'}`}>简体中文</button>
+                    <button onClick={() => { setCurrentLang('ja'); setIsLangMenuOpen(false); }} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#26262E] transition-colors border-t border-[#26262E] ${currentLang === 'ja' ? 'text-[#C9A84C]' : 'text-white'}`}>日本語</button>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -471,7 +475,7 @@ export default function KPCSovereignDashboard() {
               <WalletConnect />
               <Link
                 href="/wallet"
-                className="text-[9px] sm:text-[10px] font-mono font-bold tracking-[0.1em] sm:tracking-[0.2em] bg-[#FDB813] text-[#0A0E14] px-3 sm:px-6 py-2 rounded uppercase whitespace-nowrap shadow-[0_0_15px_rgba(253,184,19,0.3)] hover:bg-[#F59E0B] transition-colors"
+                className="text-[9px] sm:text-[10px] font-mono font-bold tracking-[0.1em] sm:tracking-[0.2em] bg-[#C9A84C] text-[#07070A] px-3 sm:px-6 py-2 rounded uppercase whitespace-nowrap shadow-[0_0_15px_rgba(253,184,19,0.3)] hover:bg-[#F59E0B] transition-colors"
               >
                 Launch Wallet
               </Link>
@@ -479,7 +483,7 @@ export default function KPCSovereignDashboard() {
           </div>
         </header>
 
-        <div className="w-full bg-[#FDB813] text-[#0A0E14] py-2 overflow-hidden flex items-center whitespace-nowrap z-20 border-b border-[#F59E0B]">
+        <div className="w-full bg-[#C9A84C] text-[#07070A] py-2 overflow-hidden flex items-center whitespace-nowrap z-20 border-b border-[#F59E0B]">
           <motion.div animate={{ x: ["0%", "-50%"] }} transition={{ repeat: Infinity, ease: "linear", duration: 30 }} className="flex gap-8 sm:gap-16 text-[10px] sm:text-[11px] font-mono font-black tracking-widest uppercase">
             {[...tickerItems, ...tickerItems].map((item, i) => <span key={i}>{item}</span>)}
           </motion.div>
@@ -488,10 +492,10 @@ export default function KPCSovereignDashboard() {
         <main className="p-4 sm:p-6 lg:px-12 lg:py-10 relative z-10 flex-1">
           <div className="max-w-[1800px] mx-auto space-y-6 lg:space-y-10">
             
-            <div className="bg-[#0A0E14]/80 backdrop-blur-xl border border-[#1F2937] rounded-2xl sm:rounded-3xl p-5 sm:p-8 relative overflow-hidden group shadow-[0_0_80px_rgba(0,0,0,0.8)] max-w-4xl mt-0 sm:mt-2 flex flex-col items-center justify-center gap-4 sm:gap-5 text-center mx-auto">
-              <div className="absolute top-1/2 left-1/2 w-full lg:w-[80%] h-64 -translate-y-1/2 -translate-x-1/2 bg-gradient-to-r from-[#AA771C]/20 via-[#AA771C]/5 to-transparent blur-[100px]" />
-              <div className="relative z-10 inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 border border-[#FDB813]/30 rounded-full bg-[#0A0E14]/60"><Shield size={12} className="text-[#FDB813] shrink-0" /><span className="text-[9px] sm:text-[10px] font-mono tracking-[0.12em] sm:tracking-[0.2em] text-[#FDB813] uppercase font-bold">One KPC is one US dollar.</span></div>
-              <div className="relative z-10 w-full max-w-xl aspect-video rounded-xl overflow-hidden border border-[#FDB813]/30 bg-black shadow-[0_0_50px_rgba(253,184,19,0.1)]"><video src="/kpc-video.mp4" autoPlay loop muted playsInline className="w-full h-full object-cover scale-105" /></div>
+            <div className="bg-[#07070A]/80 backdrop-blur-xl border border-[#26262E] rounded-2xl sm:rounded-3xl p-5 sm:p-8 relative overflow-hidden group shadow-[0_0_80px_rgba(0,0,0,0.8)] max-w-4xl mt-0 sm:mt-2 flex flex-col items-center justify-center gap-4 sm:gap-5 text-center mx-auto">
+              <div className="absolute top-1/2 left-1/2 w-full lg:w-[80%] h-64 -translate-y-1/2 -translate-x-1/2 bg-gradient-to-r from-[#8A6D2F]/20 via-[#8A6D2F]/5 to-transparent blur-[100px]" />
+              <div className="relative z-10 inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 border border-[#C9A84C]/30 rounded-full bg-[#07070A]/60"><Shield size={12} className="text-[#C9A84C] shrink-0" /><span className="text-[12px] sm:text-[13px] text-[#C9A84C] font-bold">One KPC is one US dollar.</span></div>
+              <div className="relative z-10 w-full max-w-xl aspect-video rounded-xl overflow-hidden border border-[#C9A84C]/30 bg-black shadow-[0_0_50px_rgba(253,184,19,0.1)]"><video src="/kpc-video.mp4" autoPlay loop muted playsInline className="w-full h-full object-cover scale-105" /></div>
               <div className="relative z-10 flex gap-3 sm:gap-4 w-full justify-center max-w-md">
                 <motion.button 
                   onClick={() => {
@@ -505,7 +509,7 @@ export default function KPCSovereignDashboard() {
                   whileTap={{ scale: 0.95 }} 
                   animate={{ boxShadow: ["0px 0px 15px rgba(244, 208, 104, 0.4)", "0px 0px 45px rgba(255, 240, 168, 0.8)", "0px 0px 15px rgba(244, 208, 104, 0.4)"] }} 
                   transition={{ duration: 2, repeat: Infinity }} 
-                  className="relative overflow-hidden w-1/2 px-2 sm:px-6 py-3.5 sm:py-4 bg-gradient-to-r from-[#AA771C] via-[#FFF0A8] to-[#AA771C] bg-[length:200%_auto] text-[#0A0E14] rounded-lg cursor-pointer border border-[#FFF0A8]/60 font-mono font-black tracking-[0.06em] sm:tracking-[0.2em] text-[10px] sm:text-[11px] uppercase whitespace-nowrap flex items-center justify-center gap-1.5 sm:gap-2"
+                  className="relative overflow-hidden w-1/2 px-2 sm:px-6 py-3.5 sm:py-4 bg-gradient-to-r from-[#8A6D2F] via-[#E8C97A] to-[#8A6D2F] bg-[length:200%_auto] text-[#07070A] rounded-lg cursor-pointer border border-[#E8C97A]/60 font-mono font-black tracking-[0.06em] sm:tracking-[0.2em] text-[10px] sm:text-[11px] uppercase whitespace-nowrap flex items-center justify-center gap-1.5 sm:gap-2"
                 >
                   <motion.div className="absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white/70 to-transparent skew-x-[-20deg]" initial={{ left: '-100%' }} animate={{ left: '200%' }} transition={{ repeat: Infinity, duration: 2.5, ease: "linear", repeatDelay: 1 }} />
                   Buy KPC <Zap size={14} className="animate-pulse" />
@@ -514,12 +518,12 @@ export default function KPCSovereignDashboard() {
                     Protocol..." and did nothing else. There is no protocol to
                     connect to; the thing it was pretending to open is the
                     Ledger, which is real and public. Now it goes there. */}
-                <Link href="/explorer" className="w-1/2 px-2 sm:px-6 py-3.5 sm:py-4 bg-[#111827] text-[#F9FAFB] border border-[#1F2937] font-mono font-bold tracking-[0.06em] sm:tracking-[0.2em] text-[10px] sm:text-[11px] uppercase whitespace-nowrap hover:border-[#FDB813]/50 rounded-lg flex items-center justify-center transition-all">Explore Network</Link>
+                <Link href="/explorer" className="w-1/2 px-2 sm:px-6 py-3.5 sm:py-4 bg-[#16161C] text-[#F5F2EC] border border-[#26262E] font-mono font-bold tracking-[0.06em] sm:tracking-[0.2em] text-[10px] sm:text-[11px] uppercase whitespace-nowrap hover:border-[#C9A84C]/50 rounded-lg flex items-center justify-center transition-all">Explore Network</Link>
               </div>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 2xl:grid-cols-8 gap-3 lg:gap-4">
-              <StatCard label="Live Price" value={networkStats.price} prefix="$" suffix=" USD" decimals={2} onClick={() => setActiveDrawer("live_price")} />
+              <StatCard label="Live Price" value={networkStats.price} prefix="$" suffix=" USD" decimals={2} noRoll onClick={() => setActiveDrawer("live_price")} />
               <StatCard label="24h Volume" value={networkStats.volume} prefix="$" isShort onClick={() => setActiveDrawer("volume")} />
               <StatCard label="Market Cap" value={networkStats.marketCap} prefix="$" isShort onClick={() => setActiveDrawer("market_cap")} />
               <StatCard label="Txns Today" value={networkStats.txnsToday} onClick={() => setActiveDrawer("txns")} />
@@ -530,35 +534,35 @@ export default function KPCSovereignDashboard() {
               {/* Was a hardcoded $0.001 of Ethereum gas. transfer_fee_bps is
                   0, so sending really is free, and a true zero is worth more
                   than an invented fraction. */}
-              <StatCard label="Send Fee" customValue={<span className="text-[#10B981]">{networkStats.transferFeeBps === 0 ? "FREE" : `${(networkStats.transferFeeBps / 100).toFixed(2)}%`}</span>} onClick={() => setActiveDrawer("fee")} />
+              <StatCard label="Send Fee" customValue={<span className="text-[#2ECC71]">{networkStats.transferFeeBps === 0 ? "FREE" : `${(networkStats.transferFeeBps / 100).toFixed(2)}%`}</span>} onClick={() => setActiveDrawer("fee")} />
               <StatCard label="Circulating" value={networkStats.circulating} suffix="M KPC" decimals={1} onClick={() => setActiveDrawer("circulating")} />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-8">
-              <div className="lg:col-span-8 bg-[#111827]/80 backdrop-blur-xl border border-[#1F2937] rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 lg:p-10 flex flex-col shadow-2xl">
+              <div className="lg:col-span-8 bg-[#16161C]/80 backdrop-blur-xl border border-[#26262E] rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 lg:p-10 flex flex-col shadow-2xl">
                 <div className="flex justify-between items-center mb-5 sm:mb-8">
-                  <div><h3 className="text-base sm:text-xl font-black uppercase tracking-widest mb-2 flex items-center gap-2 sm:gap-3"><Activity className="text-[#FDB813]" size={20} /> What a dollar is worth</h3><p className="text-[10px] font-mono text-[#94A3B8] tracking-widest uppercase">Local currencies lose value against the dollar. KPC does not.</p></div>
+                  <div><h3 className="text-2xl sm:text-xl font-display font-light mb-2 flex items-center gap-2 sm:gap-3 tracking-tight"><Activity className="text-[#C9A84C]" size={20} /> What a dollar is worth</h3><p className="text-[13px] text-[#A0A0A8]">Local currencies lose value against the dollar. KPC does not.</p></div>
                 </div>
                 <div className="h-[240px] sm:h-[300px] lg:h-[350px] w-full font-mono text-[9px] sm:text-[10px]">
                   {haveTrend ? (
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={chartRows}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#1F2937" vertical={false} />
-                        <XAxis dataKey="day" stroke="#94A3B8" />
-                        <YAxis stroke="#94A3B8" domain={['auto', 'auto']} tickFormatter={(val: number) => `${(val * 100).toFixed(0)}%`} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="#26262E" vertical={false} />
+                        <XAxis dataKey="day" stroke="#A0A0A8" />
+                        <YAxis stroke="#A0A0A8" domain={['auto', 'auto']} tickFormatter={(val: number) => `${(val * 100).toFixed(0)}%`} />
                         <Tooltip
-                          contentStyle={{ backgroundColor: '#0A0E14', border: '1px solid #1F2937' }}
+                          contentStyle={{ backgroundColor: '#07070A', border: '1px solid #26262E' }}
                           formatter={(val) => `${(Number(val) * 100).toFixed(1)}% of starting value`}
                         />
                         <Legend />
-                        <Line type="monotone" dataKey="KPC" name="KPC" stroke="#FDB813" strokeWidth={3} dot={false} isAnimationActive={false} />
+                        <Line type="monotone" dataKey="KPC" name="KPC" stroke="#C9A84C" strokeWidth={3} dot={false} isAnimationActive={false} />
                         {rateHistory.map(s => (
                           <Line
                             key={s.currency}
                             type="monotone"
                             dataKey={s.currency}
                             name={s.currency}
-                            stroke={CHART_COLOURS[s.currency] ?? '#94A3B8'}
+                            stroke={CHART_COLOURS[s.currency] ?? '#A0A0A8'}
                             strokeWidth={2}
                             strokeOpacity={0.7}
                             dot={false}
@@ -573,62 +577,62 @@ export default function KPCSovereignDashboard() {
                     // space with six invented points rather than admit the
                     // series was short.
                     <div className="h-full flex flex-col items-center justify-center text-center gap-3 px-4">
-                      <Activity className="text-[#1F2937]" size={40} />
-                      <p className="text-[11px] font-mono text-[#94A3B8] uppercase tracking-widest max-w-xs leading-relaxed">
+                      <Activity className="text-[#26262E]" size={40} />
+                      <p className="text-[11px] font-mono text-[#A0A0A8] uppercase tracking-widest max-w-xs leading-relaxed">
                         {recordingSince
                           ? `Recording rates since ${new Date(recordingSince).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}. This chart draws once there are enough days to show a direction.`
                           : "This chart draws from rates we record ourselves, once there are enough days of them."}
                       </p>
-                      <p className="text-[10px] font-mono text-[#4B5563] uppercase tracking-widest">
+                      <p className="text-[10px] font-mono text-[#72727A] uppercase tracking-widest">
                         1 KPC = $1.00 throughout
                       </p>
                     </div>
                   )}
                 </div>
                 {haveTrend && recordingSince && (
-                  <p className="text-[9px] font-mono text-[#4B5563] tracking-widest uppercase mt-3">
+                  <p className="text-[12px] text-[#72727A] mt-3">
                     Rates recorded by KobPay since {new Date(recordingSince).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })} · 100% = value on the first day recorded
                   </p>
                 )}
               </div>
 
-              <div className="lg:col-span-4 bg-[#111827]/80 border border-[#1F2937] rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 flex flex-col shadow-2xl overflow-hidden relative">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#22D3EE] to-transparent opacity-50" />
-                <h3 className="text-sm font-black uppercase tracking-widest flex items-center gap-3 mb-6 relative z-10">
-                  <Shield className="text-[#22D3EE]" size={16} /> The reserve
+              <div className="lg:col-span-4 bg-[#16161C]/80 border border-[#26262E] rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 flex flex-col shadow-2xl overflow-hidden relative">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#8FB8D4] to-transparent opacity-50" />
+                <h3 className="text-2xl font-display font-light flex items-center gap-3 mb-6 relative z-10 tracking-tight">
+                  <Shield className="text-[#8FB8D4]" size={16} /> The reserve
                 </h3>
                 <div className="flex-1 flex flex-col gap-4">
                   <div>
-                    <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-widest mb-1.5">KPC in existence</p>
+                    <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-widest mb-1.5">KPC in existence</p>
                     <p className="text-3xl font-black font-mono text-white">
                       {reserve ? Number(reserve.owed_to_customers ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "—"}
-                      <span className="text-[#FDB813] text-sm ml-2">KPC</span>
+                      <span className="text-[#C9A84C] text-sm ml-2">KPC</span>
                     </p>
-                    <p className="text-[10px] font-mono text-[#4B5563] mt-1">Each one is a dollar we owe somebody</p>
+                    <p className="text-[10px] font-mono text-[#72727A] mt-1">Each one is a dollar we owe somebody</p>
                   </div>
 
-                  <div className="border-t border-[#1F2937] pt-4">
-                    <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-widest mb-1.5">Money held to back it</p>
+                  <div className="border-t border-[#26262E] pt-4">
+                    <p className="text-[12px] text-[#A0A0A8] mb-1.5">Money held to back it</p>
                     <p className="text-3xl font-black font-mono text-white">
-                      <span className="text-[#10B981] text-sm mr-1">$</span>
+                      <span className="text-[#2ECC71] text-sm mr-1">$</span>
                       {reserve ? Number(reserve.backing_total ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "—"}
                     </p>
                   </div>
 
-                  <div className="border-t border-[#1F2937] pt-4">
-                    <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-widest mb-1.5">Cover</p>
+                  <div className="border-t border-[#26262E] pt-4">
+                    <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-widest mb-1.5">Cover</p>
                     {(() => {
                       // Below 100 the reserve does not cover what is owed, and
                       // that has to look like what it is rather than being
                       // coloured green because it is our own number.
                       const c = reserve?.coverage_percent == null ? null : Number(reserve.coverage_percent);
-                      const tone = c == null ? "text-[#94A3B8]" : c >= 100 ? "text-[#10B981]" : "text-[#EF4444]";
+                      const tone = c == null ? "text-[#A0A0A8]" : c >= 100 ? "text-[#2ECC71]" : "text-[#E74C3C]";
                       return (
                         <>
                           <p className={`text-3xl font-black font-mono ${tone}`}>
                             {c == null ? "—" : `${c.toFixed(2)}%`}
                           </p>
-                          <p className="text-[10px] font-mono text-[#4B5563] mt-1">
+                          <p className="text-[10px] font-mono text-[#72727A] mt-1">
                             {c == null ? "No KPC issued yet"
                               : c >= 100 ? "Every KPC is covered"
                               : "Backing is short of what is owed"}
@@ -640,7 +644,7 @@ export default function KPCSovereignDashboard() {
 
                   <Link
                     href="/explorer"
-                    className="mt-auto flex items-center justify-center gap-2 py-3 border border-[#1F2937] rounded-xl text-[10px] font-mono uppercase tracking-widest text-[#94A3B8] hover:border-[#FDB813]/40 hover:text-white transition-colors"
+                    className="mt-auto flex items-center justify-center gap-2 py-3 border border-[#26262E] rounded-xl text-[10px] font-mono uppercase tracking-widest text-[#A0A0A8] hover:border-[#C9A84C]/40 hover:text-white transition-colors"
                   >
                     See every account <ChevronRight size={12} />
                   </Link>
@@ -649,7 +653,7 @@ export default function KPCSovereignDashboard() {
             </div>
 
             <div className="pb-8 sm:pb-12 pt-2 sm:pt-4">
-              <div className="flex items-center gap-3 sm:gap-4 mb-5 sm:mb-8"><Layers className="text-[#FDB813] shrink-0" /><h2 className="text-xl sm:text-2xl lg:text-3xl font-black uppercase tracking-tighter italic text-white">{t.infrastructure}</h2></div>
+              <div className="flex items-center gap-3 sm:gap-4 mb-5 sm:mb-8"><Layers className="text-[#C9A84C] shrink-0" /><h2 className="text-2xl sm:text-2xl lg:text-3xl font-display font-light text-white tracking-tight">{t.infrastructure}</h2></div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 {/* These four counters are why this section read badly: the
                     card claiming global reach printed 1, and the card about
@@ -668,10 +672,10 @@ export default function KPCSovereignDashboard() {
                     product does — merchant fee capped at 1% — which is a
                     fact from platform_settings, not a number waiting to
                     grow. Apps stays a real count: 2 is small but true. */}
-                <WhyCard index={0} icon={<Globe2 size={24} className="text-[#22D3EE]" />} title="Send Globally" desc="All you need is their phone number. No bank account, no fee." statLabel="Countries" statValue={networkStats.countries} onClick={() => setActiveDrawer("global")} />
-                <WhyCard index={1} icon={<Shield size={24} className="text-[#FDB813]" />} title="Protect Savings" desc="Hold your money as dollars so it keeps its value." statLabel="Backed at" statText="$1.00" onClick={() => setActiveDrawer("hedge")} />
-                <WhyCard index={2} icon={<TrendingUp size={24} className="text-[#10B981]" />} title="Earn Daily" desc="Collect KC points as you use KobPay, and swap them for KPC." statLabel="Live Apps" statValue={networkStats.activeApps} onClick={() => setActiveDrawer("earn")} />
-                <WhyCard index={3} icon={<ShoppingCart size={24} className="text-[#8B5CF6]" />} title="Universal Pay" desc="One balance that works across every shop and app on KobPay." statLabel={networkStats.merchants > 0 ? "Businesses" : "Merchant fee"} statValue={networkStats.merchants > 0 ? networkStats.merchants : undefined} statText={networkStats.merchants > 0 ? undefined : "1%"} onClick={() => setActiveDrawer("pay")} />
+                <WhyCard index={0} icon={<Globe2 size={24} className="text-[#8FB8D4]" />} title="Send Globally" desc="All you need is their phone number. No bank account, no fee." statLabel="Countries" statValue={networkStats.countries} onClick={() => setActiveDrawer("global")} />
+                <WhyCard index={1} icon={<Shield size={24} className="text-[#C9A84C]" />} title="Protect Savings" desc="Hold your money as dollars so it keeps its value." statLabel="Backed at" statText="$1.00" onClick={() => setActiveDrawer("hedge")} />
+                <WhyCard index={2} icon={<TrendingUp size={24} className="text-[#2ECC71]" />} title="Earn Daily" desc="Collect KC points as you use KobPay, and swap them for KPC." statLabel="Live Apps" statValue={networkStats.activeApps} onClick={() => setActiveDrawer("earn")} />
+                <WhyCard index={3} icon={<ShoppingCart size={24} className="text-[#9A8FC4]" />} title="Universal Pay" desc="One balance that works across every shop and app on KobPay." statLabel={networkStats.merchants > 0 ? "Businesses" : "Merchant fee"} statValue={networkStats.merchants > 0 ? networkStats.merchants : undefined} statText={networkStats.merchants > 0 ? undefined : "1%"} onClick={() => setActiveDrawer("pay")} />
               </div>
             </div>
           </div>
@@ -680,15 +684,15 @@ export default function KPCSovereignDashboard() {
 
       <AnimatePresence>
         {activeDrawer && activeDrawerData && (
-          <><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-[#0A0E14]/70 backdrop-blur-sm z-[90]" onClick={() => setActiveDrawer(null)} />
-          <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="fixed right-0 top-0 bottom-0 w-full sm:w-[450px] bg-[#111827] border-l border-[#1F2937] z-[100] shadow-2xl flex flex-col">
-            <div className="p-5 sm:p-8 border-b border-[#1F2937] flex items-start justify-between bg-[#111827]/90 backdrop-blur-md">
-              <div className="flex gap-4 items-center"><div className={`w-12 h-12 rounded-xl flex items-center justify-center border ${activeDrawerData.bg} ${activeDrawerData.border}`}>{activeDrawerData.icon}</div><div><h3 className="text-xl font-black uppercase text-white">{activeDrawerData.title}</h3><p className={`text-[10px] font-mono tracking-[0.2em] uppercase mt-1 ${activeDrawerData.color}`}>{activeDrawerData.subtitle}</p></div></div>
-              <button onClick={() => setActiveDrawer(null)} className="text-[#94A3B8] hover:text-white p-2 bg-[#1F2937] rounded-full"><X size={20} /></button>
+          <><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-[#07070A]/70 backdrop-blur-sm z-[90]" onClick={() => setActiveDrawer(null)} />
+          <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="fixed right-0 top-0 bottom-0 w-full sm:w-[450px] bg-[#16161C] border-l border-[#26262E] z-[100] shadow-2xl flex flex-col">
+            <div className="p-5 sm:p-8 border-b border-[#26262E] flex items-start justify-between bg-[#16161C]/90 backdrop-blur-md">
+              <div className="flex gap-4 items-center"><div className={`w-12 h-12 rounded-xl flex items-center justify-center border ${activeDrawerData.bg} ${activeDrawerData.border}`}>{activeDrawerData.icon}</div><div><h3 className="text-2xl font-display font-light text-white tracking-tight">{activeDrawerData.title}</h3><p className={`text-[10px] font-mono tracking-[0.2em] uppercase mt-1 ${activeDrawerData.color}`}>{activeDrawerData.subtitle}</p></div></div>
+              <button onClick={() => setActiveDrawer(null)} className="text-[#A0A0A8] hover:text-white p-2 bg-[#26262E] rounded-full"><X size={20} /></button>
             </div>
-            <div className="p-5 sm:p-8 flex-1 overflow-y-auto"><p className="text-xs text-[#94A3B8] font-mono leading-relaxed uppercase tracking-widest bg-[#0A0E14] p-5 rounded-2xl border border-[#1F2937] mb-8">{activeDrawerData.details}</p><div className="space-y-4">{activeDrawerData.metrics.length > 0 && (<h4 className="text-[10px] font-mono text-white tracking-[0.3em] uppercase flex items-center gap-2"><Server size={12} /> Live Metrics</h4>)}{activeDrawerData.metrics.map((m: any, i: number) => (<div key={i} className="bg-[#0A0E14] border border-[#1F2937] p-4 rounded-xl flex justify-between items-center group hover:border-[#FDB813]/30 transition-colors"><span className="text-[9px] font-mono text-[#94A3B8] uppercase">{m.label}</span><span className="text-sm font-black font-mono text-white">{m.value}</span></div>))}</div></div>
-            <div className="p-5 sm:p-8 border-t border-[#1F2937] bg-[#111827]">
-              <button onClick={handleExecuteFunction} className="w-full py-4 bg-[#FDB813] text-[#0A0E14] font-black font-mono text-[10px] uppercase rounded flex items-center justify-center gap-2 shadow-lg hover:bg-[#F59E0B] transition-all">
+            <div className="p-5 sm:p-8 flex-1 overflow-y-auto"><p className="text-xs text-[#A0A0A8] font-mono leading-relaxed uppercase tracking-widest bg-[#07070A] p-5 rounded-2xl border border-[#26262E] mb-8">{activeDrawerData.details}</p><div className="space-y-4">{activeDrawerData.metrics.length > 0 && (<h4 className="text-[10px] font-mono text-white tracking-[0.3em] uppercase flex items-center gap-2"><Server size={12} /> Live Metrics</h4>)}{activeDrawerData.metrics.map((m: any, i: number) => (<div key={i} className="bg-[#07070A] border border-[#26262E] p-4 rounded-xl flex justify-between items-center group hover:border-[#C9A84C]/30 transition-colors"><span className="text-[9px] font-mono text-[#A0A0A8] uppercase">{m.label}</span><span className="text-sm font-black font-mono text-white">{m.value}</span></div>))}</div></div>
+            <div className="p-5 sm:p-8 border-t border-[#26262E] bg-[#16161C]">
+              <button onClick={handleExecuteFunction} className="w-full py-4 bg-[#C9A84C] text-[#07070A] font-black font-mono text-[10px] uppercase rounded flex items-center justify-center gap-2 shadow-lg hover:bg-[#F59E0B] transition-all">
                 Execute Function <ChevronRight size={14} />
               </button>
             </div>
@@ -710,7 +714,7 @@ export default function KPCSovereignDashboard() {
 // --- COMPONENTS ---
 function NavGroup({ label }: { label: string }) {
   return (
-    <p className="px-3 lg:px-4 pt-3 lg:pt-4 pb-1 text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#4B5563]">
+    <p className="px-3 lg:px-4 pt-3 lg:pt-4 pb-1 text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-[#72727A]">
       {label}
     </p>
   );
@@ -721,19 +725,24 @@ function NavItem({ icon, label, active = false, onClick, href = "#" }: { icon: R
     <Link 
       href={href} 
       onClick={onClick} 
-      className={`w-full flex items-center gap-3 lg:gap-4 px-3 lg:px-4 py-2.5 lg:py-3 rounded-lg transition-all ${active ? 'bg-[#FDB813]/10 text-[#FDB813] border border-[#FDB813]/20' : 'text-[#94A3B8] border border-transparent hover:bg-[#1F2937] hover:text-[#F9FAFB]'}`}
+      className={`w-full flex items-center gap-3 lg:gap-4 px-3 lg:px-4 py-2.5 lg:py-3 rounded-lg transition-all ${active ? 'bg-[#C9A84C]/10 text-[#C9A84C] border border-[#C9A84C]/20' : 'text-[#A0A0A8] border border-transparent hover:bg-[#26262E] hover:text-[#F5F2EC]'}`}
     >
       {icon}<span className="text-[11px] font-mono font-bold uppercase tracking-[0.15em]">{label}</span>
     </Link>
   );
 }
 
-function StatCard({ label, value, prefix = "", suffix = "", customValue, isShort = false, decimals = 0, onClick }: any) {
+// noRoll exists for one reason: the peg. RollingNum counts up from zero, so
+// a card showing $1.00 renders $0.43, $0.96, $0.99 on its way there. For a
+// unit whose whole claim is that it is always one dollar, that is the page
+// displaying KPC off-peg for a second every time it loads — and longer on a
+// slow phone, which is most of them. Counts can animate; the peg cannot.
+function StatCard({ label, value, prefix = "", suffix = "", customValue, isShort = false, decimals = 0, noRoll = false, onClick }: any) {
   return (
-    <div onClick={onClick} className="bg-[#111827]/90 backdrop-blur-md border border-[#1F2937] p-4 lg:p-5 rounded-2xl flex flex-col justify-between group hover:border-[#FDB813]/30 hover:-translate-y-1 transition-all duration-300 shadow-lg cursor-pointer overflow-hidden">
-      <span className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] whitespace-nowrap group-hover:text-white transition-colors">{label}</span>
-      <div className="text-sm md:text-base 2xl:text-xl font-black mt-2 lg:mt-3 text-white tracking-tighter group-hover:text-[#FDB813] transition-colors flex items-baseline gap-0.5">
-        {customValue ? customValue : (<>{prefix}{isShort ? <span className="font-mono">{(value / 1000000).toFixed(2)}M</span> : <RollingNum value={value} decimals={decimals} />}<span className="text-[8px] xl:text-[10px] text-[#FDB813] whitespace-nowrap ml-0.5">{suffix}</span></>)}
+    <div onClick={onClick} className="bg-[#16161C]/90 backdrop-blur-md border border-[#26262E] p-4 lg:p-5 rounded-2xl flex flex-col justify-between group hover:border-[#C9A84C]/30 hover:-translate-y-1 transition-all duration-300 shadow-lg cursor-pointer overflow-hidden">
+      <span className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.15em] whitespace-nowrap group-hover:text-white transition-colors">{label}</span>
+      <div className="text-sm md:text-base 2xl:text-xl font-black mt-2 lg:mt-3 text-white tracking-tighter group-hover:text-[#C9A84C] transition-colors flex items-baseline gap-0.5">
+        {customValue ? customValue : (<>{prefix}{isShort ? <span className="font-mono">{(value / 1000000).toFixed(2)}M</span> : noRoll ? <span className="font-mono">{Number(value).toFixed(decimals)}</span> : <RollingNum value={value} decimals={decimals} />}<span className="text-[8px] xl:text-[10px] text-[#C9A84C] whitespace-nowrap ml-0.5">{suffix}</span></>)}
       </div>
     </div>
   );
@@ -744,24 +753,24 @@ function StatCard({ label, value, prefix = "", suffix = "", customValue, isShort
 // hardcoded 100 dressed as a measurement.
 function WhyCard({ index = 0, icon, title, desc, statLabel, statValue, statText, statSuffix = "", onClick }: any) {
   return (
-    <div onClick={onClick} className="bg-[#111827] border border-[#1F2937] p-6 lg:p-8 rounded-2xl sm:rounded-[2rem] flex flex-col group hover:-translate-y-1 hover:border-[#FDB813]/30 transition-all duration-300 shadow-xl cursor-pointer relative overflow-hidden min-h-[200px] sm:min-h-[280px] h-full">
+    <div onClick={onClick} className="bg-[#16161C] border border-[#26262E] p-6 lg:p-8 rounded-2xl sm:rounded-[2rem] flex flex-col group hover:-translate-y-1 hover:border-[#C9A84C]/30 transition-all duration-300 shadow-xl cursor-pointer relative overflow-hidden min-h-[200px] sm:min-h-[280px] h-full">
       <motion.div 
         animate={{ opacity: [0.03, 0.20, 0.03], y: [0, -3, 0] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: index * 0.6 }}
         className="absolute top-6 right-6 pointer-events-none"
       >
-        <div className="scale-[1.25] text-[#94A3B8]">
+        <div className="scale-[1.25] text-[#A0A0A8]">
           {icon}
         </div>
       </motion.div>
       <div className="relative z-10 flex-1">
-        <div className="w-12 h-12 rounded-2xl bg-[#1F2937] flex items-center justify-center mb-6 border border-[#1F2937]">{icon}</div>
-        <h3 className="text-base xl:text-lg font-black uppercase tracking-widest mb-3 text-white">{title}</h3>
-        <p className="text-[10px] font-mono text-[#94A3B8] leading-relaxed uppercase">{desc}</p>
+        <div className="w-12 h-12 rounded-2xl bg-[#26262E] flex items-center justify-center mb-6 border border-[#26262E]">{icon}</div>
+        <h3 className="text-2xl xl:text-lg font-display font-light mb-3 text-white tracking-tight">{title}</h3>
+        <p className="text-[13px] text-[#A0A0A8] leading-relaxed">{desc}</p>
       </div>
-      <div className="mt-auto pt-5 border-t border-[#1F2937] flex justify-between items-end relative z-10">
-        <span className="text-[9px] font-mono text-[#94A3B8] uppercase">{statLabel}</span>
-        <span className="text-xl xl:text-2xl font-black font-mono tracking-tighter text-white group-hover:text-[#FDB813] transition-colors">
+      <div className="mt-auto pt-5 border-t border-[#26262E] flex justify-between items-end relative z-10">
+        <span className="text-[9px] font-mono text-[#A0A0A8] uppercase">{statLabel}</span>
+        <span className="text-xl xl:text-2xl font-black font-mono tracking-tighter text-white group-hover:text-[#C9A84C] transition-colors">
           {statText ? statText : <><RollingNum value={statValue ?? 0} decimals={(statValue ?? 0) % 1 !== 0 ? 1 : 0} />{statSuffix}</>}
         </span>
       </div>
@@ -773,13 +782,13 @@ const KobBotAvatar = ({ className = "w-full h-full" }: { className?: string }) =
   <svg viewBox="0 0 100 100" className={className} xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#FFF0A8" />
-        <stop offset="50%" stopColor="#FDB813" />
-        <stop offset="100%" stopColor="#AA771C" />
+        <stop offset="0%" stopColor="#E8C97A" />
+        <stop offset="50%" stopColor="#C9A84C" />
+        <stop offset="100%" stopColor="#8A6D2F" />
       </linearGradient>
       <linearGradient id="bg-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#1F2937" />
-        <stop offset="100%" stopColor="#0A0E14" />
+        <stop offset="0%" stopColor="#26262E" />
+        <stop offset="100%" stopColor="#07070A" />
       </linearGradient>
       <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
         <feGaussianBlur stdDeviation="2" result="blur" />
@@ -787,16 +796,16 @@ const KobBotAvatar = ({ className = "w-full h-full" }: { className?: string }) =
       </filter>
     </defs>
     <circle cx="50" cy="50" r="48" fill="url(#bg-grad)" stroke="url(#gold-grad)" strokeWidth="2" />
-    <circle cx="50" cy="50" r="42" fill="none" stroke="#FDB813" strokeWidth="0.5" strokeDasharray="4 2" opacity="0.4"/>
+    <circle cx="50" cy="50" r="42" fill="none" stroke="#C9A84C" strokeWidth="0.5" strokeDasharray="4 2" opacity="0.4"/>
     <path d="M 50 12 L 50 25 L 35 25 L 35 35" fill="none" stroke="url(#gold-grad)" strokeWidth="1" />
-    <circle cx="50" cy="12" r="1.5" fill="#FDB813" />
-    <circle cx="35" cy="35" r="1.5" fill="#FDB813" />
+    <circle cx="50" cy="12" r="1.5" fill="#C9A84C" />
+    <circle cx="35" cy="35" r="1.5" fill="#C9A84C" />
     <path d="M 50 12 L 50 25 L 65 25 L 65 35" fill="none" stroke="url(#gold-grad)" strokeWidth="1" />
-    <circle cx="65" cy="35" r="1.5" fill="#FDB813" />
+    <circle cx="65" cy="35" r="1.5" fill="#C9A84C" />
     <path d="M 15 50 L 25 50 L 25 65 L 35 65" fill="none" stroke="url(#gold-grad)" strokeWidth="1" opacity="0.7"/>
-    <circle cx="15" cy="50" r="1.5" fill="#FDB813" />
+    <circle cx="15" cy="50" r="1.5" fill="#C9A84C" />
     <path d="M 85 50 L 75 50 L 75 65 L 65 65" fill="none" stroke="url(#gold-grad)" strokeWidth="1" opacity="0.7"/>
-    <circle cx="85" cy="50" r="1.5" fill="#FDB813" />
+    <circle cx="85" cy="50" r="1.5" fill="#C9A84C" />
     <path d="M 38 32 L 38 68 L 44 68 L 44 52 L 55 68 L 64 68 L 49 48 L 64 32 L 55 32 L 44 45 L 44 32 Z" fill="url(#gold-grad)" filter="url(#glow)"/>
     <rect x="33" y="46" width="4" height="2" fill="#FFF" filter="url(#glow)" />
     <rect x="63" y="46" width="4" height="2" fill="#FFF" filter="url(#glow)" />
@@ -860,9 +869,9 @@ function KobBotChat() {
         // Lifted clear of the bottom bar on phones. The bar is 56px plus the
         // home-indicator inset, so 96px leaves a thumb's worth of gap; on
         // desktop there is no bar and it returns to where it was.
-        className="fixed bottom-24 md:bottom-8 right-6 md:right-8 w-14 h-14 bg-gradient-to-br from-[#111827] to-[#0A0E14] rounded-full shadow-[0_0_20px_rgba(253,184,19,0.3)] flex items-center justify-center z-[100] overflow-hidden border border-[#FDB813]/30"
+        className="fixed bottom-24 md:bottom-8 right-6 md:right-8 w-14 h-14 bg-gradient-to-br from-[#16161C] to-[#07070A] rounded-full shadow-[0_0_20px_rgba(253,184,19,0.3)] flex items-center justify-center z-[100] overflow-hidden border border-[#C9A84C]/30"
       >
-        {isOpen ? <X size={24} className="text-[#FDB813]" /> : <KobBotAvatar className="w-12 h-12 drop-shadow-[0_0_10px_rgba(253,184,19,0.5)]" />}
+        {isOpen ? <X size={24} className="text-[#C9A84C]" /> : <KobBotAvatar className="w-12 h-12 drop-shadow-[0_0_10px_rgba(253,184,19,0.5)]" />}
       </motion.button>
 
       <AnimatePresence>
@@ -874,18 +883,18 @@ function KobBotChat() {
             transition={{ duration: 0.2 }}
           // Same lift, and a width that cannot exceed the screen — 350px was
           // wider than a 320px phone.
-          className="fixed bottom-40 md:bottom-28 right-6 md:right-8 w-[min(350px,calc(100vw-3rem))] h-[500px] max-h-[calc(100dvh-230px)] md:max-h-[calc(100vh-140px)] bg-[#111827]/95 backdrop-blur-xl border border-[#1F2937] rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.8)] z-[100] flex flex-col overflow-hidden"
+          className="fixed bottom-40 md:bottom-28 right-6 md:right-8 w-[min(350px,calc(100vw-3rem))] h-[500px] max-h-[calc(100dvh-230px)] md:max-h-[calc(100vh-140px)] bg-[#16161C]/95 backdrop-blur-xl border border-[#26262E] rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.8)] z-[100] flex flex-col overflow-hidden"
           >
-            <div className="p-4 border-b border-[#1F2937] bg-[#0A0E14]/50 flex items-center justify-between">
+            <div className="p-4 border-b border-[#26262E] bg-[#07070A]/50 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#0A0E14] border border-[#374151] flex items-center justify-center overflow-hidden shrink-0 shadow-[0_0_10px_rgba(253,184,19,0.2)]">
+                <div className="w-8 h-8 rounded-full bg-[#07070A] border border-[#33333C] flex items-center justify-center overflow-hidden shrink-0 shadow-[0_0_10px_rgba(253,184,19,0.2)]">
                   <KobBotAvatar className="w-full h-full scale-110" />
                 </div>
                 <div>
                   <div className="font-mono font-bold text-white tracking-widest text-xs uppercase flex items-center gap-2">
-                    KobBot 2.0 <div className="w-1.5 h-1.5 bg-[#10B981] rounded-full animate-pulse shadow-[0_0_8px_#10b981]" />
+                    KobBot 2.0 <div className="w-1.5 h-1.5 bg-[#2ECC71] rounded-full animate-pulse shadow-[0_0_8px_#2ECC71]" />
                   </div>
-                  <div className="text-[9px] font-mono text-[#94A3B8] tracking-widest uppercase mt-0.5">Your money assistant</div>
+                  <div className="text-[9px] font-mono text-[#A0A0A8] tracking-widest uppercase mt-0.5">Your money assistant</div>
                 </div>
               </div>
             </div>
@@ -895,8 +904,8 @@ function KobBotChat() {
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[80%] p-3 rounded-xl text-xs font-mono leading-relaxed ${
                     msg.role === 'user' 
-                      ? 'bg-[#FDB813]/20 text-[#FDB813] border border-[#FDB813]/30 rounded-br-none' 
-                      : 'bg-[#1F2937] text-white border border-[#374151] rounded-bl-none'
+                      ? 'bg-[#C9A84C]/20 text-[#C9A84C] border border-[#C9A84C]/30 rounded-br-none' 
+                      : 'bg-[#26262E] text-white border border-[#33333C] rounded-bl-none'
                   }`}>
                     {msg.content}
                   </div>
@@ -904,7 +913,7 @@ function KobBotChat() {
               ))}
               {isLoading && (
                 <div className="flex justify-start">
-                  <div className="bg-[#1F2937] text-[#94A3B8] p-3 rounded-xl rounded-bl-none border border-[#374151] flex items-center gap-2">
+                  <div className="bg-[#26262E] text-[#A0A0A8] p-3 rounded-xl rounded-bl-none border border-[#33333C] flex items-center gap-2">
                     <Loader2 size={14} className="animate-spin" /> <span className="text-[10px] font-mono tracking-widest uppercase">Processing...</span>
                   </div>
                 </div>
@@ -912,19 +921,19 @@ function KobBotChat() {
               <div ref={messagesEndRef} />
             </div>
 
-            <div className="p-4 border-t border-[#1F2937] bg-[#0A0E14]/50 flex gap-2">
+            <div className="p-4 border-t border-[#26262E] bg-[#07070A]/50 flex gap-2">
               <input 
                 type="text" 
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                 placeholder="Query network data..."
-                className="flex-1 bg-[#111827] border border-[#374151] rounded-lg px-4 py-2 text-xs font-mono text-white outline-none focus:border-[#FDB813]/50 transition-colors"
+                className="flex-1 bg-[#16161C] border border-[#33333C] rounded-lg px-4 py-2 text-xs font-mono text-white outline-none focus:border-[#C9A84C]/50 transition-colors"
               />
               <button 
                 onClick={handleSend}
                 disabled={isLoading || !input.trim()}
-                className="bg-[#FDB813] text-[#0A0E14] p-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#F59E0B] transition-colors flex items-center justify-center w-10"
+                className="bg-[#C9A84C] text-[#07070A] p-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#F59E0B] transition-colors flex items-center justify-center w-10"
               >
                 <Send size={16} />
               </button>

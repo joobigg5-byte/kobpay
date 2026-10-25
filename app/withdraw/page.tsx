@@ -168,47 +168,43 @@ export default function WithdrawPage() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-[#0A0E14] text-white flex flex-col items-center justify-center p-5 lg:p-8 font-sans selection:bg-[#AA771C]/30 relative overflow-hidden">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-tr from-[#10B981]/5 via-transparent to-[#FDB813]/5 rounded-full blur-[100px] pointer-events-none" />
+    <div className="min-h-[100dvh] bg-[#07070A] text-white flex flex-col items-center justify-center p-5 lg:p-8 font-sans selection:bg-[#8A6D2F]/30 relative overflow-hidden">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-tr from-[#2ECC71]/5 via-transparent to-[#C9A84C]/5 rounded-full blur-[100px] pointer-events-none" />
 
-      <div className="bg-[#111827]/80 backdrop-blur-xl border border-[#1F2937] p-8 lg:p-10 rounded-[2rem] shadow-[0_0_80px_rgba(0,0,0,0.8)] max-w-lg w-full relative z-10">
+      <div className="bg-[#16161C]/80 backdrop-blur-xl border border-[#26262E] p-8 lg:p-10 rounded-[2rem] shadow-[0_0_80px_rgba(0,0,0,0.8)] max-w-lg w-full relative z-10">
         <div className="flex justify-between items-center mb-10">
-          <Link href="/" className="text-[#94A3B8] hover:text-[#FDB813] transition-colors p-2 bg-[#1F2937] rounded-lg border border-[#374151]">
+          <Link href="/" className="text-[#A0A0A8] hover:text-[#C9A84C] transition-colors p-2 bg-[#26262E] rounded-lg border border-[#33333C]">
             <ArrowLeft size={20} />
           </Link>
           <AppMenu />
-          <div className="flex items-center gap-2 text-[10px] font-mono tracking-widest uppercase bg-[#0A0E14] px-3 py-1.5 rounded-full border border-[#1F2937]">
-            <Wallet size={12} className="text-[#FDB813]" /> Cash Out
-          </div>
         </div>
 
-        <h1 className="text-3xl font-black uppercase tracking-widest mb-2 text-white">Withdraw KPC</h1>
-        <p className="text-xs font-mono text-[#94A3B8] tracking-widest uppercase mb-4">
+        <h1 className="font-display text-4xl font-light tracking-tight mb-2 text-white">Withdraw KPC</h1>
+        <p className="text-[13px] text-[#A0A0A8] mb-4">
           Convert KPC back to real cash, delivered to mobile money or bank.
         </p>
 
         {currentUser && balance !== null && (
-          <div className="bg-[#0A0E14] border border-[#1F2937] p-4 rounded-xl flex justify-between items-center mb-6">
-            <span className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-widest">Available Balance</span>
-            <span className="text-lg font-black font-mono text-[#FDB813]">{balance.toLocaleString()} KPC</span>
+          <div className="bg-[#07070A] border border-[#26262E] p-4 rounded-xl flex justify-between items-center mb-6">
+            <span className="text-[10px] font-mono text-[#A0A0A8] uppercase tracking-widest">Available Balance</span>
+            <span className="text-lg font-black font-mono text-[#C9A84C]">{balance.toLocaleString()} KPC</span>
           </div>
         )}
 
         {!currentUser ? (
-          <div className="bg-[#EF4444]/10 border border-[#EF4444]/30 p-6 rounded-xl flex items-start gap-4 mb-6">
-            <AlertCircle className="text-[#EF4444] shrink-0" size={24} />
-            <p className="text-xs font-mono text-[#EF4444] leading-relaxed uppercase">
-              Connection Required. Please <Link href="/auth" className="font-bold underline">sign in</Link> before withdrawing.
+          <div className="bg-[#16161C] border border-[#26262E] p-7 rounded-2xl mb-6 text-center">
+            <p className="text-[13px] text-[#A0A0A8] leading-relaxed">
+              Please <Link href="/auth" className="text-[#C9A84C] underline">sign in</Link> to withdrawing.
             </p>
           </div>
         ) : (
           <form onSubmit={handleWithdraw} className="space-y-6">
-            <div className="flex p-1.5 bg-[#0A0E14] rounded-2xl border border-[#1F2937]">
+            <div className="flex p-1.5 bg-[#07070A] rounded-2xl border border-[#26262E]">
               <button
                 type="button"
                 onClick={() => setPayoutType("mobile_money")}
                 className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-mono text-[11px] font-bold uppercase tracking-widest transition-all ${
-                  payoutType === "mobile_money" ? "bg-[#1F2937] text-[#FDB813]" : "text-[#94A3B8] hover:text-white"
+                  payoutType === "mobile_money" ? "bg-[#26262E] text-[#C9A84C]" : "text-[#A0A0A8] hover:text-white"
                 }`}
               >
                 <Smartphone size={14} /> Mobile Money
@@ -217,7 +213,7 @@ export default function WithdrawPage() {
                 type="button"
                 onClick={() => setPayoutType("nuban")}
                 className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-mono text-[11px] font-bold uppercase tracking-widest transition-all ${
-                  payoutType === "nuban" ? "bg-[#1F2937] text-[#FDB813]" : "text-[#94A3B8] hover:text-white"
+                  payoutType === "nuban" ? "bg-[#26262E] text-[#C9A84C]" : "text-[#A0A0A8] hover:text-white"
                 }`}
               >
                 <Landmark size={14} /> Bank Account
@@ -227,13 +223,13 @@ export default function WithdrawPage() {
             {payoutType === "mobile_money" ? (
               <>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] ml-1">
+                  <label className="text-[13px] text-[#A0A0A8] ml-1">
                     Country
                   </label>
                   <select
                     value={country}
                     onChange={(e) => setCountry(e.target.value)}
-                    className="w-full bg-[#0A0E14] border border-[#374151] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#FDB813] transition-colors"
+                    className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C] transition-colors"
                   >
                     {railCountries.map((c) => (
                       <option key={c.country} value={c.country_name}>
@@ -243,13 +239,13 @@ export default function WithdrawPage() {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] ml-1">
+                  <label className="text-[13px] text-[#A0A0A8] ml-1">
                     Mobile Money Network
                   </label>
                   <select
                     value={provider}
                     onChange={(e) => setProvider(e.target.value)}
-                    className="w-full bg-[#0A0E14] border border-[#374151] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#FDB813] transition-colors"
+                    className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C] transition-colors"
                   >
                     {providersForCountry.map((p) => (
                       <option key={p.code} value={p.code}>
@@ -267,9 +263,9 @@ export default function WithdrawPage() {
                     somebody whose country is not here at all. They used to
                     get an "Other" option that silently did nothing. */}
                 {railsLoaded && railCountries.length === 0 && (
-                  <div className="bg-[#FDB813]/10 border border-[#FDB813]/30 p-4 rounded-xl flex items-start gap-3">
-                    <AlertCircle className="text-[#FDB813] shrink-0" size={16} />
-                    <p className="text-[11px] text-[#FDB813] leading-relaxed">
+                  <div className="bg-[#C9A84C]/10 border border-[#C9A84C]/30 p-4 rounded-xl flex items-start gap-3">
+                    <AlertCircle className="text-[#C9A84C] shrink-0" size={16} />
+                    <p className="text-[11px] text-[#C9A84C] leading-relaxed">
                       Cash withdrawals are not open yet. Your KPC is safe and you can
                       still send and spend it.
                     </p>
@@ -277,14 +273,14 @@ export default function WithdrawPage() {
                 )}
 
                 {railsLoaded && railCountries.length > 0 && (
-                  <div className="bg-[#111827] border border-[#1F2937] p-4 rounded-xl">
+                  <div className="bg-[#16161C] border border-[#26262E] p-4 rounded-xl">
                     {asked ? (
-                      <p className="text-[11px] text-[#10B981] leading-relaxed">
+                      <p className="text-[11px] text-[#2ECC71] leading-relaxed">
                         Noted — we will let you know when we can pay out there.
                       </p>
                     ) : (
                       <>
-                        <p className="text-[11px] text-[#94A3B8] leading-relaxed mb-3">
+                        <p className="text-[11px] text-[#A0A0A8] leading-relaxed mb-3">
                           Not seeing your country? Tell us where you are and we will
                           take it into account when we open the next one.
                         </p>
@@ -294,12 +290,12 @@ export default function WithdrawPage() {
                             onChange={(e) => setAskCountry(e.target.value)}
                             placeholder="Your country"
                             maxLength={56}
-                            className="flex-1 min-w-0 bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#FDB813]/40"
+                            className="flex-1 min-w-0 bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#C9A84C]/40"
                           />
                           <button
                             type="button"
                             onClick={requestCountry}
-                            className="px-4 py-2.5 border border-[#1F2937] rounded-lg text-[10px] font-mono uppercase tracking-[0.15em] text-[#94A3B8] hover:border-[#FDB813]/40 hover:text-white shrink-0"
+                            className="px-4 py-2.5 border border-[#26262E] rounded-lg text-[10px] font-mono uppercase tracking-[0.15em] text-[#A0A0A8] hover:border-[#C9A84C]/40 hover:text-white shrink-0"
                           >
                             Tell us
                           </button>
@@ -309,7 +305,7 @@ export default function WithdrawPage() {
                   </div>
                 )}
                 <div className="space-y-2">
-                  <label className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] ml-1">
+                  <label className="text-[13px] text-[#A0A0A8] ml-1">
                     Mobile Money Number
                   </label>
                   <input
@@ -318,7 +314,7 @@ export default function WithdrawPage() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     disabled={isSubmitting}
-                    className="w-full bg-[#0A0E14] border border-[#374151] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#FDB813] transition-colors placeholder:text-[#374151]"
+                    className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C] transition-colors placeholder:text-[#33333C]"
                     required
                   />
                 </div>
@@ -326,7 +322,7 @@ export default function WithdrawPage() {
             ) : (
               <>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] ml-1">
+                  <label className="text-[13px] text-[#A0A0A8] ml-1">
                     Bank Account Number
                   </label>
                   <input
@@ -335,12 +331,12 @@ export default function WithdrawPage() {
                     value={accountNumber}
                     onChange={(e) => setAccountNumber(e.target.value)}
                     disabled={isSubmitting}
-                    className="w-full bg-[#0A0E14] border border-[#374151] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#FDB813] transition-colors placeholder:text-[#374151]"
+                    className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C] transition-colors placeholder:text-[#33333C]"
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] ml-1">
+                  <label className="text-[13px] text-[#A0A0A8] ml-1">
                     Bank Code
                   </label>
                   <input
@@ -349,10 +345,10 @@ export default function WithdrawPage() {
                     value={bankCode}
                     onChange={(e) => setBankCode(e.target.value)}
                     disabled={isSubmitting}
-                    className="w-full bg-[#0A0E14] border border-[#374151] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#FDB813] transition-colors placeholder:text-[#374151]"
+                    className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C] transition-colors placeholder:text-[#33333C]"
                     required
                   />
-                  <p className="text-[9px] font-mono text-[#374151] uppercase tracking-widest ml-1">
+                  <p className="text-[12px] text-[#33333C] ml-1">
                     Find your bank's code via Paystack's public bank list API — not hardcoded here since it changes.
                   </p>
                 </div>
@@ -360,7 +356,7 @@ export default function WithdrawPage() {
             )}
 
             <div className="space-y-2">
-              <label className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] ml-1">
+              <label className="text-[13px] text-[#A0A0A8] ml-1">
                 Amount (USD)
               </label>
               <div className="relative">
@@ -371,10 +367,10 @@ export default function WithdrawPage() {
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   disabled={isSubmitting}
-                  className="w-full bg-[#0A0E14] border border-[#374151] rounded-xl pl-4 pr-16 py-4 text-xl font-black font-mono text-white outline-none focus:border-[#FDB813] transition-colors placeholder:text-[#374151]"
+                  className="w-full bg-[#07070A] border border-[#33333C] rounded-xl pl-4 pr-16 py-4 text-xl font-black font-mono text-white outline-none focus:border-[#C9A84C] transition-colors placeholder:text-[#33333C]"
                   required
                 />
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-[#FDB813] tracking-widest">
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-[#C9A84C] tracking-widest">
                   KPC
                 </div>
               </div>
@@ -383,7 +379,7 @@ export default function WithdrawPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full mt-4 flex items-center justify-center gap-3 py-4 bg-[#FDB813] disabled:bg-[#374151] disabled:text-[#94A3B8] text-[#0A0E14] hover:bg-[#F59E0B] transition-all rounded-xl font-mono text-xs uppercase font-black tracking-[0.2em] shadow-[0_0_20px_rgba(253,184,19,0.2)] disabled:shadow-none"
+              className="w-full mt-4 flex items-center justify-center gap-3 py-4 bg-[#C9A84C] disabled:bg-[#33333C] disabled:text-[#A0A0A8] text-[#07070A] hover:bg-[#F59E0B] transition-all rounded-xl font-mono text-xs uppercase font-black tracking-[0.2em] shadow-[0_0_20px_rgba(253,184,19,0.2)] disabled:shadow-none"
             >
               {isSubmitting ? (
                 <>
@@ -397,16 +393,16 @@ export default function WithdrawPage() {
             </button>
 
             {success && (
-              <div className="bg-[#10B981]/10 border border-[#10B981]/30 p-4 rounded-xl flex items-center gap-3 text-[#10B981]">
+              <div className="bg-[#2ECC71]/10 border border-[#2ECC71]/30 p-4 rounded-xl flex items-center gap-3 text-[#2ECC71]">
                 <CheckCircle2 size={20} />
-                <span className="text-[10px] font-mono uppercase tracking-widest">
+                <span className="text-[13px]">
                   Withdrawal initiated — funds will arrive shortly.
                 </span>
               </div>
             )}
 
             {error && (
-              <div className="bg-[#EF4444]/10 border border-[#EF4444]/30 p-4 rounded-xl flex items-start gap-3 text-[#EF4444]">
+              <div className="bg-[#E74C3C]/10 border border-[#E74C3C]/30 p-4 rounded-xl flex items-start gap-3 text-[#E74C3C]">
                 <AlertCircle size={20} className="shrink-0 mt-0.5" />
                 <span className="text-[10px] font-mono uppercase tracking-widest">{error}</span>
               </div>

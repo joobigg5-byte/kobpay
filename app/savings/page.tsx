@@ -127,40 +127,36 @@ export default function SavingsPage() {
   const totalInterest = plans.reduce((s, p) => s + num(p.interest_waiting), 0);
 
   return (
-    <div className="min-h-[100dvh] bg-[#0A0E14] text-white font-sans selection:bg-[#AA771C]/30 relative overflow-hidden">
+    <div className="min-h-[100dvh] bg-[#07070A] text-white font-sans selection:bg-[#8A6D2F]/30 relative overflow-hidden">
       <Toaster position="top-center" reverseOrder={false} />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-gradient-to-br from-[#10B981]/5 to-transparent rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-gradient-to-br from-[#2ECC71]/5 to-transparent rounded-full blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 max-w-3xl mx-auto px-5 py-8 sm:px-8">
         {/* header */}
         <div className="flex justify-between items-start mb-8">
           <Link
             href="/wallet"
-            className="text-[#94A3B8] hover:text-[#FDB813] transition-colors p-2 bg-[#1F2937] rounded-lg border border-[#374151]"
+            className="text-[#A0A0A8] hover:text-[#C9A84C] transition-colors p-2 bg-[#26262E] rounded-lg border border-[#33333C]"
           >
             <ArrowLeft size={20} />
           </Link>
           <AppMenu />
-          <div className="flex items-center gap-2 text-[10px] font-mono tracking-widest uppercase bg-[#0A0E14] px-3 py-1.5 rounded-full border border-[#1F2937]">
-            <PiggyBank size={12} className="text-[#10B981]" />
-            <span className="text-[#10B981]">Savings</span>
-          </div>
         </div>
 
-        <h1 className="text-3xl font-black uppercase tracking-widest mb-1">Savings</h1>
-        <p className="text-[10px] font-mono text-[#94A3B8] tracking-widest uppercase mb-8">
+        <h1 className="font-display text-4xl font-light tracking-tight mb-1">Savings</h1>
+        <p className="text-[13px] text-[#A0A0A8] mb-8">
           Put money aside and earn on it. Your balance stays yours.
         </p>
 
         {checkingSession ? (
-          <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest py-10 text-center">
+          <p className="text-[13px] text-[#72727A] py-10 text-center">
             Loading...
           </p>
         ) : !userId ? (
-          <div className="bg-[#EF4444]/10 border border-[#EF4444]/30 p-6 rounded-xl">
-            <p className="text-xs font-mono text-[#EF4444] leading-relaxed uppercase">
+          <div className="bg-[#16161C] border border-[#26262E] p-7 rounded-2xl text-center">
+            <p className="text-[13px] text-[#A0A0A8] leading-relaxed">
               Please{" "}
-              <Link href="/auth" className="font-bold underline">
+              <Link href="/auth" className="text-[#C9A84C] underline">
                 sign in
               </Link>{" "}
               to save.
@@ -171,13 +167,13 @@ export default function SavingsPage() {
             {/* the three numbers that matter */}
             <div className="grid grid-cols-3 gap-3 mb-6">
               <Stat label="Spendable" value={walletLoading ? null : num(wallet)} />
-              <Stat label="Saved" value={totalSaved} accent="#10B981" />
-              <Stat label="Interest waiting" value={totalInterest} accent="#FDB813" decimals={4} />
+              <Stat label="Saved" value={totalSaved} accent="#2ECC71" />
+              <Stat label="Interest waiting" value={totalInterest} accent="#C9A84C" decimals={4} />
             </div>
 
             <button
               onClick={() => setShowOpen((s) => !s)}
-              className="w-full mb-6 flex items-center justify-center gap-2 bg-[#10B981] hover:bg-[#0E9F6E] text-[#0A0E14] font-black uppercase tracking-widest text-xs py-4 rounded-xl transition-colors"
+              className="w-full mb-6 flex items-center justify-center gap-2 bg-[#2ECC71] hover:bg-[#27AE60] text-[#07070A] font-black uppercase tracking-widest text-xs py-4 rounded-xl transition-colors"
             >
               <Plus size={16} /> {showOpen ? "Close" : "Start a new plan"}
             </button>
@@ -195,13 +191,13 @@ export default function SavingsPage() {
             )}
 
             {loadingPlans ? (
-              <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest py-10 text-center">
+              <p className="text-[13px] text-[#72727A] py-10 text-center">
                 Loading your plans...
               </p>
             ) : plans.length === 0 ? (
-              <div className="bg-[#111827]/80 border border-[#1F2937] rounded-2xl p-8 text-center">
-                <PiggyBank size={28} className="mx-auto text-[#374151] mb-3" />
-                <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest leading-relaxed">
+              <div className="bg-[#16161C]/80 border border-[#26262E] rounded-2xl p-8 text-center">
+                <PiggyBank size={28} className="mx-auto text-[#33333C] mb-3" />
+                <p className="text-[13px] text-[#A0A0A8] leading-relaxed">
                   No plans yet.
                   <br />
                   Lock earns {((products.find((p) => p.id === "lock")?.apy_bps ?? 1300) / 100).toFixed(0)}% a year.
@@ -235,7 +231,7 @@ export default function SavingsPage() {
               </div>
             )}
 
-            <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.2em] text-center mt-10 leading-relaxed">
+            <p className="text-[12px] text-[#72727A] text-center mt-10 leading-relaxed">
               1 KPC = $1.00 · interest accrues daily
               <br />
               {formatKpcAsUsd(totalSaved)} saved
@@ -261,16 +257,16 @@ function Stat({
   decimals?: number;
 }) {
   return (
-    <div className="bg-[#0A0E14] border border-[#1F2937] p-4 rounded-xl">
-      <span className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-1">
+    <div className="bg-[#07070A] border border-[#26262E] p-4 rounded-xl">
+      <span className="block text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.2em] mb-1">
         {label}
       </span>
       {value === null ? (
-        <span className="text-xs font-mono text-[#94A3B8]">...</span>
+        <span className="text-xs font-mono text-[#A0A0A8]">...</span>
       ) : (
         <span className="text-base font-black leading-none" style={{ color: accent }}>
           {value.toLocaleString(undefined, { maximumFractionDigits: decimals })}
-          <span className="text-[9px] text-[#94A3B8] ml-1">KPC</span>
+          <span className="text-[9px] text-[#A0A0A8] ml-1">KPC</span>
         </span>
       )}
     </div>
@@ -315,7 +311,7 @@ function OpenPlan({
   };
 
   return (
-    <div className="bg-[#111827]/80 backdrop-blur-xl border border-[#1F2937] rounded-2xl p-5 mb-6 space-y-4">
+    <div className="bg-[#16161C]/80 backdrop-blur-xl border border-[#26262E] rounded-2xl p-5 mb-6 space-y-4">
       <div className="grid grid-cols-3 gap-2">
         {products.map((p) => (
           <button
@@ -323,11 +319,11 @@ function OpenPlan({
             onClick={() => setProductId(p.id)}
             className={`p-3 rounded-xl border text-left transition-colors ${
               productId === p.id
-                ? "border-[#10B981] bg-[#10B981]/10"
-                : "border-[#1F2937] bg-[#0A0E14] hover:border-[#374151]"
+                ? "border-[#2ECC71] bg-[#2ECC71]/10"
+                : "border-[#26262E] bg-[#07070A] hover:border-[#33333C]"
             }`}
           >
-            <span className="flex items-center gap-1.5 text-[9px] font-mono uppercase tracking-[0.15em] text-[#94A3B8] mb-1">
+            <span className="flex items-center gap-1.5 text-[9px] font-mono uppercase tracking-[0.15em] text-[#A0A0A8] mb-1">
               {ICON[p.id]} {p.name}
             </span>
             <span className="block text-sm font-black text-white">
@@ -338,7 +334,7 @@ function OpenPlan({
       </div>
 
       {product?.blurb && (
-        <p className="text-[10px] font-mono text-[#94A3B8] leading-relaxed">{product.blurb}</p>
+        <p className="text-[10px] font-mono text-[#A0A0A8] leading-relaxed">{product.blurb}</p>
       )}
 
       <Field label="What is it for">
@@ -347,7 +343,7 @@ function OpenPlan({
           onChange={(e) => setName(e.target.value)}
           placeholder="School fees"
           maxLength={60}
-          className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#4B5563] focus:border-[#10B981] outline-none"
+          className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#72727A] focus:border-[#2ECC71] outline-none"
         />
       </Field>
 
@@ -358,7 +354,7 @@ function OpenPlan({
             onChange={(e) => setAmount(e.target.value)}
             inputMode="decimal"
             placeholder="0"
-            className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#4B5563] focus:border-[#10B981] outline-none"
+            className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#72727A] focus:border-[#2ECC71] outline-none"
           />
         </Field>
 
@@ -368,7 +364,7 @@ function OpenPlan({
               value={lockDays}
               onChange={(e) => setLockDays(e.target.value)}
               inputMode="numeric"
-              className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm text-white focus:border-[#10B981] outline-none"
+              className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm text-white focus:border-[#2ECC71] outline-none"
             />
           </Field>
         ) : productId === "target" ? (
@@ -378,12 +374,12 @@ function OpenPlan({
               onChange={(e) => setTarget(e.target.value)}
               inputMode="decimal"
               placeholder="500"
-              className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#4B5563] focus:border-[#10B981] outline-none"
+              className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#72727A] focus:border-[#2ECC71] outline-none"
             />
           </Field>
         ) : (
           <Field label="Withdrawals a month">
-            <div className="px-3 py-2.5 text-sm font-mono text-[#94A3B8]">
+            <div className="px-3 py-2.5 text-sm font-mono text-[#A0A0A8]">
               {product?.withdrawals_per_month ?? "Unlimited"}
             </div>
           </Field>
@@ -397,7 +393,7 @@ function OpenPlan({
             onChange={(e) => setAutosave(e.target.value)}
             inputMode="decimal"
             placeholder="0"
-            className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#4B5563] focus:border-[#10B981] outline-none"
+            className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#72727A] focus:border-[#2ECC71] outline-none"
           />
         </Field>
         <Field label="How often">
@@ -405,7 +401,7 @@ function OpenPlan({
             value={cadence}
             onChange={(e) => setCadence(e.target.value)}
             disabled={!autosave}
-            className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm text-white focus:border-[#10B981] outline-none disabled:opacity-40"
+            className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm text-white focus:border-[#2ECC71] outline-none disabled:opacity-40"
           >
             <option value="daily">Every day</option>
             <option value="weekly">Every week</option>
@@ -415,9 +411,9 @@ function OpenPlan({
       </div>
 
       {product?.locked && (
-        <div className="flex gap-2 bg-[#FDB813]/10 border border-[#FDB813]/30 rounded-lg p-3">
-          <AlertTriangle size={14} className="text-[#FDB813] shrink-0 mt-0.5" />
-          <p className="text-[10px] font-mono text-[#FDB813] leading-relaxed">
+        <div className="flex gap-2 bg-[#C9A84C]/10 border border-[#C9A84C]/30 rounded-lg p-3">
+          <AlertTriangle size={14} className="text-[#C9A84C] shrink-0 mt-0.5" />
+          <p className="text-[10px] font-mono text-[#C9A84C] leading-relaxed">
             End it early and you keep every KPC you put in — you just earn {(100 - product.break_fee_bps / 100).toFixed(0)}% of the interest
             you have earned. Your deposit always comes back in full.
           </p>
@@ -427,7 +423,7 @@ function OpenPlan({
       <button
         onClick={submit}
         disabled={busy}
-        className="w-full bg-[#10B981] hover:bg-[#0E9F6E] disabled:opacity-40 text-[#0A0E14] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
+        className="w-full bg-[#2ECC71] hover:bg-[#27AE60] disabled:opacity-40 text-[#07070A] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
       >
         {busy ? "Opening..." : "Open plan"}
       </button>
@@ -438,7 +434,7 @@ function OpenPlan({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-1.5">
+      <span className="block text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.2em] mb-1.5">
         {label}
       </span>
       {children}
@@ -484,21 +480,21 @@ function PlanCard({
 
   return (
     <div
-      className={`bg-[#111827]/80 backdrop-blur-xl border rounded-2xl p-5 ${
-        closed ? "border-[#1F2937] opacity-60" : "border-[#1F2937]"
+      className={`bg-[#16161C]/80 backdrop-blur-xl border rounded-2xl p-5 ${
+        closed ? "border-[#26262E] opacity-60" : "border-[#26262E]"
       }`}
     >
       <div className="flex justify-between items-start gap-3 mb-3">
         <div className="min-w-0">
-          <span className="flex items-center gap-1.5 text-[9px] font-mono uppercase tracking-[0.15em] text-[#94A3B8] mb-1">
+          <span className="flex items-center gap-1.5 text-[9px] font-mono uppercase tracking-[0.15em] text-[#A0A0A8] mb-1">
             {ICON[plan.product_id]} {plan.product_name} · {plan.rate_percent}%
             {plan.locked_now && plan.locked_until && (
-              <span className="text-[#FDB813] normal-case tracking-normal">
+              <span className="text-[#C9A84C] normal-case tracking-normal">
                 · locked to {new Date(plan.locked_until).toLocaleDateString()}
               </span>
             )}
-            {plan.status === "paused" && <span className="text-[#FDB813]">· paused</span>}
-            {plan.status === "matured" && <span className="text-[#10B981]">· matured</span>}
+            {plan.status === "paused" && <span className="text-[#C9A84C]">· paused</span>}
+            {plan.status === "matured" && <span className="text-[#2ECC71]">· matured</span>}
             {closed && <span>· {plan.status}</span>}
           </span>
           <h3 className="text-base font-bold text-white truncate">{plan.name}</h3>
@@ -507,44 +503,44 @@ function PlanCard({
           <span className="block text-lg font-black text-white leading-none">
             {principal.toLocaleString(undefined, { maximumFractionDigits: 2 })}
           </span>
-          <span className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em]">KPC</span>
+          <span className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.2em]">KPC</span>
         </div>
       </div>
 
       {plan.target_amount && plan.percent_of_target !== null && (
         <div className="mb-3">
-          <div className="h-1.5 bg-[#0A0E14] rounded-full overflow-hidden border border-[#1F2937]">
+          <div className="h-1.5 bg-[#07070A] rounded-full overflow-hidden border border-[#26262E]">
             <div
-              className="h-full bg-[#10B981] transition-all"
+              className="h-full bg-[#2ECC71] transition-all"
               style={{ width: `${Math.min(num(plan.percent_of_target), 100)}%` }}
             />
           </div>
-          <span className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mt-1.5">
+          <span className="block text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.2em] mt-1.5">
             {num(plan.percent_of_target)}% of {num(plan.target_amount).toLocaleString()} KPC
           </span>
         </div>
       )}
 
       <div className="flex flex-wrap gap-x-5 gap-y-1 text-[9px] font-mono uppercase tracking-[0.15em] mb-4">
-        <span className="text-[#FDB813]">
+        <span className="text-[#C9A84C]">
           <TrendingUp size={10} className="inline mb-0.5 mr-1" />
           {waiting.toLocaleString(undefined, { maximumFractionDigits: 4 })} interest waiting
         </span>
         {plan.autosave_amount && plan.autosave_next && (
-          <span className="text-[#94A3B8]">
+          <span className="text-[#A0A0A8]">
             <Clock size={10} className="inline mb-0.5 mr-1" />
             {num(plan.autosave_amount)} {plan.autosave_cadence} · next{" "}
             {new Date(plan.autosave_next).toLocaleDateString()}
           </span>
         )}
         {plan.withdrawals_per_month !== null && !plan.locked_now && (
-          <span className="text-[#94A3B8]">
+          <span className="text-[#A0A0A8]">
             {plan.withdrawals_per_month - plan.withdrawals_this_month} of{" "}
             {plan.withdrawals_per_month} withdrawals left
           </span>
         )}
         {num(plan.interest_owed) > 0 && (
-          <span className="text-[#EF4444]">
+          <span className="text-[#E74C3C]">
             {num(plan.interest_owed).toFixed(4)} interest owed to you — being paid
           </span>
         )}
@@ -555,7 +551,7 @@ function PlanCard({
           <div className="flex gap-2">
             <button
               onClick={() => setOpen(open === "fund" ? "none" : "fund")}
-              className="flex-1 flex items-center justify-center gap-1.5 bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-white font-mono uppercase tracking-widest text-[10px] py-2.5 rounded-lg transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 bg-[#26262E] hover:bg-[#33333C] border border-[#33333C] text-white font-mono uppercase tracking-widest text-[10px] py-2.5 rounded-lg transition-colors"
             >
               <Plus size={12} /> Add
             </button>
@@ -563,14 +559,14 @@ function PlanCard({
             {plan.locked_now ? (
               <button
                 onClick={() => setConfirmBreak(true)}
-                className="flex-1 flex items-center justify-center gap-1.5 bg-[#1F2937] hover:bg-[#EF4444]/20 border border-[#374151] hover:border-[#EF4444]/40 text-[#94A3B8] hover:text-[#EF4444] font-mono uppercase tracking-widest text-[10px] py-2.5 rounded-lg transition-colors"
+                className="flex-1 flex items-center justify-center gap-1.5 bg-[#26262E] hover:bg-[#E74C3C]/20 border border-[#33333C] hover:border-[#E74C3C]/40 text-[#A0A0A8] hover:text-[#E74C3C] font-mono uppercase tracking-widest text-[10px] py-2.5 rounded-lg transition-colors"
               >
                 <Lock size={12} /> End early
               </button>
             ) : (
               <button
                 onClick={() => setOpen(open === "out" ? "none" : "out")}
-                className="flex-1 flex items-center justify-center gap-1.5 bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-white font-mono uppercase tracking-widest text-[10px] py-2.5 rounded-lg transition-colors"
+                className="flex-1 flex items-center justify-center gap-1.5 bg-[#26262E] hover:bg-[#33333C] border border-[#33333C] text-white font-mono uppercase tracking-widest text-[10px] py-2.5 rounded-lg transition-colors"
               >
                 <Minus size={12} /> Take out
               </button>
@@ -581,7 +577,7 @@ function PlanCard({
                 onClick={plan.status === "paused" ? onResume : onPause}
                 disabled={busy === plan.id + ":pause"}
                 title={plan.status === "paused" ? "Resume automatic deposits" : "Pause automatic deposits"}
-                className="px-3 bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-[#94A3B8] rounded-lg transition-colors disabled:opacity-40"
+                className="px-3 bg-[#26262E] hover:bg-[#33333C] border border-[#33333C] text-[#A0A0A8] rounded-lg transition-colors disabled:opacity-40"
               >
                 {plan.status === "paused" ? <Play size={12} /> : <Pause size={12} />}
               </button>
@@ -596,12 +592,12 @@ function PlanCard({
                 inputMode="decimal"
                 autoFocus
                 placeholder={open === "fund" ? `Up to ${wallet.toLocaleString()}` : `Up to ${principal.toLocaleString()}`}
-                className="flex-1 bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#4B5563] focus:border-[#10B981] outline-none"
+                className="flex-1 bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#72727A] focus:border-[#2ECC71] outline-none"
               />
               <button
                 onClick={() => act(open === "fund" ? "fund" : "out")}
                 disabled={busy === plan.id + ":fund" || busy === plan.id + ":out"}
-                className="px-5 bg-[#10B981] hover:bg-[#0E9F6E] disabled:opacity-40 text-[#0A0E14] font-black uppercase tracking-widest text-[10px] rounded-lg transition-colors"
+                className="px-5 bg-[#2ECC71] hover:bg-[#27AE60] disabled:opacity-40 text-[#07070A] font-black uppercase tracking-widest text-[10px] rounded-lg transition-colors"
               >
                 Go
               </button>
@@ -611,7 +607,7 @@ function PlanCard({
           {open === "out" && plan.status !== "paused" && (
             <button
               onClick={() => onWithdraw(null)}
-              className="w-full mt-2 text-[9px] font-mono text-[#94A3B8] hover:text-white uppercase tracking-[0.2em] py-2 transition-colors"
+              className="w-full mt-2 text-[9px] font-mono text-[#A0A0A8] hover:text-white uppercase tracking-[0.2em] py-2 transition-colors"
             >
               Take everything and close this plan
             </button>
@@ -622,23 +618,23 @@ function PlanCard({
       {/* Breaking a lock. The cost is stated in money before anything happens —
           this is the moment the product either earns trust or loses it. */}
       {confirmBreak && (
-        <div className="mt-4 bg-[#0A0E14] border border-[#EF4444]/40 rounded-xl p-4">
+        <div className="mt-4 bg-[#07070A] border border-[#E74C3C]/40 rounded-xl p-4">
           <p className="text-[11px] font-mono text-white uppercase tracking-widest mb-3">
             End this plan early?
           </p>
           <div className="space-y-1.5 text-[10px] font-mono mb-4">
-            <Row label="Your deposit, returned in full" value={`${principal.toLocaleString()} KPC`} tone="#10B981" />
+            <Row label="Your deposit, returned in full" value={`${principal.toLocaleString()} KPC`} tone="#2ECC71" />
             <Row
               label="Interest you keep"
               value={`${Math.max(waiting - breakCost, 0).toLocaleString(undefined, { maximumFractionDigits: 4 })} KPC`}
-              tone="#10B981"
+              tone="#2ECC71"
             />
             <Row
               label="Interest not earned"
               value={`${breakCost.toLocaleString(undefined, { maximumFractionDigits: 4 })} KPC`}
-              tone="#EF4444"
+              tone="#E74C3C"
             />
-            <div className="pt-2 border-t border-[#1F2937]">
+            <div className="pt-2 border-t border-[#26262E]">
               <Row
                 label="You receive"
                 value={`${(principal + Math.max(waiting - breakCost, 0)).toLocaleString(undefined, {
@@ -651,7 +647,7 @@ function PlanCard({
           <div className="flex gap-2">
             <button
               onClick={() => setConfirmBreak(false)}
-              className="flex-1 bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-white font-mono uppercase tracking-widest text-[10px] py-2.5 rounded-lg transition-colors"
+              className="flex-1 bg-[#26262E] hover:bg-[#33333C] border border-[#33333C] text-white font-mono uppercase tracking-widest text-[10px] py-2.5 rounded-lg transition-colors"
             >
               Keep saving
             </button>
@@ -661,7 +657,7 @@ function PlanCard({
                 onWithdraw(null);
               }}
               disabled={busy === plan.id + ":out"}
-              className="flex-1 bg-[#EF4444] hover:bg-[#DC2626] disabled:opacity-40 text-white font-black uppercase tracking-widest text-[10px] py-2.5 rounded-lg transition-colors"
+              className="flex-1 bg-[#E74C3C] hover:bg-[#C0392B] disabled:opacity-40 text-white font-black uppercase tracking-widest text-[10px] py-2.5 rounded-lg transition-colors"
             >
               End it
             </button>
@@ -675,7 +671,7 @@ function PlanCard({
 function Row({ label, value, tone }: { label: string; value: string; tone: string }) {
   return (
     <div className="flex justify-between gap-3">
-      <span className="text-[#94A3B8] uppercase tracking-[0.15em]">{label}</span>
+      <span className="text-[#A0A0A8] uppercase tracking-[0.15em]">{label}</span>
       <span className="font-bold shrink-0" style={{ color: tone }}>
         {value}
       </span>

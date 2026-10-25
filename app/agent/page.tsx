@@ -113,7 +113,7 @@ export default function AgentPage() {
         </div>
 
         {loading ? (
-          <p className="text-[10px] font-mono text-muted uppercase tracking-[0.2em] py-16 text-center">
+          <p className="text-[13px] text-muted py-16 text-center">
             Loading...
           </p>
         ) : !signedIn ? (
@@ -151,7 +151,7 @@ export default function AgentPage() {
                 </div>
               </div>
               {n(a.float) <= 0 && (
-                <p className="text-[10px] font-mono text-bad uppercase tracking-[0.12em] mt-4 leading-relaxed">
+                <p className="text-[13px] text-bad mt-4 leading-relaxed">
                   No float. You can still give out cash, which adds to it — but you
                   cannot send KPC until you buy more.
                 </p>
@@ -183,7 +183,7 @@ export default function AgentPage() {
                 <p className="text-[10px] font-mono text-gold uppercase tracking-[0.2em] mb-1 flex items-center gap-2">
                   <ArrowDownLeft size={13} /> You take cash
                 </p>
-                <p className="text-[10px] font-mono text-muted uppercase tracking-[0.1em] mb-4 leading-relaxed">
+                <p className="text-[13px] text-muted mb-4 leading-relaxed">
                   Customer gives you money, you send them KPC
                 </p>
                 <input
@@ -214,7 +214,7 @@ export default function AgentPage() {
                 <p className="text-[10px] font-mono text-gold uppercase tracking-[0.2em] mb-1 flex items-center gap-2">
                   <ArrowUpRight size={13} /> You give cash
                 </p>
-                <p className="text-[10px] font-mono text-muted uppercase tracking-[0.1em] mb-4 leading-relaxed">
+                <p className="text-[13px] text-muted mb-4 leading-relaxed">
                   Customer shows you a 6-digit code
                 </p>
                 <input
@@ -231,7 +231,7 @@ export default function AgentPage() {
                 >
                   {busy ? "Checking..." : "Check code"}
                 </button>
-                <p className="text-[9px] font-mono text-muted uppercase tracking-[0.1em] mt-3 leading-relaxed">
+                <p className="text-[12px] text-muted mt-3 leading-relaxed">
                   Only hand over cash once this says to.
                 </p>
               </div>

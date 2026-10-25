@@ -47,18 +47,18 @@ export default function BuyKpcModal({ accessToken, onClose }: BuyKpcModalProps) 
   const kpcReceived = Number(amountUsd) > 0 ? Number(amountUsd) / KPC_PEG_USD : 0;
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-[#0A0E14]/80 backdrop-blur-sm">
-      <div className="w-full max-w-sm bg-[#111827] border border-[#1F2937] rounded-[2rem] p-8 shadow-2xl relative">
-        <button onClick={onClose} className="absolute top-6 right-6 text-[#94A3B8] hover:text-white">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-[#07070A]/80 backdrop-blur-sm">
+      <div className="w-full max-w-sm bg-[#16161C] border border-[#26262E] rounded-[2rem] p-8 shadow-2xl relative">
+        <button onClick={onClose} className="absolute top-6 right-6 text-[#A0A0A8] hover:text-white">
           <X size={20} />
         </button>
 
-        <h2 className="text-xl font-black uppercase tracking-widest text-white mb-2">Buy KPC</h2>
-        <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-widest mb-6">
+        <h2 className="font-display text-2xl font-light tracking-tight text-white mb-2">Buy KPC</h2>
+        <p className="text-[10px] font-mono text-[#A0A0A8] uppercase tracking-widest mb-6">
           1 KPC = ${KPC_PEG_USD.toFixed(2)} USD, always
         </p>
 
-        <label className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-widest block mb-2">
+        <label className="text-[10px] font-mono text-[#A0A0A8] uppercase tracking-widest block mb-2">
           Amount (USD)
         </label>
         <input
@@ -66,15 +66,15 @@ export default function BuyKpcModal({ accessToken, onClose }: BuyKpcModalProps) 
           value={amountUsd}
           onChange={(e) => setAmountUsd(e.target.value)}
           placeholder="0.00"
-          className="w-full bg-[#0A0E14] border border-[#374151] rounded-xl px-4 py-4 text-xl font-black font-mono text-white outline-none focus:border-[#FDB813] transition-colors mb-2"
+          className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-xl font-black font-mono text-white outline-none focus:border-[#C9A84C] transition-colors mb-2"
         />
 
-        <p className="text-[10px] font-mono text-[#10B981] uppercase tracking-widest mb-6">
+        <p className="text-[10px] font-mono text-[#2ECC71] uppercase tracking-widest mb-6">
           You'll receive {kpcReceived.toLocaleString(undefined, { maximumFractionDigits: 2 })} KPC
         </p>
 
         {error && (
-          <div className="text-[10px] font-mono text-[#EF4444] uppercase tracking-widest mb-4">
+          <div className="text-[10px] font-mono text-[#E74C3C] uppercase tracking-widest mb-4">
             {error}
           </div>
         )}
@@ -82,13 +82,13 @@ export default function BuyKpcModal({ accessToken, onClose }: BuyKpcModalProps) 
         <button
           onClick={handleBuy}
           disabled={isLoading}
-          className="w-full py-4 bg-[#FDB813] disabled:bg-[#374151] text-[#0A0E14] font-black font-mono text-[11px] uppercase tracking-[0.2em] rounded-xl hover:bg-[#F59E0B] transition-all flex items-center justify-center gap-2"
+          className="w-full py-4 bg-[#C9A84C] disabled:bg-[#33333C] text-[#07070A] font-black font-mono text-[11px] uppercase tracking-[0.2em] rounded-xl hover:bg-[#F59E0B] transition-all flex items-center justify-center gap-2"
         >
           {isLoading ? <Loader2 size={16} className="animate-spin" /> : <ShieldCheck size={16} />}
           {isLoading ? "Redirecting to secure checkout..." : "Continue to Payment"}
         </button>
 
-        <p className="text-[9px] font-mono text-[#374151] uppercase tracking-widest text-center mt-4">
+        <p className="text-[9px] font-mono text-[#33333C] uppercase tracking-widest text-center mt-4">
           Secured by Paystack
         </p>
       </div>

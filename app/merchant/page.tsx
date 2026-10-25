@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  ArrowLeft, Store, Plus, Copy, Check, Power, Link2,
+  ArrowLeft, Plus, Copy, Check, Power, Link2,
   TrendingUp, RotateCcw, X,
 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
@@ -97,48 +97,44 @@ export default function MerchantPage() {
   const feesPaid = sales.reduce((s, x) => s + num(x.fee), 0);
 
   return (
-    <div className="min-h-[100dvh] bg-[#0A0E14] text-white font-sans selection:bg-[#AA771C]/30 relative overflow-hidden">
+    <div className="min-h-[100dvh] bg-[#07070A] text-white font-sans selection:bg-[#8A6D2F]/30 relative overflow-hidden">
       <Toaster position="top-center" reverseOrder={false} />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-gradient-to-br from-[#FDB813]/5 to-transparent rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-gradient-to-br from-[#C9A84C]/5 to-transparent rounded-full blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 max-w-3xl mx-auto px-5 py-8 sm:px-8">
         <div className="flex justify-between items-start mb-8">
           <Link
             href="/wallet"
-            className="text-[#94A3B8] hover:text-[#FDB813] transition-colors p-2 bg-[#1F2937] rounded-lg border border-[#374151]"
+            className="text-[#A0A0A8] hover:text-[#C9A84C] transition-colors p-2 bg-[#26262E] rounded-lg border border-[#33333C]"
           >
             <ArrowLeft size={20} />
           </Link>
           <AppMenu />
-          <div className="flex items-center gap-2 text-[10px] font-mono tracking-widest uppercase bg-[#0A0E14] px-3 py-1.5 rounded-full border border-[#1F2937]">
-            <Store size={12} className="text-[#FDB813]" />
-            <span className="text-[#FDB813]">Business</span>
-          </div>
         </div>
 
-        <h1 className="text-3xl font-black uppercase tracking-widest mb-1">
+        <h1 className="font-display text-4xl font-light tracking-tight mb-1">
           {merchant?.business_name ?? "Take payments"}
         </h1>
-        <p className="text-[10px] font-mono text-[#94A3B8] tracking-widest uppercase mb-8">
+        <p className="text-[13px] text-[#A0A0A8] mb-8">
           {merchant ? `kobpay.app/m/${merchant.slug}` : "A link is all you need — no terminal, no contract"}
         </p>
 
         {checking ? (
-          <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest py-10 text-center">
+          <p className="text-[13px] text-[#72727A] py-10 text-center">
             Loading...
           </p>
         ) : !userId ? (
-          <div className="bg-[#EF4444]/10 border border-[#EF4444]/30 p-6 rounded-xl">
-            <p className="text-xs font-mono text-[#EF4444] leading-relaxed uppercase">
+          <div className="bg-[#16161C] border border-[#26262E] p-7 rounded-2xl text-center">
+            <p className="text-[13px] text-[#A0A0A8] leading-relaxed">
               Please{" "}
-              <Link href="/auth" className="underline">
+              <Link href="/auth" className="text-[#C9A84C] underline">
                 sign in
               </Link>{" "}
               to take payments.
             </p>
           </div>
         ) : loading ? (
-          <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest py-10 text-center">
+          <p className="text-[13px] text-[#72727A] py-10 text-center">
             Loading...
           </p>
         ) : !merchant ? (
@@ -158,7 +154,7 @@ export default function MerchantPage() {
 
             <button
               onClick={() => setShowNew((v) => !v)}
-              className="w-full mb-6 flex items-center justify-center gap-2 bg-[#FDB813] hover:bg-[#E0A411] text-[#0A0E14] font-black uppercase tracking-widest text-xs py-4 rounded-xl transition-colors"
+              className="w-full mb-6 flex items-center justify-center gap-2 bg-[#C9A84C] hover:bg-[#B8963F] text-[#07070A] font-black uppercase tracking-widest text-xs py-4 rounded-xl transition-colors"
             >
               <Plus size={14} /> New payment link
             </button>
@@ -186,12 +182,12 @@ export default function MerchantPage() {
             )}
 
             {links.length === 0 ? (
-              <div className="bg-[#111827]/80 border border-[#1F2937] rounded-2xl p-8 text-center mb-6">
-                <Link2 size={28} className="text-[#374151] mx-auto mb-3" />
-                <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest mb-2">
+              <div className="bg-[#16161C]/80 border border-[#26262E] rounded-2xl p-8 text-center mb-6">
+                <Link2 size={28} className="text-[#33333C] mx-auto mb-3" />
+                <p className="text-xs font-mono text-[#A0A0A8] uppercase tracking-widest mb-2">
                   No links yet
                 </p>
-                <p className="text-[10px] font-mono text-[#4B5563] leading-relaxed">
+                <p className="text-[10px] font-mono text-[#72727A] leading-relaxed">
                   Make one, paste it wherever you sell. Anyone who opens it can
                   pay you.
                 </p>
@@ -218,10 +214,10 @@ export default function MerchantPage() {
 
             {sales.length > 0 && (
               <>
-                <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.2em] mb-2 px-1">
+                <p className="text-[9px] font-mono text-[#72727A] uppercase tracking-[0.2em] mb-2 px-1">
                   Recent sales
                 </p>
-                <div className="bg-[#111827]/80 backdrop-blur-xl border border-[#1F2937] rounded-2xl overflow-hidden">
+                <div className="bg-[#16161C]/80 backdrop-blur-xl border border-[#26262E] rounded-2xl overflow-hidden">
                   {sales.map((s, i) => (
                     <SaleRow
                       key={s.id}
@@ -234,7 +230,7 @@ export default function MerchantPage() {
               </>
             )}
 
-            <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.2em] text-center mt-10 leading-relaxed">
+            <p className="text-[12px] text-[#72727A] text-center mt-10 leading-relaxed">
               1 KPC = $1.00 · paid straight to your wallet, no settlement wait
               <br />
               {formatKpcAsUsd(takenTotal)} taken
@@ -269,13 +265,13 @@ function Stat({
   muted?: boolean;
 }) {
   return (
-    <div className="bg-[#0A0E14] border border-[#1F2937] p-4 rounded-xl">
-      <span className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-1">
+    <div className="bg-[#07070A] border border-[#26262E] p-4 rounded-xl">
+      <span className="block text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.2em] mb-1">
         {label}
       </span>
-      <span className={`text-lg font-black ${muted ? "text-[#94A3B8]" : "text-[#FDB813]"}`}>
+      <span className={`text-lg font-black ${muted ? "text-[#A0A0A8]" : "text-[#C9A84C]"}`}>
         {value.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-        {!plain && <span className="text-[9px] text-[#94A3B8] ml-1">KPC</span>}
+        {!plain && <span className="text-[9px] text-[#A0A0A8] ml-1">KPC</span>}
       </span>
     </div>
   );
@@ -295,28 +291,28 @@ function SetUp({
     .replace(/^-+|-+$/g, "");
 
   return (
-    <div className="bg-[#111827]/80 backdrop-blur-xl border border-[#1F2937] rounded-2xl p-5 space-y-4">
+    <div className="bg-[#16161C]/80 backdrop-blur-xl border border-[#26262E] rounded-2xl p-5 space-y-4">
       <div>
-        <span className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-1.5">
+        <span className="block text-[12px] text-[#A0A0A8] mb-1.5">
           What is the business called?
         </span>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Ama Fabrics"
-          className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#4B5563] focus:border-[#FDB813] outline-none"
+          className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#72727A] focus:border-[#C9A84C] outline-none"
         />
       </div>
 
       {slug.length >= 3 && (
-        <div className="bg-[#FDB813]/10 border border-[#FDB813]/30 rounded-lg p-3">
-          <p className="text-[10px] font-mono text-[#FDB813] uppercase tracking-[0.1em]">
+        <div className="bg-[#C9A84C]/10 border border-[#C9A84C]/30 rounded-lg p-3">
+          <p className="text-[10px] font-mono text-[#C9A84C] uppercase tracking-[0.1em]">
             kobpay.app/m/{slug}
           </p>
         </div>
       )}
 
-      <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.15em] leading-relaxed">
+      <p className="text-[12px] text-[#72727A] leading-relaxed">
         No contract, no terminal, no waiting for a settlement run. Money from a
         link lands in your wallet immediately.
       </p>
@@ -324,7 +320,7 @@ function SetUp({
       <button
         disabled={busy || slug.length < 3}
         onClick={() => onDone(name.trim(), slug)}
-        className="w-full bg-[#FDB813] hover:bg-[#E0A411] disabled:opacity-40 text-[#0A0E14] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
+        className="w-full bg-[#C9A84C] hover:bg-[#B8963F] disabled:opacity-40 text-[#07070A] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
       >
         {busy ? "Opening..." : "Open for business"}
       </button>
@@ -355,16 +351,16 @@ function NewLink({
   const n = Number(amount) || 0;
 
   return (
-    <div className="bg-[#111827]/80 backdrop-blur-xl border border-[#1F2937] rounded-2xl p-5 mb-6 space-y-4">
+    <div className="bg-[#16161C]/80 backdrop-blur-xl border border-[#26262E] rounded-2xl p-5 mb-6 space-y-4">
       <div>
-        <span className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-1.5">
+        <span className="block text-[12px] text-[#A0A0A8] mb-1.5">
           What are they paying for
         </span>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="2 yards wax print"
-          className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#4B5563] focus:border-[#FDB813] outline-none"
+          className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#72727A] focus:border-[#C9A84C] outline-none"
         />
       </div>
 
@@ -373,16 +369,16 @@ function NewLink({
           type="checkbox"
           checked={open}
           onChange={(e) => setOpen(e.target.checked)}
-          className="w-4 h-4 accent-[#FDB813]"
+          className="w-4 h-4 accent-[#C9A84C]"
         />
-        <span className="text-[10px] font-mono uppercase tracking-[0.15em] text-[#94A3B8]">
+        <span className="text-[13px] text-[#A0A0A8]">
           Let them choose the amount
         </span>
       </label>
 
       {!open && (
         <div>
-          <span className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-1.5">
+          <span className="block text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.2em] mb-1.5">
             Price
           </span>
           <input
@@ -390,7 +386,7 @@ function NewLink({
             onChange={(e) => setAmount(e.target.value)}
             inputMode="decimal"
             placeholder="120"
-            className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#4B5563] focus:border-[#FDB813] outline-none"
+            className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#72727A] focus:border-[#C9A84C] outline-none"
           />
         </div>
       )}
@@ -400,9 +396,9 @@ function NewLink({
           type="checkbox"
           checked={once}
           onChange={(e) => setOnce(e.target.checked)}
-          className="w-4 h-4 accent-[#FDB813]"
+          className="w-4 h-4 accent-[#C9A84C]"
         />
-        <span className="text-[10px] font-mono uppercase tracking-[0.15em] text-[#94A3B8]">
+        <span className="text-[13px] text-[#A0A0A8]">
           One payment only, then close it
         </span>
       </label>
@@ -410,7 +406,7 @@ function NewLink({
       <div className="flex gap-2">
         <button
           onClick={onCancel}
-          className="flex-1 bg-[#1F2937] hover:bg-[#374151] text-[#94A3B8] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
+          className="flex-1 bg-[#26262E] hover:bg-[#33333C] text-[#A0A0A8] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
         >
           Cancel
         </button>
@@ -419,7 +415,7 @@ function NewLink({
           onClick={() =>
             onCreate(title.trim(), open ? null : n, null, once ? 1 : null, null)
           }
-          className="flex-[2] bg-[#FDB813] hover:bg-[#E0A411] disabled:opacity-40 text-[#0A0E14] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
+          className="flex-[2] bg-[#C9A84C] hover:bg-[#B8963F] disabled:opacity-40 text-[#07070A] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
         >
           {busy ? "Making..." : "Make the link"}
         </button>
@@ -449,14 +445,14 @@ function LinkCard({ l, busy, onToggle }: { l: PayLink; busy: string | null; onTo
 
   return (
     <div
-      className={`bg-[#111827]/80 backdrop-blur-xl border rounded-2xl p-4 ${
-        dead ? "border-[#1F2937] opacity-60" : "border-[#1F2937]"
+      className={`bg-[#16161C]/80 backdrop-blur-xl border rounded-2xl p-4 ${
+        dead ? "border-[#26262E] opacity-60" : "border-[#26262E]"
       }`}
     >
       <div className="flex justify-between items-start mb-3 gap-2">
         <div className="min-w-0">
-          <h3 className="font-black uppercase tracking-wide text-sm truncate">{l.title}</h3>
-          <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mt-1">
+          <h3 className="font-bold text-sm truncate">{l.title}</h3>
+          <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.15em] mt-1">
             {l.open_amount ? "They choose" : `${num(l.amount).toLocaleString()} KPC`} ·{" "}
             {l.payments} paid · {num(l.taken).toLocaleString(undefined, { maximumFractionDigits: 2 })} KPC in
           </p>
@@ -467,8 +463,8 @@ function LinkCard({ l, busy, onToggle }: { l: PayLink; busy: string | null; onTo
           title={l.active ? "Close this link" : "Open it again"}
           className={`shrink-0 p-2 rounded-lg border transition-colors ${
             l.active
-              ? "border-[#10B981]/40 text-[#10B981] hover:bg-[#10B981]/10"
-              : "border-[#374151] text-[#94A3B8] hover:bg-[#1F2937]"
+              ? "border-[#2ECC71]/40 text-[#2ECC71] hover:bg-[#2ECC71]/10"
+              : "border-[#33333C] text-[#A0A0A8] hover:bg-[#26262E]"
           }`}
         >
           <Power size={13} />
@@ -476,24 +472,24 @@ function LinkCard({ l, busy, onToggle }: { l: PayLink; busy: string | null; onTo
       </div>
 
       {l.used_up && (
-        <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mb-2">
+        <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.15em] mb-2">
           Used up
         </p>
       )}
       {l.expired && (
-        <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mb-2">
+        <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.15em] mb-2">
           Expired
         </p>
       )}
 
       <button
         onClick={copy}
-        className="w-full flex items-center justify-between bg-[#0A0E14] border border-[#1F2937] hover:border-[#FDB813]/50 rounded-lg px-3 py-2.5 transition-colors group"
+        className="w-full flex items-center justify-between bg-[#07070A] border border-[#26262E] hover:border-[#C9A84C]/50 rounded-lg px-3 py-2.5 transition-colors group"
       >
-        <span className="font-mono text-[11px] tracking-[0.1em] text-[#FDB813] truncate">
+        <span className="font-mono text-[11px] tracking-[0.1em] text-[#C9A84C] truncate">
           /m/{l.reference}
         </span>
-        <span className="flex items-center gap-1.5 shrink-0 ml-2 text-[9px] font-mono uppercase tracking-[0.15em] text-[#94A3B8] group-hover:text-[#FDB813]">
+        <span className="flex items-center gap-1.5 shrink-0 ml-2 text-[9px] font-mono uppercase tracking-[0.15em] text-[#A0A0A8] group-hover:text-[#C9A84C]">
           {copied ? <Check size={12} /> : <Copy size={12} />}
           {copied ? "Copied" : "Copy"}
         </span>
@@ -507,14 +503,14 @@ function SaleRow({ s, first, onRefund }: { s: Sale; first: boolean; onRefund: ()
   const full = refunded >= num(s.amount);
 
   return (
-    <div className={`px-4 py-3 ${first ? "" : "border-t border-[#1F2937]"}`}>
+    <div className={`px-4 py-3 ${first ? "" : "border-t border-[#26262E]"}`}>
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <p className="text-sm font-bold truncate">
             {s.title ?? "Payment"}
             {s.other_party ? ` · ${s.other_party}` : ""}
           </p>
-          <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.15em]">
+          <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.15em]">
             {new Date(s.created_at).toLocaleDateString()} · fee{" "}
             {num(s.fee).toLocaleString(undefined, { maximumFractionDigits: 2 })}
             {refunded > 0 &&
@@ -522,13 +518,13 @@ function SaleRow({ s, first, onRefund }: { s: Sale; first: boolean; onRefund: ()
           </p>
         </div>
         <div className="shrink-0 text-right">
-          <p className={`text-sm font-black ${full ? "text-[#94A3B8] line-through" : "text-[#10B981]"}`}>
+          <p className={`text-sm font-black ${full ? "text-[#A0A0A8] line-through" : "text-[#2ECC71]"}`}>
             +{num(s.net).toLocaleString(undefined, { maximumFractionDigits: 2 })}
           </p>
           {!full && (
             <button
               onClick={onRefund}
-              className="text-[9px] font-mono uppercase tracking-[0.15em] text-[#4B5563] hover:text-[#EF4444] transition-colors"
+              className="text-[9px] font-mono uppercase tracking-[0.15em] text-[#72727A] hover:text-[#E74C3C] transition-colors"
             >
               Refund
             </button>
@@ -573,23 +569,23 @@ function RefundSheet({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-5">
-      <div className="w-full sm:max-w-md bg-[#111827] border border-[#1F2937] rounded-t-2xl sm:rounded-2xl p-5 space-y-4">
+      <div className="w-full sm:max-w-md bg-[#16161C] border border-[#26262E] rounded-t-2xl sm:rounded-2xl p-5 space-y-4">
         <div className="flex justify-between items-start">
           <div className="min-w-0">
-            <h3 className="font-black uppercase tracking-wide text-sm">Refund</h3>
-            <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mt-1 truncate">
+            <h3 className="font-bold text-sm">Refund</h3>
+            <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.15em] mt-1 truncate">
               {s.title ?? "Payment"} · {left.toLocaleString()} KPC left
             </p>
           </div>
-          <button onClick={onClose} className="text-[#94A3B8] hover:text-white p-1" aria-label="Close">
+          <button onClick={onClose} className="text-[#A0A0A8] hover:text-white p-1" aria-label="Close">
             <X size={18} />
           </button>
         </div>
 
         {/* The fee is not returned, because KobPay already paid to process it.
             Saying so here avoids a second argument later. */}
-        <div className="bg-[#1F2937] border border-[#374151] rounded-lg p-3">
-          <p className="text-[10px] font-mono text-[#94A3B8] leading-relaxed uppercase">
+        <div className="bg-[#26262E] border border-[#33333C] rounded-lg p-3">
+          <p className="text-[13px] text-[#A0A0A8] leading-relaxed">
             This comes out of your wallet, not from KobPay. The{" "}
             {num(s.fee).toLocaleString(undefined, { maximumFractionDigits: 2 })} KPC
             fee is not returned.
@@ -597,14 +593,14 @@ function RefundSheet({
         </div>
 
         <div>
-          <span className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-1.5">
+          <span className="block text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.2em] mb-1.5">
             How much
           </span>
           <input
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             inputMode="decimal"
-            className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm text-white focus:border-[#EF4444] outline-none"
+            className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm text-white focus:border-[#E74C3C] outline-none"
           />
         </div>
 
@@ -612,20 +608,20 @@ function RefundSheet({
           value={why}
           onChange={(e) => setWhy(e.target.value)}
           placeholder="Why (optional)"
-          className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#4B5563] focus:border-[#EF4444] outline-none"
+          className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#72727A] focus:border-[#E74C3C] outline-none"
         />
 
         <div className="flex gap-2">
           <button
             onClick={onClose}
-            className="flex-1 bg-[#1F2937] hover:bg-[#374151] text-[#94A3B8] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
+            className="flex-1 bg-[#26262E] hover:bg-[#33333C] text-[#A0A0A8] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
           >
             Cancel
           </button>
           <button
             disabled={busy || n <= 0 || n > left}
             onClick={submit}
-            className="flex-[2] bg-[#EF4444] hover:bg-[#DC2626] disabled:opacity-40 text-white font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
+            className="flex-[2] bg-[#E74C3C] hover:bg-[#C0392B] disabled:opacity-40 text-white font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
           >
             {busy ? "Refunding..." : `Refund ${n > 0 ? n.toLocaleString() : ""}`}
           </button>

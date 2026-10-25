@@ -110,7 +110,7 @@ export default function WalletPage() {
 
       <div className="max-w-[1180px] mx-auto px-4 lg:px-8 py-8 lg:py-10">
         {loading ? (
-          <p className="text-[10px] font-mono text-muted uppercase tracking-[0.2em] py-20 text-center">
+          <p className="text-[13px] text-muted py-20 text-center">
             Loading...
           </p>
         ) : !signedIn ? (

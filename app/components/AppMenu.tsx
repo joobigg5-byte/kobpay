@@ -105,7 +105,7 @@ export default function AppMenu() {
       <button
         onClick={() => setOpen(true)}
         aria-label="Open menu"
-        className="text-[#94A3B8] hover:text-[#FDB813] transition-colors p-2.5 lg:p-3 bg-[#111827] rounded-xl border border-[#1F2937] shrink-0"
+        className="text-[#A0A0A8] hover:text-[#C9A84C] transition-colors p-2.5 lg:p-3 bg-[#16161C] rounded-xl border border-[#26262E] shrink-0"
       >
         <Menu size={18} />
       </button>
@@ -115,19 +115,19 @@ export default function AppMenu() {
           <button
             aria-label="Close menu"
             onClick={close}
-            className="absolute inset-0 bg-[#0A0E14]/80 backdrop-blur-sm"
+            className="absolute inset-0 bg-[#07070A]/80 backdrop-blur-sm"
           />
-          <nav className="relative w-[82vw] max-w-[280px] h-full bg-[#111827] border-r border-[#1F2937] overflow-y-auto [&::-webkit-scrollbar]:hidden">
-            <div className="p-4 border-b border-[#1F2937] flex items-center justify-between sticky top-0 bg-[#111827] z-10">
+          <nav className="relative w-[82vw] max-w-[280px] h-full bg-[#16161C] border-r border-[#26262E] overflow-y-auto [&::-webkit-scrollbar]:hidden">
+            <div className="p-4 border-b border-[#26262E] flex items-center justify-between sticky top-0 bg-[#16161C] z-10">
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#FDB813] to-[#F59E0B] flex items-center justify-center shrink-0">
-                  <span className="font-black text-[#0A0E14]">K</span>
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#C9A84C] to-[#F59E0B] flex items-center justify-center shrink-0">
+                  <span className="font-black text-[#07070A]">K</span>
                 </div>
                 <div className="flex flex-col min-w-0">
                   <span className="font-black text-[12px] tracking-widest uppercase leading-none whitespace-nowrap">
                     KobPay
                   </span>
-                  <span className="text-[8px] font-mono text-[#FDB813] tracking-[0.3em] uppercase leading-none mt-1">
+                  <span className="text-[12px] text-[#C9A84C] leading-none mt-1">
                     Money that holds its value
                   </span>
                 </div>
@@ -135,7 +135,7 @@ export default function AppMenu() {
               <button
                 onClick={close}
                 aria-label="Close menu"
-                className="text-[#94A3B8] hover:text-white p-1.5 bg-[#1F2937] rounded-lg shrink-0"
+                className="text-[#A0A0A8] hover:text-white p-1.5 bg-[#26262E] rounded-lg shrink-0"
               >
                 <X size={16} />
               </button>
@@ -149,7 +149,7 @@ export default function AppMenu() {
               />
               {GROUPS.map((g) => (
                 <div key={g.group}>
-                  <p className="text-[8px] font-mono text-[#4B5563] uppercase tracking-[0.25em] px-3 pt-4 pb-1.5">
+                  <p className="text-[8px] font-mono text-[#72727A] uppercase tracking-[0.25em] px-3 pt-4 pb-1.5">
                     {g.group}
                   </p>
                   {g.items.map((it) => (
@@ -164,7 +164,7 @@ export default function AppMenu() {
               ))}
               {isAgent && (
                 <div>
-                  <p className="text-[8px] font-mono text-[#4B5563] uppercase tracking-[0.25em] px-3 pt-4 pb-1.5">
+                  <p className="text-[8px] font-mono text-[#72727A] uppercase tracking-[0.25em] px-3 pt-4 pb-1.5">
                     Agent
                   </p>
                   <Row
@@ -178,7 +178,7 @@ export default function AppMenu() {
                   readers use, so this never shows a door that will not open. */}
               {isStaff && (
                 <div>
-                  <p className="text-[8px] font-mono text-[#4B5563] uppercase tracking-[0.25em] px-3 pt-4 pb-1.5">
+                  <p className="text-[8px] font-mono text-[#72727A] uppercase tracking-[0.25em] px-3 pt-4 pb-1.5">
                     Staff
                   </p>
                   <Row
@@ -204,8 +204,8 @@ function Row({ item, active, onClick }: { item: Item; active: boolean; onClick: 
       onClick={onClick}
       className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[11px] font-mono uppercase tracking-[0.12em] transition-colors ${
         active
-          ? "bg-[#FDB813]/10 text-[#FDB813] border border-[#FDB813]/30"
-          : "text-[#94A3B8] hover:text-white hover:bg-[#1F2937] border border-transparent"
+          ? "bg-[#C9A84C]/10 text-[#C9A84C] border border-[#C9A84C]/30"
+          : "text-[#A0A0A8] hover:text-white hover:bg-[#26262E] border border-transparent"
       }`}
     >
       <span className="shrink-0">{item.icon}</span>

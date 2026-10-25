@@ -97,37 +97,33 @@ export default function ActivityPage() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-[#0A0E14] text-white font-sans selection:bg-[#AA771C]/30 relative overflow-hidden">
+    <div className="min-h-[100dvh] bg-[#07070A] text-white font-sans selection:bg-[#8A6D2F]/30 relative overflow-hidden">
       <Toaster position="top-center" reverseOrder={false} />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-gradient-to-br from-[#FDB813]/5 to-transparent rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-gradient-to-br from-[#C9A84C]/5 to-transparent rounded-full blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 max-w-3xl mx-auto px-5 py-8 sm:px-8">
         <div className="flex justify-between items-start mb-8">
           <Link
             href="/wallet"
-            className="text-[#94A3B8] hover:text-[#FDB813] transition-colors p-2 bg-[#1F2937] rounded-lg border border-[#374151]"
+            className="text-[#A0A0A8] hover:text-[#C9A84C] transition-colors p-2 bg-[#26262E] rounded-lg border border-[#33333C]"
           >
             <ArrowLeft size={20} />
           </Link>
           <AppMenu />
-          <div className="flex items-center gap-2 text-[10px] font-mono tracking-widest uppercase bg-[#0A0E14] px-3 py-1.5 rounded-full border border-[#1F2937]">
-            <Receipt size={12} className="text-[#FDB813]" />
-            <span className="text-[#FDB813]">Activity</span>
-          </div>
         </div>
 
-        <h1 className="text-3xl font-black uppercase tracking-widest mb-1">Activity</h1>
-        <p className="text-[10px] font-mono text-[#94A3B8] tracking-widest uppercase mb-8">
+        <h1 className="font-display text-4xl font-light tracking-tight mb-1">Activity</h1>
+        <p className="text-[13px] text-[#A0A0A8] mb-8">
           Every movement, and a way to challenge any of them
         </p>
 
         {checkingSession ? (
-          <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest py-10 text-center">
+          <p className="text-[13px] text-[#72727A] py-10 text-center">
             Loading...
           </p>
         ) : !userId ? (
-          <div className="bg-[#111827] border border-[#1F2937] p-6 rounded-xl">
-            <p className="text-xs font-mono text-[#94A3B8] leading-relaxed uppercase">
+          <div className="bg-[#16161C] border border-[#26262E] p-6 rounded-xl">
+            <p className="text-xs font-mono text-[#A0A0A8] leading-relaxed uppercase">
               Please{" "}
               <Link href="/auth" className="underline">
                 sign in
@@ -136,13 +132,13 @@ export default function ActivityPage() {
             </p>
           </div>
         ) : loading ? (
-          <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest py-10 text-center">
+          <p className="text-[13px] text-[#72727A] py-10 text-center">
             Loading...
           </p>
         ) : txns.length === 0 ? (
-          <div className="bg-[#111827]/80 border border-[#1F2937] rounded-2xl p-8 text-center">
-            <Receipt size={28} className="text-[#374151] mx-auto mb-3" />
-            <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest">
+          <div className="bg-[#16161C]/80 border border-[#26262E] rounded-2xl p-8 text-center">
+            <Receipt size={28} className="text-[#33333C] mx-auto mb-3" />
+            <p className="text-xs font-mono text-[#A0A0A8] uppercase tracking-widest">
               Nothing yet
             </p>
           </div>
@@ -150,10 +146,10 @@ export default function ActivityPage() {
           <div className="space-y-6">
             {days.map((day) => (
               <div key={day.label}>
-                <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.2em] mb-2 px-1">
+                <p className="text-[9px] font-mono text-[#72727A] uppercase tracking-[0.2em] mb-2 px-1">
                   {day.label}
                 </p>
-                <div className="bg-[#111827]/80 backdrop-blur-xl border border-[#1F2937] rounded-2xl overflow-hidden">
+                <div className="bg-[#16161C]/80 backdrop-blur-xl border border-[#26262E] rounded-2xl overflow-hidden">
                   {day.items.map((t, i) => (
                     <Row
                       key={t.id}
@@ -171,7 +167,7 @@ export default function ActivityPage() {
         )}
 
         {txns.length > 0 && (
-          <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.2em] text-center mt-10 leading-relaxed">
+          <p className="text-[12px] text-[#72727A] text-center mt-10 leading-relaxed">
             1 KPC = $1.00 · showing the last {txns.length}
           </p>
         )}
@@ -210,14 +206,14 @@ function Row({
   const live = t.dispute_status === "open" || t.dispute_status === "answered";
 
   return (
-    <div className={first ? "" : "border-t border-[#1F2937]"}>
+    <div className={first ? "" : "border-t border-[#26262E]"}>
       <button
         onClick={onToggle}
-        className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-[#0A0E14]/50 transition-colors text-left"
+        className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-[#07070A]/50 transition-colors text-left"
       >
         <span
           className={`shrink-0 p-2 rounded-lg ${
-            inbound ? "bg-[#10B981]/10 text-[#10B981]" : "bg-[#1F2937] text-[#94A3B8]"
+            inbound ? "bg-[#2ECC71]/10 text-[#2ECC71]" : "bg-[#26262E] text-[#A0A0A8]"
           }`}
         >
           {inbound ? <ArrowDownLeft size={14} /> : <ArrowUpRight size={14} />}
@@ -227,7 +223,7 @@ function Row({
           <span className="block text-sm font-bold truncate">
             {t.counterparty ?? t.what}
           </span>
-          <span className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] truncate">
+          <span className="block text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.15em] truncate">
             {t.what}
             {t.memo ? ` · ${t.memo}` : ""}
           </span>
@@ -236,13 +232,13 @@ function Row({
         <span className="shrink-0 text-right">
           <span
             className={`block text-sm font-black ${
-              inbound ? "text-[#10B981]" : "text-white"
+              inbound ? "text-[#2ECC71]" : "text-white"
             }`}
           >
             {inbound ? "+" : ""}
             {amount.toLocaleString(undefined, { maximumFractionDigits: 2 })}
           </span>
-          <span className="block text-[8px] font-mono text-[#4B5563] uppercase tracking-[0.15em]">
+          <span className="block text-[8px] font-mono text-[#72727A] uppercase tracking-[0.15em]">
             {new Date(t.created_at).toLocaleTimeString(undefined, {
               hour: "2-digit",
               minute: "2-digit",
@@ -252,7 +248,7 @@ function Row({
 
         <ChevronDown
           size={14}
-          className={`shrink-0 text-[#4B5563] transition-transform ${open ? "rotate-180" : ""}`}
+          className={`shrink-0 text-[#72727A] transition-transform ${open ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -267,18 +263,18 @@ function Row({
             <div
               className={`flex gap-2 rounded-lg p-3 border ${
                 live
-                  ? "bg-[#FDB813]/10 border-[#FDB813]/30"
-                  : "bg-[#1F2937] border-[#374151]"
+                  ? "bg-[#C9A84C]/10 border-[#C9A84C]/30"
+                  : "bg-[#26262E] border-[#33333C]"
               }`}
             >
               {live ? (
-                <Clock size={14} className="text-[#FDB813] shrink-0 mt-0.5" />
+                <Clock size={14} className="text-[#C9A84C] shrink-0 mt-0.5" />
               ) : (
-                <Check size={14} className="text-[#94A3B8] shrink-0 mt-0.5" />
+                <Check size={14} className="text-[#A0A0A8] shrink-0 mt-0.5" />
               )}
               <p
                 className={`text-[10px] font-mono leading-relaxed uppercase ${
-                  live ? "text-[#FDB813]" : "text-[#94A3B8]"
+                  live ? "text-[#C9A84C]" : "text-[#A0A0A8]"
                 }`}
               >
                 {t.dispute_reference} —{" "}
@@ -296,7 +292,7 @@ function Row({
           {t.can_dispute && (
             <button
               onClick={onDispute}
-              className="w-full flex items-center justify-center gap-2 bg-[#1F2937] hover:bg-[#EF4444]/20 text-[#94A3B8] hover:text-[#EF4444] border border-[#374151] hover:border-[#EF4444]/50 font-black uppercase tracking-widest text-[10px] py-3 rounded-xl transition-colors"
+              className="w-full flex items-center justify-center gap-2 bg-[#26262E] hover:bg-[#E74C3C]/20 text-[#A0A0A8] hover:text-[#E74C3C] border border-[#33333C] hover:border-[#E74C3C]/50 font-black uppercase tracking-widest text-[10px] py-3 rounded-xl transition-colors"
             >
               <ShieldAlert size={12} /> Something wrong with this?
             </button>
@@ -309,8 +305,8 @@ function Row({
 
 function Detail({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-[#0A0E14] border border-[#1F2937] rounded-lg p-2.5">
-      <span className="block text-[8px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mb-0.5">
+    <div className="bg-[#07070A] border border-[#26262E] rounded-lg p-2.5">
+      <span className="block text-[8px] font-mono text-[#A0A0A8] uppercase tracking-[0.15em] mb-0.5">
         {label}
       </span>
       <span className="text-xs font-black text-white">{value}</span>
@@ -349,20 +345,20 @@ function DisputeSheet({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-5">
-      <div className="w-full sm:max-w-md bg-[#111827] border border-[#1F2937] rounded-t-2xl sm:rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div className="w-full sm:max-w-md bg-[#16161C] border border-[#26262E] rounded-t-2xl sm:rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="font-black uppercase tracking-wide text-sm">
+            <h3 className="font-bold text-sm">
               Challenge this
             </h3>
-            <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mt-1">
+            <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.15em] mt-1">
               {t.what} · {num(t.amount).toLocaleString()} KPC
               {t.counterparty ? ` · ${t.counterparty}` : ""}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-[#94A3B8] hover:text-white p-1"
+            className="text-[#A0A0A8] hover:text-white p-1"
             aria-label="Close"
           >
             <X size={18} />
@@ -371,8 +367,8 @@ function DisputeSheet({
 
         {/* Said before they commit, because it is the reason to use this rather
             than complaining somewhere public. */}
-        <div className="bg-[#10B981]/10 border border-[#10B981]/30 rounded-lg p-3">
-          <p className="text-[10px] font-mono text-[#10B981] leading-relaxed uppercase">
+        <div className="bg-[#2ECC71]/10 border border-[#2ECC71]/30 rounded-lg p-3">
+          <p className="text-[13px] text-[#2ECC71] leading-relaxed">
             The {num(t.amount).toLocaleString()} KPC is held as soon as you
             open this — neither side can spend it.
             <br />
@@ -381,7 +377,7 @@ function DisputeSheet({
         </div>
 
         <div>
-          <span className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-1.5">
+          <span className="block text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.2em] mb-1.5">
             What went wrong
           </span>
           <div className="space-y-1.5">
@@ -391,8 +387,8 @@ function DisputeSheet({
                 onClick={() => setReason(r.value)}
                 className={`w-full text-left px-3 py-2.5 rounded-lg border text-xs transition-colors ${
                   reason === r.value
-                    ? "border-[#EF4444] bg-[#EF4444]/10 text-white"
-                    : "border-[#1F2937] bg-[#0A0E14] text-[#94A3B8] hover:border-[#374151]"
+                    ? "border-[#E74C3C] bg-[#E74C3C]/10 text-white"
+                    : "border-[#26262E] bg-[#07070A] text-[#A0A0A8] hover:border-[#33333C]"
                 }`}
               >
                 {r.label}
@@ -402,7 +398,7 @@ function DisputeSheet({
         </div>
 
         <div>
-          <span className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-1.5">
+          <span className="block text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.2em] mb-1.5">
             Anything else (optional)
           </span>
           <textarea
@@ -410,21 +406,21 @@ function DisputeSheet({
             onChange={(e) => setDetail(e.target.value)}
             rows={3}
             placeholder="What happened?"
-            className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#4B5563] focus:border-[#EF4444] outline-none resize-none"
+            className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#72727A] focus:border-[#E74C3C] outline-none resize-none"
           />
         </div>
 
         <div className="flex gap-2">
           <button
             onClick={onClose}
-            className="flex-1 bg-[#1F2937] hover:bg-[#374151] text-[#94A3B8] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
+            className="flex-1 bg-[#26262E] hover:bg-[#33333C] text-[#A0A0A8] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
           >
             Cancel
           </button>
           <button
             disabled={busy || !reason}
             onClick={submit}
-            className="flex-[2] bg-[#EF4444] hover:bg-[#DC2626] disabled:opacity-40 text-white font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
+            className="flex-[2] bg-[#E74C3C] hover:bg-[#C0392B] disabled:opacity-40 text-white font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
           >
             {busy ? "Opening..." : "Open dispute"}
           </button>

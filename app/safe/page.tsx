@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  ArrowLeft, ShieldCheck, Plus, Check, X, AlertTriangle,
+  ArrowLeft, Plus, Check, X, AlertTriangle,
   Clock, Scale, Handshake,
 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
@@ -95,37 +95,33 @@ export default function SafePage() {
   const holding = held.reduce((s, i) => s + num(i.amount), 0);
 
   return (
-    <div className="min-h-[100dvh] bg-[#0A0E14] text-white font-sans selection:bg-[#AA771C]/30 relative overflow-hidden">
+    <div className="min-h-[100dvh] bg-[#07070A] text-white font-sans selection:bg-[#8A6D2F]/30 relative overflow-hidden">
       <Toaster position="top-center" reverseOrder={false} />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-gradient-to-br from-[#10B981]/5 to-transparent rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-gradient-to-br from-[#2ECC71]/5 to-transparent rounded-full blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 max-w-3xl mx-auto px-5 py-8 sm:px-8">
         <div className="flex justify-between items-start mb-8">
           <Link
             href="/wallet"
-            className="text-[#94A3B8] hover:text-[#FDB813] transition-colors p-2 bg-[#1F2937] rounded-lg border border-[#374151]"
+            className="text-[#A0A0A8] hover:text-[#C9A84C] transition-colors p-2 bg-[#26262E] rounded-lg border border-[#33333C]"
           >
             <ArrowLeft size={20} />
           </Link>
           <AppMenu />
-          <div className="flex items-center gap-2 text-[10px] font-mono tracking-widest uppercase bg-[#0A0E14] px-3 py-1.5 rounded-full border border-[#1F2937]">
-            <ShieldCheck size={12} className="text-[#10B981]" />
-            <span className="text-[#10B981]">Safe send</span>
-          </div>
         </div>
 
-        <h1 className="text-3xl font-black uppercase tracking-widest mb-1">Safe send</h1>
-        <p className="text-[10px] font-mono text-[#94A3B8] tracking-widest uppercase mb-8">
+        <h1 className="font-display text-4xl font-light tracking-tight mb-1">Safe send</h1>
+        <p className="text-[13px] text-[#A0A0A8] mb-8">
           They see the money is real. You keep it until it arrives.
         </p>
 
         {checkingSession ? (
-          <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest py-10 text-center">
+          <p className="text-[13px] text-[#72727A] py-10 text-center">
             Loading...
           </p>
         ) : !userId ? (
-          <div className="bg-[#111827] border border-[#1F2937] p-6 rounded-xl">
-            <p className="text-xs font-mono text-[#94A3B8] leading-relaxed uppercase">
+          <div className="bg-[#16161C] border border-[#26262E] p-6 rounded-xl">
+            <p className="text-xs font-mono text-[#A0A0A8] leading-relaxed uppercase">
               Please{" "}
               <Link href="/auth" className="underline">
                 sign in
@@ -142,7 +138,7 @@ export default function SafePage() {
 
             <button
               onClick={() => setShowNew((v) => !v)}
-              className="w-full mb-6 flex items-center justify-center gap-2 bg-[#10B981] hover:bg-[#0E9F6E] text-[#0A0E14] font-black uppercase tracking-widest text-xs py-4 rounded-xl transition-colors"
+              className="w-full mb-6 flex items-center justify-center gap-2 bg-[#2ECC71] hover:bg-[#27AE60] text-[#07070A] font-black uppercase tracking-widest text-xs py-4 rounded-xl transition-colors"
             >
               <Plus size={14} /> Pay someone safely
             </button>
@@ -164,16 +160,16 @@ export default function SafePage() {
             )}
 
             {loading ? (
-              <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest py-10 text-center">
+              <p className="text-[13px] text-[#72727A] py-10 text-center">
                 Loading...
               </p>
             ) : items.length === 0 ? (
-              <div className="bg-[#111827]/80 border border-[#1F2937] rounded-2xl p-8 text-center">
-                <Handshake size={28} className="text-[#374151] mx-auto mb-3" />
-                <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest mb-2">
+              <div className="bg-[#16161C]/80 border border-[#26262E] rounded-2xl p-8 text-center">
+                <Handshake size={28} className="text-[#33333C] mx-auto mb-3" />
+                <p className="text-xs font-mono text-[#A0A0A8] uppercase tracking-widest mb-2">
                   Nothing held
                 </p>
-                <p className="text-[10px] font-mono text-[#4B5563] leading-relaxed">
+                <p className="text-[10px] font-mono text-[#72727A] leading-relaxed">
                   Buying from someone you don&apos;t know? Pay this way and the
                   money waits where neither of you can spend it.
                 </p>
@@ -197,7 +193,7 @@ export default function SafePage() {
               </div>
             )}
 
-            <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.2em] text-center mt-10 leading-relaxed">
+            <p className="text-[12px] text-[#72727A] text-center mt-10 leading-relaxed">
               1 KPC = $1.00 · held by the escrow, not by KobPay
               <br />
               {formatKpcAsUsd(holding)} currently held
@@ -222,13 +218,13 @@ export default function SafePage() {
 
 function Stat({ label, value, accent }: { label: string; value: number; accent?: boolean }) {
   return (
-    <div className="bg-[#0A0E14] border border-[#1F2937] p-4 rounded-xl">
-      <span className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-1">
+    <div className="bg-[#07070A] border border-[#26262E] p-4 rounded-xl">
+      <span className="block text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.2em] mb-1">
         {label}
       </span>
-      <span className={`text-lg font-black ${accent ? "text-[#10B981]" : "text-[#FDB813]"}`}>
+      <span className={`text-lg font-black ${accent ? "text-[#2ECC71]" : "text-[#C9A84C]"}`}>
         {value.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-        <span className="text-[9px] text-[#94A3B8] ml-1">KPC</span>
+        <span className="text-[9px] text-[#A0A0A8] ml-1">KPC</span>
       </span>
     </div>
   );
@@ -252,13 +248,13 @@ function NewForm({
   const d = Number(days) || 7;
 
   return (
-    <div className="bg-[#111827]/80 backdrop-blur-xl border border-[#1F2937] rounded-2xl p-5 mb-6 space-y-4">
+    <div className="bg-[#16161C]/80 backdrop-blur-xl border border-[#26262E] rounded-2xl p-5 mb-6 space-y-4">
       <Field label="Who you're paying">
         <input
           value={to}
           onChange={(e) => setTo(e.target.value)}
           placeholder="@their-tag or 233..."
-          className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#4B5563] focus:border-[#10B981] outline-none"
+          className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#72727A] focus:border-[#2ECC71] outline-none"
         />
       </Field>
 
@@ -267,12 +263,12 @@ function NewForm({
           value={what}
           onChange={(e) => setWhat(e.target.value)}
           placeholder="Samsung A15, blue, 128GB"
-          className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#4B5563] focus:border-[#10B981] outline-none"
+          className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#72727A] focus:border-[#2ECC71] outline-none"
         />
       </Field>
       {/* Not decoration: this is the sentence both sides argue over later, and
           the one a staff decision gets made against. */}
-      <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.15em] -mt-2 leading-relaxed">
+      <p className="text-[12px] text-[#72727A] -mt-2 leading-relaxed">
         Be specific — this is what we compare if you ever need to raise a question.
       </p>
 
@@ -283,7 +279,7 @@ function NewForm({
             onChange={(e) => setAmount(e.target.value)}
             inputMode="decimal"
             placeholder="200"
-            className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#4B5563] focus:border-[#10B981] outline-none"
+            className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#72727A] focus:border-[#2ECC71] outline-none"
           />
         </Field>
         <Field label="Days to confirm">
@@ -292,14 +288,14 @@ function NewForm({
             onChange={(e) => setDays(e.target.value)}
             inputMode="numeric"
             placeholder="7"
-            className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#4B5563] focus:border-[#10B981] outline-none"
+            className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#72727A] focus:border-[#2ECC71] outline-none"
           />
         </Field>
       </div>
 
       {n > 0 && (
-        <div className="bg-[#10B981]/10 border border-[#10B981]/30 rounded-lg p-3">
-          <p className="text-[10px] font-mono text-[#10B981] leading-relaxed uppercase">
+        <div className="bg-[#2ECC71]/10 border border-[#2ECC71]/30 rounded-lg p-3">
+          <p className="text-[13px] text-[#2ECC71] leading-relaxed">
             {n.toLocaleString()} KPC leaves your wallet now and waits where
             neither of you can spend it.
             <br />
@@ -313,14 +309,14 @@ function NewForm({
       <div className="flex gap-2">
         <button
           onClick={onCancel}
-          className="flex-1 bg-[#1F2937] hover:bg-[#374151] text-[#94A3B8] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
+          className="flex-1 bg-[#26262E] hover:bg-[#33333C] text-[#A0A0A8] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
         >
           Cancel
         </button>
         <button
           disabled={busy || !to || !what || n <= 0}
           onClick={() => onCreate(to.trim(), n, what.trim(), d)}
-          className="flex-[2] bg-[#10B981] hover:bg-[#0E9F6E] disabled:opacity-40 text-[#0A0E14] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
+          className="flex-[2] bg-[#2ECC71] hover:bg-[#27AE60] disabled:opacity-40 text-[#07070A] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
         >
           {busy ? "Holding..." : `Hold ${n > 0 ? n.toLocaleString() : ""} KPC`}
         </button>
@@ -332,7 +328,7 @@ function NewForm({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <span className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-1.5">
+      <span className="block text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.2em] mb-1.5">
         {label}
       </span>
       {children}
@@ -362,16 +358,16 @@ function Card({
 
   return (
     <div
-      className={`bg-[#111827]/80 backdrop-blur-xl border rounded-2xl p-5 ${
-        s.status === "disputed" ? "border-[#EF4444]/40" : "border-[#1F2937]"
+      className={`bg-[#16161C]/80 backdrop-blur-xl border rounded-2xl p-5 ${
+        s.status === "disputed" ? "border-[#E74C3C]/40" : "border-[#26262E]"
       }`}
     >
       <div className="flex justify-between items-start mb-3">
         <div className="min-w-0">
-          <h3 className="font-black uppercase tracking-wide text-sm truncate">
+          <h3 className="font-bold text-sm truncate">
             {s.description}
           </h3>
-          <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mt-1">
+          <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.15em] mt-1">
             {s.i_am_the_buyer ? "You pay" : "You receive"} · {who} ·{" "}
             {num(s.amount).toLocaleString()} KPC
           </p>
@@ -379,12 +375,12 @@ function Card({
         <span
           className={`shrink-0 ml-2 text-[9px] font-mono uppercase tracking-[0.15em] px-2 py-1 rounded-full border ${
             st.tone === "live"
-              ? "text-[#10B981] border-[#10B981]/40"
+              ? "text-[#2ECC71] border-[#2ECC71]/40"
               : st.tone === "bad"
-                ? "text-[#EF4444] border-[#EF4444]/40"
+                ? "text-[#E74C3C] border-[#E74C3C]/40"
                 : st.tone === "good"
-                  ? "text-[#10B981] border-[#10B981]/40"
-                  : "text-[#94A3B8] border-[#374151]"
+                  ? "text-[#2ECC71] border-[#2ECC71]/40"
+                  : "text-[#A0A0A8] border-[#33333C]"
           }`}
         >
           {st.label}
@@ -392,13 +388,13 @@ function Card({
       </div>
 
       {live && (
-        <div className="flex gap-2 bg-[#0A0E14] border border-[#1F2937] rounded-lg p-3 mb-4">
-          <Clock size={14} className="text-[#FDB813] shrink-0 mt-0.5" />
-          <p className="text-[10px] font-mono text-[#94A3B8] leading-relaxed uppercase">
+        <div className="flex gap-2 bg-[#07070A] border border-[#26262E] rounded-lg p-3 mb-4">
+          <Clock size={14} className="text-[#C9A84C] shrink-0 mt-0.5" />
+          <p className="text-[13px] text-[#A0A0A8] leading-relaxed">
             {s.i_am_the_buyer ? (
               <>
                 Releases to {who} in{" "}
-                <span className="text-[#FDB813]">
+                <span className="text-[#C9A84C]">
                   {days > 0 ? `${days} ${days === 1 ? "day" : "days"}` : `${hours} hours`}
                 </span>{" "}
                 unless you confirm or raise an issue.
@@ -406,7 +402,7 @@ function Card({
             ) : (
               <>
                 Yours in{" "}
-                <span className="text-[#FDB813]">
+                <span className="text-[#C9A84C]">
                   {days > 0 ? `${days} ${days === 1 ? "day" : "days"}` : `${hours} hours`}
                 </span>{" "}
                 even if they say nothing.
@@ -417,9 +413,9 @@ function Card({
       )}
 
       {s.status === "disputed" && (
-        <div className="flex gap-2 bg-[#EF4444]/10 border border-[#EF4444]/30 rounded-lg p-3 mb-4">
-          <Scale size={14} className="text-[#EF4444] shrink-0 mt-0.5" />
-          <p className="text-[10px] font-mono text-[#EF4444] leading-relaxed uppercase">
+        <div className="flex gap-2 bg-[#E74C3C]/10 border border-[#E74C3C]/30 rounded-lg p-3 mb-4">
+          <Scale size={14} className="text-[#E74C3C] shrink-0 mt-0.5" />
+          <p className="text-[10px] font-mono text-[#E74C3C] leading-relaxed uppercase">
             An issue was raised{s.issue_reason ? `: ${s.issue_reason.replace(/_/g, " ")}` : ""}.
             <br />
             We have paused the clock, and someone is looking at it.
@@ -428,9 +424,9 @@ function Card({
       )}
 
       {s.resolution_note && s.status !== "disputed" && (
-        <div className="flex gap-2 bg-[#1F2937] border border-[#374151] rounded-lg p-3 mb-4">
-          <Check size={14} className="text-[#94A3B8] shrink-0 mt-0.5" />
-          <p className="text-[10px] font-mono text-[#94A3B8] leading-relaxed uppercase">
+        <div className="flex gap-2 bg-[#26262E] border border-[#33333C] rounded-lg p-3 mb-4">
+          <Check size={14} className="text-[#A0A0A8] shrink-0 mt-0.5" />
+          <p className="text-[13px] text-[#A0A0A8] leading-relaxed">
             {s.resolution_note}
             {s.amount_to_buyer !== null && num(s.amount_to_buyer) > 0 && (
               <>
@@ -447,13 +443,13 @@ function Card({
           <button
             disabled={busy === s.id + ":ok"}
             onClick={onConfirm}
-            className="flex-[2] flex items-center justify-center gap-2 bg-[#10B981] hover:bg-[#0E9F6E] disabled:opacity-40 text-[#0A0E14] font-black uppercase tracking-widest text-[10px] py-3 rounded-xl transition-colors"
+            className="flex-[2] flex items-center justify-center gap-2 bg-[#2ECC71] hover:bg-[#27AE60] disabled:opacity-40 text-[#07070A] font-black uppercase tracking-widest text-[10px] py-3 rounded-xl transition-colors"
           >
             <Check size={12} /> It arrived — pay them
           </button>
           <button
             onClick={onIssue}
-            className="flex-1 flex items-center justify-center gap-1.5 bg-[#1F2937] hover:bg-[#EF4444]/20 text-[#94A3B8] hover:text-[#EF4444] font-black uppercase tracking-widest text-[10px] py-3 rounded-xl transition-colors"
+            className="flex-1 flex items-center justify-center gap-1.5 bg-[#26262E] hover:bg-[#E74C3C]/20 text-[#A0A0A8] hover:text-[#E74C3C] font-black uppercase tracking-widest text-[10px] py-3 rounded-xl transition-colors"
           >
             <AlertTriangle size={12} /> Problem
           </button>
@@ -464,7 +460,7 @@ function Card({
         <button
           disabled={busy === s.id + ":no"}
           onClick={onCancel}
-          className="w-full flex items-center justify-center gap-2 bg-[#1F2937] hover:bg-[#374151] disabled:opacity-40 text-[#94A3B8] font-black uppercase tracking-widest text-[10px] py-3 rounded-xl transition-colors"
+          className="w-full flex items-center justify-center gap-2 bg-[#26262E] hover:bg-[#33333C] disabled:opacity-40 text-[#A0A0A8] font-black uppercase tracking-widest text-[10px] py-3 rounded-xl transition-colors"
         >
           <X size={12} /> I can&apos;t deliver — return it
         </button>
@@ -504,23 +500,23 @@ function IssueSheet({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-5">
-      <div className="w-full sm:max-w-md bg-[#111827] border border-[#1F2937] rounded-t-2xl sm:rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div className="w-full sm:max-w-md bg-[#16161C] border border-[#26262E] rounded-t-2xl sm:rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-start">
           <div className="min-w-0">
-            <h3 className="font-black uppercase tracking-wide text-sm">
+            <h3 className="font-bold text-sm">
               What went wrong?
             </h3>
-            <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mt-1 truncate">
+            <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.15em] mt-1 truncate">
               {s.description} · {num(s.amount).toLocaleString()} KPC
             </p>
           </div>
-          <button onClick={onClose} className="text-[#94A3B8] hover:text-white p-1" aria-label="Close">
+          <button onClick={onClose} className="text-[#A0A0A8] hover:text-white p-1" aria-label="Close">
             <X size={18} />
           </button>
         </div>
 
-        <div className="bg-[#10B981]/10 border border-[#10B981]/30 rounded-lg p-3">
-          <p className="text-[10px] font-mono text-[#10B981] leading-relaxed uppercase">
+        <div className="bg-[#2ECC71]/10 border border-[#2ECC71]/30 rounded-lg p-3">
+          <p className="text-[13px] text-[#2ECC71] leading-relaxed">
             Raising this stops the countdown. Your {num(s.amount).toLocaleString()}{" "}
             KPC stays held until it is sorted out.
           </p>
@@ -533,8 +529,8 @@ function IssueSheet({
               onClick={() => setReason(r.value)}
               className={`w-full text-left px-3 py-2.5 rounded-lg border text-xs transition-colors ${
                 reason === r.value
-                  ? "border-[#EF4444] bg-[#EF4444]/10 text-white"
-                  : "border-[#1F2937] bg-[#0A0E14] text-[#94A3B8] hover:border-[#374151]"
+                  ? "border-[#E74C3C] bg-[#E74C3C]/10 text-white"
+                  : "border-[#26262E] bg-[#07070A] text-[#A0A0A8] hover:border-[#33333C]"
               }`}
             >
               {r.label}
@@ -547,20 +543,20 @@ function IssueSheet({
           onChange={(e) => setDetail(e.target.value)}
           rows={3}
           placeholder="What happened?"
-          className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#4B5563] focus:border-[#EF4444] outline-none resize-none"
+          className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#72727A] focus:border-[#E74C3C] outline-none resize-none"
         />
 
         <div className="flex gap-2">
           <button
             onClick={onClose}
-            className="flex-1 bg-[#1F2937] hover:bg-[#374151] text-[#94A3B8] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
+            className="flex-1 bg-[#26262E] hover:bg-[#33333C] text-[#A0A0A8] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
           >
             Cancel
           </button>
           <button
             disabled={busy || !reason}
             onClick={submit}
-            className="flex-[2] bg-[#EF4444] hover:bg-[#DC2626] disabled:opacity-40 text-white font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
+            className="flex-[2] bg-[#E74C3C] hover:bg-[#C0392B] disabled:opacity-40 text-white font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
           >
             {busy ? "Raising..." : "Raise it"}
           </button>

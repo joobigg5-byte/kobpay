@@ -46,29 +46,29 @@ export default function MarketsPage() {
   }, []);
 
   return (
-    <div className="min-h-[100dvh] bg-[#0A0E14] text-white p-5 lg:p-10 font-sans">
+    <div className="min-h-[100dvh] bg-[#07070A] text-white p-5 lg:p-10 font-sans">
       <Toaster position="top-center" />
       <div className="max-w-[1000px] mx-auto">
         <div className="flex items-center gap-3 lg:gap-4 mb-6 lg:mb-10">
           <Link
             href="/"
-            className="text-[#94A3B8] hover:text-[#10B981] p-2.5 lg:p-3 bg-[#111827] rounded-xl border border-[#1F2937]"
+            className="text-[#A0A0A8] hover:text-[#2ECC71] p-2.5 lg:p-3 bg-[#16161C] rounded-xl border border-[#26262E]"
           >
             <ArrowLeft size={18} />
           </Link>
           <AppMenu />
-          <h1 className="text-xl lg:text-3xl font-black uppercase tracking-widest flex items-center gap-3">
-            <TrendingUp className="text-[#10B981]" /> Rates
+          <h1 className="font-display text-2xl lg:text-4xl font-light tracking-tight flex items-center gap-3">
+            <TrendingUp className="text-[#2ECC71]" /> Rates
           </h1>
         </div>
 
-        <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.12em] mb-5 leading-relaxed">
+        <p className="text-[13px] text-[#A0A0A8] mb-5 leading-relaxed">
           What one KPC costs in each currency. These are the live rates the app
           charges against — not a market quote.
         </p>
 
-        <div className="bg-[#111827]/80 border border-[#1F2937] rounded-2xl lg:rounded-3xl p-4 lg:p-8">
-          <div className="hidden sm:grid grid-cols-4 gap-4 px-4 pb-3 text-[9px] text-[#94A3B8] uppercase tracking-[0.2em] border-b border-[#1F2937] mb-2">
+        <div className="bg-[#16161C]/80 border border-[#26262E] rounded-2xl lg:rounded-3xl p-4 lg:p-8">
+          <div className="hidden sm:grid grid-cols-4 gap-4 px-4 pb-3 text-[9px] text-[#A0A0A8] uppercase tracking-[0.2em] border-b border-[#26262E] mb-2">
             <div>Currency</div>
             <div>1 KPC costs</div>
             <div>Updated</div>
@@ -76,22 +76,22 @@ export default function MarketsPage() {
           </div>
 
           {rates === null ? (
-            <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest py-10 text-center">
+            <p className="text-[13px] text-[#72727A] py-10 text-center">
               Loading...
             </p>
           ) : rates.length === 0 ? (
-            <p className="text-[10px] font-mono text-[#4B5563] uppercase tracking-[0.15em] py-10 text-center">
+            <p className="text-[10px] font-mono text-[#72727A] uppercase tracking-[0.15em] py-10 text-center">
               No rates published yet
             </p>
           ) : (
             rates.map((r) => (
               <div
                 key={r.code}
-                className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 items-center px-2 sm:px-4 py-4 border-b border-[#1F2937] last:border-0"
+                className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 items-center px-2 sm:px-4 py-4 border-b border-[#26262E] last:border-0"
               >
                 <div>
                   <p className="font-black text-sm">{r.code}</p>
-                  <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.12em]">
+                  <p className="text-[9px] font-mono text-[#72727A] uppercase tracking-[0.12em]">
                     {r.name}
                   </p>
                 </div>
@@ -108,13 +108,13 @@ export default function MarketsPage() {
 
                 <div className="text-[10px] font-mono uppercase tracking-[0.12em]">
                   {r.pegged ? (
-                    <span className="text-[#10B981]">Pegged · never moves</span>
+                    <span className="text-[#2ECC71]">Pegged · never moves</span>
                   ) : r.stale ? (
-                    <span className="text-[#EF4444] flex items-center gap-1.5">
+                    <span className="text-[#E74C3C] flex items-center gap-1.5">
                       <AlertTriangle size={11} /> Out of date
                     </span>
                   ) : (
-                    <span className="text-[#94A3B8]">
+                    <span className="text-[#A0A0A8]">
                       {n(r.hours_old) < 1
                         ? "just now"
                         : `${Math.round(n(r.hours_old))}h ago`}
@@ -124,11 +124,11 @@ export default function MarketsPage() {
 
                 <div className="text-right text-[10px] font-mono uppercase tracking-[0.12em]">
                   {r.chargeable && !r.stale ? (
-                    <span className="text-[#10B981] inline-flex items-center gap-1.5">
+                    <span className="text-[#2ECC71] inline-flex items-center gap-1.5">
                       <Check size={11} /> Yes
                     </span>
                   ) : (
-                    <span className="text-[#4B5563]">Not yet</span>
+                    <span className="text-[#72727A]">Not yet</span>
                   )}
                 </div>
               </div>
@@ -136,7 +136,7 @@ export default function MarketsPage() {
           )}
         </div>
 
-        <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.12em] mt-5 leading-relaxed">
+        <p className="text-[9px] font-mono text-[#72727A] uppercase tracking-[0.12em] mt-5 leading-relaxed">
           1 KPC = $1.00 by design. Rates against other currencies move with the
           market and are refreshed daily.
         </p>

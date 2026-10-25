@@ -3,7 +3,7 @@
 import React, { Suspense, useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ArrowLeft, Send, Zap, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { ArrowLeft, Send, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import AppMenu from "../components/AppMenu";
 import { useKpcBalance } from "../lib/useKpcBalance";
@@ -68,43 +68,39 @@ function SendForm() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-[#0A0E14] text-white flex flex-col items-center justify-center p-5 lg:p-8 font-sans selection:bg-[#AA771C]/30 relative overflow-hidden">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-tr from-[#10B981]/5 via-transparent to-[#FDB813]/5 rounded-full blur-[100px] pointer-events-none" />
+    <div className="min-h-[100dvh] bg-[#07070A] text-white flex flex-col items-center justify-center p-5 lg:p-8 font-sans selection:bg-[#8A6D2F]/30 relative overflow-hidden">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-tr from-[#2ECC71]/5 via-transparent to-[#C9A84C]/5 rounded-full blur-[100px] pointer-events-none" />
 
-      <div className="bg-[#111827]/80 backdrop-blur-xl border border-[#1F2937] p-8 lg:p-10 rounded-[2rem] shadow-[0_0_80px_rgba(0,0,0,0.8)] max-w-lg w-full relative z-10">
+      <div className="bg-[#16161C]/80 backdrop-blur-xl border border-[#26262E] p-8 lg:p-10 rounded-[2rem] shadow-[0_0_80px_rgba(0,0,0,0.8)] max-w-lg w-full relative z-10">
         <div className="flex justify-between items-center mb-10">
-          <Link href="/" className="text-[#94A3B8] hover:text-[#FDB813] transition-colors p-2 bg-[#1F2937] rounded-lg border border-[#374151]">
+          <Link href="/" className="text-[#A0A0A8] hover:text-[#C9A84C] transition-colors p-2 bg-[#26262E] rounded-lg border border-[#33333C]">
             <ArrowLeft size={20} />
           </Link>
           <AppMenu />
-          <div className="flex items-center gap-2 text-[10px] font-mono tracking-widest uppercase bg-[#0A0E14] px-3 py-1.5 rounded-full border border-[#1F2937]">
-            <Zap size={12} className="text-[#FDB813]" /> Transfer Protocol
-          </div>
         </div>
 
-        <h1 className="text-3xl font-black uppercase tracking-widest mb-2 text-white">Send KPC</h1>
-        <p className="text-xs font-mono text-[#94A3B8] tracking-widest uppercase mb-4">
+        <h1 className="font-display text-4xl font-light tracking-tight mb-2 text-white">Send KPC</h1>
+        <p className="text-[13px] text-[#A0A0A8] mb-4">
           Instant, $1-pegged transfer to any KobPay user, anywhere.
         </p>
 
         {currentUser && balance !== null && (
-          <div className="bg-[#0A0E14] border border-[#1F2937] p-4 rounded-xl flex justify-between items-center mb-6">
-            <span className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-widest">Your Balance</span>
-            <span className="text-lg font-black font-mono text-[#FDB813]">{balance.toLocaleString()} KPC</span>
+          <div className="bg-[#07070A] border border-[#26262E] p-4 rounded-xl flex justify-between items-center mb-6">
+            <span className="text-[10px] font-mono text-[#A0A0A8] uppercase tracking-widest">Your Balance</span>
+            <span className="text-lg font-black font-mono text-[#C9A84C]">{balance.toLocaleString()} KPC</span>
           </div>
         )}
 
         {!currentUser ? (
-          <div className="bg-[#EF4444]/10 border border-[#EF4444]/30 p-6 rounded-xl flex items-start gap-4 mb-6">
-            <AlertCircle className="text-[#EF4444] shrink-0" size={24} />
-            <p className="text-xs font-mono text-[#EF4444] leading-relaxed uppercase">
-              Connection Required. Please <Link href="/auth" className="font-bold underline">sign in</Link> before sending KPC.
+          <div className="bg-[#16161C] border border-[#26262E] p-7 rounded-2xl mb-6 text-center">
+            <p className="text-[13px] text-[#A0A0A8] leading-relaxed">
+              Please <Link href="/auth" className="text-[#C9A84C] underline">sign in</Link> to sending KPC.
             </p>
           </div>
         ) : (
           <form onSubmit={handleSend} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] ml-1">
+              <label className="text-[13px] text-[#A0A0A8] ml-1">
                 Recipient's Phone Number
               </label>
               <input
@@ -113,13 +109,13 @@ function SendForm() {
                 value={recipientPhone}
                 onChange={(e) => setRecipientPhone(e.target.value)}
                 disabled={isSending}
-                className="w-full bg-[#0A0E14] border border-[#374151] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#FDB813] transition-colors placeholder:text-[#374151]"
+                className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C] transition-colors placeholder:text-[#33333C]"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] ml-1">
+              <label className="text-[13px] text-[#A0A0A8] ml-1">
                 Amount (KPC)
               </label>
               <div className="relative">
@@ -130,10 +126,10 @@ function SendForm() {
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   disabled={isSending}
-                  className="w-full bg-[#0A0E14] border border-[#374151] rounded-xl pl-4 pr-16 py-4 text-xl font-black font-mono text-white outline-none focus:border-[#FDB813] transition-colors placeholder:text-[#374151]"
+                  className="w-full bg-[#07070A] border border-[#33333C] rounded-xl pl-4 pr-16 py-4 text-xl font-black font-mono text-white outline-none focus:border-[#C9A84C] transition-colors placeholder:text-[#33333C]"
                   required
                 />
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-[#FDB813] tracking-widest">
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-[#C9A84C] tracking-widest">
                   KPC
                 </div>
               </div>
@@ -142,7 +138,7 @@ function SendForm() {
             <button
               type="submit"
               disabled={isSending || !recipientPhone || !amount}
-              className="w-full mt-4 flex items-center justify-center gap-3 py-4 bg-[#FDB813] disabled:bg-[#374151] disabled:text-[#94A3B8] text-[#0A0E14] hover:bg-[#F59E0B] transition-all rounded-xl font-mono text-xs uppercase font-black tracking-[0.2em] shadow-[0_0_20px_rgba(253,184,19,0.2)] disabled:shadow-none"
+              className="w-full mt-4 flex items-center justify-center gap-3 py-4 bg-[#C9A84C] disabled:bg-[#33333C] disabled:text-[#A0A0A8] text-[#07070A] hover:bg-[#F59E0B] transition-all rounded-xl font-mono text-xs uppercase font-black tracking-[0.2em] shadow-[0_0_20px_rgba(253,184,19,0.2)] disabled:shadow-none"
             >
               {isSending ? (
                 <>
@@ -156,14 +152,14 @@ function SendForm() {
             </button>
 
             {success && (
-              <div className="bg-[#10B981]/10 border border-[#10B981]/30 p-4 rounded-xl flex items-center gap-3 text-[#10B981]">
+              <div className="bg-[#2ECC71]/10 border border-[#2ECC71]/30 p-4 rounded-xl flex items-center gap-3 text-[#2ECC71]">
                 <CheckCircle2 size={20} />
                 <span className="text-[10px] font-mono uppercase tracking-widest">Transfer Successful!</span>
               </div>
             )}
 
             {error && (
-              <div className="bg-[#EF4444]/10 border border-[#EF4444]/30 p-4 rounded-xl flex items-start gap-3 text-[#EF4444]">
+              <div className="bg-[#E74C3C]/10 border border-[#E74C3C]/30 p-4 rounded-xl flex items-start gap-3 text-[#E74C3C]">
                 <AlertCircle size={20} className="shrink-0 mt-0.5" />
                 <span className="text-[10px] font-mono uppercase tracking-widest">{error}</span>
               </div>
@@ -174,11 +170,11 @@ function SendForm() {
                 protection are the ones already pausing. */}
             <Link
               href="/safe"
-              className="block text-center pt-2 text-[9px] font-mono uppercase tracking-[0.2em] text-[#4B5563] hover:text-[#10B981] transition-colors leading-relaxed"
+              className="block text-center pt-2 text-[9px] font-mono uppercase tracking-[0.2em] text-[#72727A] hover:text-[#2ECC71] transition-colors leading-relaxed"
             >
               Paying someone you don&apos;t know?
               <br />
-              <span className="text-[#10B981]">Hold it until it arrives &rarr;</span>
+              <span className="text-[#2ECC71]">Hold it until it arrives &rarr;</span>
             </Link>
           </form>
         )}
@@ -189,7 +185,7 @@ function SendForm() {
 
 export default function SendPage() {
   return (
-    <Suspense fallback={<div className="min-h-[100dvh] bg-[#0A0E14]" />}>
+    <Suspense fallback={<div className="min-h-[100dvh] bg-[#07070A]" />}>
       <SendForm />
     </Suspense>
   );

@@ -105,18 +105,18 @@ export default function PasskeyCard() {
   if (loading) return null;
 
   return (
-    <div className="bg-[#111827] border border-[#1F2937] rounded-2xl p-5 lg:p-6">
-      <h2 className="text-[11px] font-black uppercase tracking-widest flex items-center gap-2 mb-2">
-        <Fingerprint size={14} className="text-[#FDB813]" /> Fingerprint &amp; Face ID
+    <div className="bg-[#16161C] border border-[#26262E] rounded-2xl p-5 lg:p-6">
+      <h2 className="text-[15px] font-display font-light flex items-center gap-2 mb-2 tracking-tight">
+        <Fingerprint size={14} className="text-[#C9A84C]" /> Fingerprint &amp; Face ID
       </h2>
-      <p className="text-[11px] text-[#94A3B8] leading-relaxed mb-5">
+      <p className="text-[11px] text-[#A0A0A8] leading-relaxed mb-5">
         Approve payments with your fingerprint or face instead of typing your PIN.
         Your fingerprint stays on your phone — it is never sent to us and we never
         store it.
       </p>
 
       {note && (
-        <p className="text-[11px] font-bold text-[#EF4444] mb-4">{note}</p>
+        <p className="text-[11px] font-bold text-[#E74C3C] mb-4">{note}</p>
       )}
 
       {!supported ? (
@@ -128,8 +128,8 @@ export default function PasskeyCard() {
         <>
           <div className="space-y-2 mb-4">
             {devices.map((d) => (
-              <div key={d.id} className="flex items-center gap-3 bg-[#0A0E14] border border-[#1F2937] rounded-xl p-3.5">
-                <Smartphone size={14} className="text-[#94A3B8] shrink-0" />
+              <div key={d.id} className="flex items-center gap-3 bg-[#07070A] border border-[#26262E] rounded-xl p-3.5">
+                <Smartphone size={14} className="text-[#A0A0A8] shrink-0" />
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-bold truncate">{d.label}</p>
                   <p className="text-[10px] font-mono text-[#6B7280] uppercase tracking-[0.12em] mt-0.5">
@@ -143,7 +143,7 @@ export default function PasskeyCard() {
                   onClick={() => remove(d.id)}
                   disabled={busy}
                   aria-label={`Remove ${d.label}`}
-                  className="text-[#6B7280] hover:text-[#EF4444] p-2 shrink-0 disabled:opacity-50"
+                  className="text-[#6B7280] hover:text-[#E74C3C] p-2 shrink-0 disabled:opacity-50"
                 >
                   <Trash2 size={14} />
                 </button>
@@ -154,7 +154,7 @@ export default function PasskeyCard() {
           <button
             onClick={enrol}
             disabled={busy}
-            className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#FDB813] text-[#0A0E14] rounded-xl text-[10px] font-mono font-black uppercase tracking-[0.18em] disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#C9A84C] text-[#07070A] rounded-xl text-[10px] font-mono font-black uppercase tracking-[0.18em] disabled:opacity-50"
           >
             <Fingerprint size={14} />
             {busy ? "Working..." : devices.length === 0 ? "Turn on fingerprint" : "Add another device"}
@@ -162,7 +162,7 @@ export default function PasskeyCard() {
 
           {devices.length > 0 && (
             <p className="text-[10px] text-[#6B7280] leading-relaxed mt-4 flex gap-2">
-              <ShieldCheck size={12} className="text-[#10B981] shrink-0 mt-0.5" />
+              <ShieldCheck size={12} className="text-[#2ECC71] shrink-0 mt-0.5" />
               Your PIN still works. Keep it — it is how you get in if you lose your phone.
             </p>
           )}

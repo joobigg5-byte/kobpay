@@ -103,37 +103,33 @@ export default function CirclesPage() {
   const inPots = active.reduce((s, c) => s + num(c.in_the_pot), 0);
 
   return (
-    <div className="min-h-[100dvh] bg-[#0A0E14] text-white font-sans selection:bg-[#AA771C]/30 relative overflow-hidden">
+    <div className="min-h-[100dvh] bg-[#07070A] text-white font-sans selection:bg-[#8A6D2F]/30 relative overflow-hidden">
       <Toaster position="top-center" reverseOrder={false} />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-gradient-to-br from-[#FDB813]/5 to-transparent rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-gradient-to-br from-[#C9A84C]/5 to-transparent rounded-full blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 max-w-3xl mx-auto px-5 py-8 sm:px-8">
         <div className="flex justify-between items-start mb-8">
           <Link
             href="/wallet"
-            className="text-[#94A3B8] hover:text-[#FDB813] transition-colors p-2 bg-[#1F2937] rounded-lg border border-[#374151]"
+            className="text-[#A0A0A8] hover:text-[#C9A84C] transition-colors p-2 bg-[#26262E] rounded-lg border border-[#33333C]"
           >
             <ArrowLeft size={20} />
           </Link>
           <AppMenu />
-          <div className="flex items-center gap-2 text-[10px] font-mono tracking-widest uppercase bg-[#0A0E14] px-3 py-1.5 rounded-full border border-[#1F2937]">
-            <Users size={12} className="text-[#FDB813]" />
-            <span className="text-[#FDB813]">Circles</span>
-          </div>
         </div>
 
-        <h1 className="text-3xl font-black uppercase tracking-widest mb-1">Circles</h1>
-        <p className="text-[10px] font-mono text-[#94A3B8] tracking-widest uppercase mb-8">
+        <h1 className="font-display text-4xl font-light tracking-tight mb-1">Circles</h1>
+        <p className="text-[13px] text-[#A0A0A8] mb-8">
           A savings group where nobody has to hold the cash
         </p>
 
         {checkingSession ? (
-          <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest py-10 text-center">
+          <p className="text-[13px] text-[#72727A] py-10 text-center">
             Loading...
           </p>
         ) : !userId ? (
-          <div className="bg-[#111827] border border-[#1F2937] p-6 rounded-xl">
-            <p className="text-xs font-mono text-[#94A3B8] leading-relaxed uppercase">
+          <div className="bg-[#16161C] border border-[#26262E] p-6 rounded-xl">
+            <p className="text-xs font-mono text-[#A0A0A8] leading-relaxed uppercase">
               Please{" "}
               <Link href="/auth" className="underline">
                 sign in
@@ -155,7 +151,7 @@ export default function CirclesPage() {
                   setShowCreate((v) => !v);
                   setShowJoin(false);
                 }}
-                className="flex items-center justify-center gap-2 bg-[#FDB813] hover:bg-[#E0A411] text-[#0A0E14] font-black uppercase tracking-widest text-xs py-4 rounded-xl transition-colors"
+                className="flex items-center justify-center gap-2 bg-[#C9A84C] hover:bg-[#B8963F] text-[#07070A] font-black uppercase tracking-widest text-xs py-4 rounded-xl transition-colors"
               >
                 <Plus size={14} /> Start one
               </button>
@@ -164,7 +160,7 @@ export default function CirclesPage() {
                   setShowJoin((v) => !v);
                   setShowCreate(false);
                 }}
-                className="flex items-center justify-center gap-2 bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-white font-black uppercase tracking-widest text-xs py-4 rounded-xl transition-colors"
+                className="flex items-center justify-center gap-2 bg-[#26262E] hover:bg-[#33333C] border border-[#33333C] text-white font-black uppercase tracking-widest text-xs py-4 rounded-xl transition-colors"
               >
                 <LogIn size={14} /> Join with a code
               </button>
@@ -203,16 +199,16 @@ export default function CirclesPage() {
             )}
 
             {loading ? (
-              <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest py-10 text-center">
+              <p className="text-[13px] text-[#72727A] py-10 text-center">
                 Loading...
               </p>
             ) : circles.length === 0 ? (
-              <div className="bg-[#111827]/80 border border-[#1F2937] rounded-2xl p-8 text-center">
-                <Users size={28} className="text-[#374151] mx-auto mb-3" />
-                <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest mb-2">
+              <div className="bg-[#16161C]/80 border border-[#26262E] rounded-2xl p-8 text-center">
+                <Users size={28} className="text-[#33333C] mx-auto mb-3" />
+                <p className="text-xs font-mono text-[#A0A0A8] uppercase tracking-widest mb-2">
                   No circles yet
                 </p>
-                <p className="text-[10px] font-mono text-[#4B5563] leading-relaxed">
+                <p className="text-[10px] font-mono text-[#72727A] leading-relaxed">
                   Everyone pays in each round. Each round, one person takes the
                   whole pot. The order is drawn at random when it starts.
                 </p>
@@ -238,7 +234,7 @@ export default function CirclesPage() {
               </div>
             )}
 
-            <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.2em] text-center mt-10 leading-relaxed">
+            <p className="text-[12px] text-[#72727A] text-center mt-10 leading-relaxed">
               1 KPC = $1.00 · nobody holds the pot but the circle
               <br />
               {formatKpcAsUsd(inPots)} across your circles
@@ -252,13 +248,13 @@ export default function CirclesPage() {
 
 function Stat({ label, value, warn }: { label: string; value: number; warn?: boolean }) {
   return (
-    <div className="bg-[#0A0E14] border border-[#1F2937] p-4 rounded-xl">
-      <span className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-1">
+    <div className="bg-[#07070A] border border-[#26262E] p-4 rounded-xl">
+      <span className="block text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.2em] mb-1">
         {label}
       </span>
-      <span className={`text-lg font-black ${warn ? "text-[#EF4444]" : "text-[#FDB813]"}`}>
+      <span className={`text-lg font-black ${warn ? "text-[#E74C3C]" : "text-[#C9A84C]"}`}>
         {value.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-        <span className="text-[9px] text-[#94A3B8] ml-1">KPC</span>
+        <span className="text-[9px] text-[#A0A0A8] ml-1">KPC</span>
       </span>
     </div>
   );
@@ -282,13 +278,13 @@ function CreateForm({
   const s = Number(size) || 0;
 
   return (
-    <div className="bg-[#111827]/80 backdrop-blur-xl border border-[#1F2937] rounded-2xl p-5 mb-6 space-y-4">
+    <div className="bg-[#16161C]/80 backdrop-blur-xl border border-[#26262E] rounded-2xl p-5 mb-6 space-y-4">
       <Field label="What is it for">
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Market women"
-          className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#4B5563] focus:border-[#FDB813] outline-none"
+          className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#72727A] focus:border-[#C9A84C] outline-none"
         />
       </Field>
 
@@ -299,14 +295,14 @@ function CreateForm({
             onChange={(e) => setAmount(e.target.value)}
             inputMode="decimal"
             placeholder="50"
-            className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#4B5563] focus:border-[#FDB813] outline-none"
+            className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#72727A] focus:border-[#C9A84C] outline-none"
           />
         </Field>
         <Field label="How often">
           <select
             value={cadence}
             onChange={(e) => setCadence(e.target.value)}
-            className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm text-white focus:border-[#FDB813] outline-none"
+            className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm text-white focus:border-[#C9A84C] outline-none"
           >
             <option value="daily">Daily</option>
             <option value="weekly">Weekly</option>
@@ -321,13 +317,13 @@ function CreateForm({
           onChange={(e) => setSize(e.target.value)}
           inputMode="numeric"
           placeholder="5"
-          className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#4B5563] focus:border-[#FDB813] outline-none"
+          className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#72727A] focus:border-[#C9A84C] outline-none"
         />
       </Field>
 
       {n > 0 && s > 1 && (
-        <div className="bg-[#FDB813]/10 border border-[#FDB813]/30 rounded-lg p-3">
-          <p className="text-[10px] font-mono text-[#FDB813] leading-relaxed uppercase">
+        <div className="bg-[#C9A84C]/10 border border-[#C9A84C]/30 rounded-lg p-3">
+          <p className="text-[13px] text-[#C9A84C] leading-relaxed">
             {s} people × {n.toLocaleString()} KPC = {(n * s).toLocaleString()} KPC
             in each pot.
             <br />
@@ -340,14 +336,14 @@ function CreateForm({
       <div className="flex gap-2">
         <button
           onClick={onCancel}
-          className="flex-1 bg-[#1F2937] hover:bg-[#374151] text-[#94A3B8] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
+          className="flex-1 bg-[#26262E] hover:bg-[#33333C] text-[#A0A0A8] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
         >
           Cancel
         </button>
         <button
           disabled={busy || !name || n <= 0 || s < 3}
           onClick={() => onCreate(name.trim(), n, cadence, s)}
-          className="flex-[2] bg-[#FDB813] hover:bg-[#E0A411] disabled:opacity-40 text-[#0A0E14] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
+          className="flex-[2] bg-[#C9A84C] hover:bg-[#B8963F] disabled:opacity-40 text-[#07070A] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
         >
           {busy ? "Creating..." : "Create"}
         </button>
@@ -367,26 +363,26 @@ function JoinForm({
 }) {
   const [ref, setRef] = useState("");
   return (
-    <div className="bg-[#111827]/80 backdrop-blur-xl border border-[#1F2937] rounded-2xl p-5 mb-6 space-y-4">
+    <div className="bg-[#16161C]/80 backdrop-blur-xl border border-[#26262E] rounded-2xl p-5 mb-6 space-y-4">
       <Field label="Circle code">
         <input
           value={ref}
           onChange={(e) => setRef(e.target.value.toUpperCase())}
           placeholder="CIR-XXXXXXXXXX"
-          className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-lg px-3 py-2.5 text-sm font-mono text-white placeholder-[#4B5563] focus:border-[#FDB813] outline-none"
+          className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm font-mono text-white placeholder-[#72727A] focus:border-[#C9A84C] outline-none"
         />
       </Field>
       <div className="flex gap-2">
         <button
           onClick={onCancel}
-          className="flex-1 bg-[#1F2937] hover:bg-[#374151] text-[#94A3B8] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
+          className="flex-1 bg-[#26262E] hover:bg-[#33333C] text-[#A0A0A8] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
         >
           Cancel
         </button>
         <button
           disabled={busy || ref.trim().length < 4}
           onClick={() => onJoin(ref.trim())}
-          className="flex-[2] bg-[#FDB813] hover:bg-[#E0A411] disabled:opacity-40 text-[#0A0E14] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
+          className="flex-[2] bg-[#C9A84C] hover:bg-[#B8963F] disabled:opacity-40 text-[#07070A] font-black uppercase tracking-widest text-xs py-3.5 rounded-xl transition-colors"
         >
           {busy ? "Joining..." : "Join"}
         </button>
@@ -398,7 +394,7 @@ function JoinForm({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <span className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-1.5">
+      <span className="block text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.2em] mb-1.5">
         {label}
       </span>
       {children}
@@ -437,14 +433,14 @@ function CircleCard({
 
   return (
     <div
-      className={`bg-[#111827]/80 backdrop-blur-xl border rounded-2xl p-5 ${
-        owes > 0 ? "border-[#EF4444]/40" : "border-[#1F2937]"
+      className={`bg-[#16161C]/80 backdrop-blur-xl border rounded-2xl p-5 ${
+        owes > 0 ? "border-[#E74C3C]/40" : "border-[#26262E]"
       }`}
     >
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h3 className="font-black uppercase tracking-wide text-sm">{c.name}</h3>
-          <p className="text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mt-1">
+          <h3 className="font-bold text-sm">{c.name}</h3>
+          <p className="text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.15em] mt-1">
             {num(c.amount_per_round).toLocaleString()} KPC {CADENCE_WORD[c.cadence]} ·{" "}
             {c.members} of {c.size}
           </p>
@@ -452,10 +448,10 @@ function CircleCard({
         <span
           className={`text-[9px] font-mono uppercase tracking-[0.15em] px-2 py-1 rounded-full border ${
             done
-              ? "text-[#94A3B8] border-[#374151]"
+              ? "text-[#A0A0A8] border-[#33333C]"
               : forming
-                ? "text-[#FDB813] border-[#FDB813]/40"
-                : "text-[#10B981] border-[#10B981]/40"
+                ? "text-[#C9A84C] border-[#C9A84C]/40"
+                : "text-[#2ECC71] border-[#2ECC71]/40"
           }`}
         >
           {done ? "Finished" : forming ? "Forming" : `Round ${c.current_round}`}
@@ -467,12 +463,12 @@ function CircleCard({
       {forming && (
         <button
           onClick={copy}
-          className="w-full flex items-center justify-between bg-[#0A0E14] border border-[#1F2937] hover:border-[#FDB813]/50 rounded-lg px-3 py-3 mb-4 transition-colors group"
+          className="w-full flex items-center justify-between bg-[#07070A] border border-[#26262E] hover:border-[#C9A84C]/50 rounded-lg px-3 py-3 mb-4 transition-colors group"
         >
-          <span className="font-mono text-sm tracking-[0.2em] text-[#FDB813]">
+          <span className="font-mono text-sm tracking-[0.2em] text-[#C9A84C]">
             {c.reference}
           </span>
-          <span className="flex items-center gap-1.5 text-[9px] font-mono uppercase tracking-[0.15em] text-[#94A3B8] group-hover:text-[#FDB813]">
+          <span className="flex items-center gap-1.5 text-[9px] font-mono uppercase tracking-[0.15em] text-[#A0A0A8] group-hover:text-[#C9A84C]">
             {copied ? <Check size={12} /> : <Copy size={12} />}
             {copied ? "Copied" : "Share"}
           </span>
@@ -495,9 +491,9 @@ function CircleCard({
       )}
 
       {num(c.times_i_was_passed_over) > 0 && !received && (
-        <div className="flex gap-2 bg-[#EF4444]/10 border border-[#EF4444]/30 rounded-lg p-3 mb-4">
-          <AlertTriangle size={14} className="text-[#EF4444] shrink-0 mt-0.5" />
-          <p className="text-[10px] font-mono text-[#EF4444] leading-relaxed uppercase">
+        <div className="flex gap-2 bg-[#E74C3C]/10 border border-[#E74C3C]/30 rounded-lg p-3 mb-4">
+          <AlertTriangle size={14} className="text-[#E74C3C] shrink-0 mt-0.5" />
+          <p className="text-[10px] font-mono text-[#E74C3C] leading-relaxed uppercase">
             You were passed over {c.times_i_was_passed_over}{" "}
             {num(c.times_i_was_passed_over) === 1 ? "time" : "times"} for being
             behind. Catch up and you get the next pot you are due.
@@ -506,9 +502,9 @@ function CircleCard({
       )}
 
       {owes > 0 && (
-        <div className="flex gap-2 bg-[#FDB813]/10 border border-[#FDB813]/30 rounded-lg p-3 mb-4">
-          <Clock size={14} className="text-[#FDB813] shrink-0 mt-0.5" />
-          <p className="text-[10px] font-mono text-[#FDB813] leading-relaxed uppercase">
+        <div className="flex gap-2 bg-[#C9A84C]/10 border border-[#C9A84C]/30 rounded-lg p-3 mb-4">
+          <Clock size={14} className="text-[#C9A84C] shrink-0 mt-0.5" />
+          <p className="text-[13px] text-[#C9A84C] leading-relaxed">
             You owe {owes} {owes === 1 ? "round" : "rounds"} —{" "}
             {(owes * num(c.amount_per_round)).toLocaleString()} KPC.
             {c.next_due ? ` Due ${new Date(c.next_due).toLocaleDateString()}.` : ""}
@@ -519,9 +515,9 @@ function CircleCard({
       )}
 
       {done && (
-        <div className="flex gap-2 bg-[#10B981]/10 border border-[#10B981]/30 rounded-lg p-3 mb-4">
-          <Trophy size={14} className="text-[#10B981] shrink-0 mt-0.5" />
-          <p className="text-[10px] font-mono text-[#10B981] leading-relaxed uppercase">
+        <div className="flex gap-2 bg-[#2ECC71]/10 border border-[#2ECC71]/30 rounded-lg p-3 mb-4">
+          <Trophy size={14} className="text-[#2ECC71] shrink-0 mt-0.5" />
+          <p className="text-[13px] text-[#2ECC71] leading-relaxed">
             Finished — everybody had their turn.
           </p>
         </div>
@@ -532,7 +528,7 @@ function CircleCard({
           <button
             disabled={busy === c.id + ":start" || c.members < 3}
             onClick={onStart}
-            className="flex-[2] flex items-center justify-center gap-2 bg-[#FDB813] hover:bg-[#E0A411] disabled:opacity-40 text-[#0A0E14] font-black uppercase tracking-widest text-[10px] py-3 rounded-xl transition-colors"
+            className="flex-[2] flex items-center justify-center gap-2 bg-[#C9A84C] hover:bg-[#B8963F] disabled:opacity-40 text-[#07070A] font-black uppercase tracking-widest text-[10px] py-3 rounded-xl transition-colors"
           >
             <Play size={12} />
             {c.members < 3 ? `Need ${3 - c.members} more` : "Start it"}
@@ -542,7 +538,7 @@ function CircleCard({
           <button
             disabled={busy === c.id + ":leave"}
             onClick={onLeave}
-            className="flex-1 bg-[#1F2937] hover:bg-[#EF4444]/20 text-[#94A3B8] hover:text-[#EF4444] font-black uppercase tracking-widest text-[10px] py-3 rounded-xl transition-colors"
+            className="flex-1 bg-[#26262E] hover:bg-[#E74C3C]/20 text-[#A0A0A8] hover:text-[#E74C3C] font-black uppercase tracking-widest text-[10px] py-3 rounded-xl transition-colors"
           >
             Leave
           </button>
@@ -551,7 +547,7 @@ function CircleCard({
           <button
             disabled={busy === c.id + ":pay" || owes === 0}
             onClick={onContribute}
-            className="flex-1 flex items-center justify-center gap-2 bg-[#10B981] hover:bg-[#0E9F6E] disabled:opacity-40 text-[#0A0E14] font-black uppercase tracking-widest text-[10px] py-3 rounded-xl transition-colors"
+            className="flex-1 flex items-center justify-center gap-2 bg-[#2ECC71] hover:bg-[#27AE60] disabled:opacity-40 text-[#07070A] font-black uppercase tracking-widest text-[10px] py-3 rounded-xl transition-colors"
           >
             <Wallet size={12} />
             {owes === 0
@@ -566,11 +562,11 @@ function CircleCard({
 
 function Mini({ label, value, good }: { label: string; value: string; good?: boolean }) {
   return (
-    <div className="bg-[#0A0E14] border border-[#1F2937] rounded-lg p-2.5">
-      <span className="block text-[8px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mb-0.5">
+    <div className="bg-[#07070A] border border-[#26262E] rounded-lg p-2.5">
+      <span className="block text-[8px] font-mono text-[#A0A0A8] uppercase tracking-[0.15em] mb-0.5">
         {label}
       </span>
-      <span className={`text-xs font-black ${good ? "text-[#10B981]" : "text-white"}`}>
+      <span className={`text-xs font-black ${good ? "text-[#2ECC71]" : "text-white"}`}>
         {value}
       </span>
     </div>

@@ -51,22 +51,22 @@ export default function CardFace({ name, last4, expiry, status, limit, spent }: 
       <div
         className={`relative w-full aspect-[1.586] rounded-2xl overflow-hidden border transition-all ${
           frozen
-            ? "border-[#22D3EE]/40 grayscale-[0.4] brightness-75"
+            ? "border-[#8FB8D4]/40 grayscale-[0.4] brightness-75"
             : issued
-            ? "border-[#FDB813]/30"
-            : "border-[#1F2937]"
+            ? "border-[#C9A84C]/30"
+            : "border-[#26262E]"
         }`}
         style={{
           background: issued
             ? "linear-gradient(135deg, #1A1A22 0%, #0E0E14 45%, #231d0e 100%)"
-            : "linear-gradient(135deg, #141419 0%, #0A0E14 100%)",
+            : "linear-gradient(135deg, #141419 0%, #07070A 100%)",
         }}
       >
         {/* A single diagonal sheen. Enough to read as a physical object in
             the light; not so much that it competes with the number. */}
         <div
           className="absolute inset-0 opacity-[0.07] pointer-events-none"
-          style={{ background: "linear-gradient(115deg, transparent 30%, #FFF0A8 50%, transparent 70%)" }}
+          style={{ background: "linear-gradient(115deg, transparent 30%, #E8C97A 50%, transparent 70%)" }}
         />
 
         <div className="relative h-full flex flex-col justify-between p-5 sm:p-6">
@@ -75,7 +75,7 @@ export default function CardFace({ name, last4, expiry, status, limit, spent }: 
               KOB<span className="text-gold">PAY</span>
             </span>
             {frozen ? (
-              <span className="flex items-center gap-1.5 text-[9px] font-mono uppercase tracking-[0.15em] text-[#22D3EE] bg-[#22D3EE]/10 px-2 py-1 rounded-full">
+              <span className="flex items-center gap-1.5 text-[9px] font-mono uppercase tracking-[0.15em] text-[#8FB8D4] bg-[#8FB8D4]/10 px-2 py-1 rounded-full">
                 <Snowflake size={10} /> Frozen
               </span>
             ) : !issued ? (
@@ -88,13 +88,13 @@ export default function CardFace({ name, last4, expiry, status, limit, spent }: 
           {/* The chip. Drawn rather than imported so it inherits the
               palette and costs nothing to load. */}
           <div className="flex items-center gap-4">
-            <div className="w-10 h-7 sm:w-12 sm:h-9 rounded-md bg-gradient-to-br from-[#E8C97A] to-[#AA771C] relative shrink-0">
+            <div className="w-10 h-7 sm:w-12 sm:h-9 rounded-md bg-gradient-to-br from-[#E8C97A] to-[#8A6D2F] relative shrink-0">
               <div className="absolute inset-0 flex flex-col justify-evenly px-1.5">
-                <div className="h-px bg-[#0A0E14]/40" />
-                <div className="h-px bg-[#0A0E14]/40" />
-                <div className="h-px bg-[#0A0E14]/40" />
+                <div className="h-px bg-[#07070A]/40" />
+                <div className="h-px bg-[#07070A]/40" />
+                <div className="h-px bg-[#07070A]/40" />
               </div>
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-4 sm:w-4 sm:h-5 border border-[#0A0E14]/40 rounded-sm" />
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-4 sm:w-4 sm:h-5 border border-[#07070A]/40 rounded-sm" />
             </div>
           </div>
 
@@ -132,10 +132,10 @@ export default function CardFace({ name, last4, expiry, status, limit, spent }: 
       )}
 
       <div className="mt-4">
-        <div className="h-1.5 bg-[#0A0E14] rounded-full overflow-hidden border border-[#1F2937]">
-          <div className="h-full bg-[#FDB813] transition-all" style={{ width: `${pct}%` }} />
+        <div className="h-1.5 bg-[#07070A] rounded-full overflow-hidden border border-[#26262E]">
+          <div className="h-full bg-[#C9A84C] transition-all" style={{ width: `${pct}%` }} />
         </div>
-        <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mt-2 text-center">
+        <p className="text-[13px] text-[#A0A0A8] mt-2 text-center">
           {money(spent)} of {money(limit)} KPC used this month
         </p>
       </div>

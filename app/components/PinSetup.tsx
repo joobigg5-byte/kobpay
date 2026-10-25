@@ -50,14 +50,14 @@ export default function PinSetup({
   };
 
   const field =
-    "w-full bg-[#0A0E14] border border-[#1F2937] rounded-xl px-4 py-3.5 text-xl font-black tracking-[0.4em] text-center text-white placeholder-[#374151] focus:border-[#FDB813] outline-none";
+    "w-full bg-[#07070A] border border-[#26262E] rounded-xl px-4 py-3.5 text-xl font-black tracking-[0.4em] text-center text-white placeholder-[#33333C] focus:border-[#C9A84C] outline-none";
 
   return (
     <div className="fixed inset-0 z-[90] bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
-      <div className="w-full max-w-sm bg-[#111827] border border-[#1F2937] rounded-3xl p-6 relative max-h-[90dvh] overflow-y-auto">
+      <div className="w-full max-w-sm bg-[#16161C] border border-[#26262E] rounded-3xl p-6 relative max-h-[90dvh] overflow-y-auto">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-[#4B5563] hover:text-white"
+          className="absolute top-4 right-4 text-[#72727A] hover:text-white"
           aria-label="Close"
         >
           <X size={18} />
@@ -65,22 +65,22 @@ export default function PinSetup({
 
         {done ? (
           <div className="py-8 text-center">
-            <div className="w-12 h-12 rounded-full bg-[#10B981]/10 border border-[#10B981]/30 flex items-center justify-center mx-auto mb-4">
-              <Check size={22} className="text-[#10B981]" />
+            <div className="w-12 h-12 rounded-full bg-[#2ECC71]/10 border border-[#2ECC71]/30 flex items-center justify-center mx-auto mb-4">
+              <Check size={22} className="text-[#2ECC71]" />
             </div>
-            <p className="text-sm font-black uppercase tracking-widest">
+            <p className="font-display text-lg font-light tracking-tight">
               {hasPin ? "PIN changed" : "PIN set"}
             </p>
           </div>
         ) : (
           <>
-            <div className="w-11 h-11 rounded-full bg-[#FDB813]/10 border border-[#FDB813]/30 flex items-center justify-center mx-auto mb-4">
-              <Lock size={18} className="text-[#FDB813]" />
+            <div className="w-11 h-11 rounded-full bg-[#C9A84C]/10 border border-[#C9A84C]/30 flex items-center justify-center mx-auto mb-4">
+              <Lock size={18} className="text-[#C9A84C]" />
             </div>
-            <p className="text-center text-sm font-black uppercase tracking-widest mb-1">
+            <p className="text-center font-display text-lg font-light tracking-tight mb-1">
               {hasPin ? "Change your PIN" : "Set a payment PIN"}
             </p>
-            <p className="text-center text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.12em] mb-5 leading-relaxed">
+            <p className="text-center text-[13px] text-[#A0A0A8] mb-5 leading-relaxed">
               {hasPin
                 ? "You will need your current PIN"
                 : "Asked for before money leaves your wallet"}
@@ -89,7 +89,7 @@ export default function PinSetup({
             <div className="space-y-3">
               {hasPin && (
                 <div>
-                  <label className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-2">
+                  <label className="block text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.2em] mb-2">
                     Current PIN
                   </label>
                   <input
@@ -104,7 +104,7 @@ export default function PinSetup({
               )}
 
               <div>
-                <label className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-2">
+                <label className="block text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.2em] mb-2">
                   {hasPin ? "New PIN" : "Choose a PIN"}
                 </label>
                 <input
@@ -119,7 +119,7 @@ export default function PinSetup({
               </div>
 
               <div>
-                <label className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-2">
+                <label className="block text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.2em] mb-2">
                   Type it again
                 </label>
                 <input
@@ -136,7 +136,7 @@ export default function PinSetup({
 
             <div className="min-h-[18px] mt-3">
               {error && (
-                <p className="text-[10px] font-mono text-[#EF4444] uppercase tracking-[0.12em] text-center leading-relaxed">
+                <p className="text-[10px] font-mono text-[#E74C3C] uppercase tracking-[0.12em] text-center leading-relaxed">
                   {error}
                 </p>
               )}
@@ -145,13 +145,13 @@ export default function PinSetup({
             <button
               disabled={busy}
               onClick={save}
-              className="w-full mt-2 py-4 bg-[#FDB813] hover:bg-[#E0A411] disabled:opacity-40 text-[#0A0E14] font-black font-mono text-[10px] uppercase tracking-[0.2em] rounded-xl flex items-center justify-center gap-2"
+              className="w-full mt-2 py-4 bg-[#C9A84C] hover:bg-[#B8963F] disabled:opacity-40 text-[#07070A] font-black font-mono text-[10px] uppercase tracking-[0.2em] rounded-xl flex items-center justify-center gap-2"
             >
               {busy && <Loader2 size={13} className="animate-spin" />}
               {hasPin ? "Change PIN" : "Set PIN"}
             </button>
 
-            <p className="text-[9px] font-mono text-[#4B5563] uppercase tracking-[0.12em] text-center mt-4 leading-relaxed">
+            <p className="text-[12px] text-[#72727A] text-center mt-4 leading-relaxed">
               Avoid 1234, repeated digits or your year of birth. Five wrong
               attempts locks it for fifteen minutes.
             </p>

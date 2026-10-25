@@ -126,46 +126,46 @@ export default function CardsPage() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-[#0A0E14] text-white font-sans p-5 lg:p-10">
+    <div className="min-h-[100dvh] bg-[#07070A] text-white font-sans p-5 lg:p-10">
       <div className="max-w-[640px] mx-auto">
         <div className="flex items-center gap-3 lg:gap-4 mb-2">
-          <Link href="/wallet" className="text-[#94A3B8] hover:text-[#FDB813] p-2.5 lg:p-3 bg-[#111827] rounded-xl border border-[#1F2937]">
+          <Link href="/wallet" className="text-[#A0A0A8] hover:text-[#C9A84C] p-2.5 lg:p-3 bg-[#16161C] rounded-xl border border-[#26262E]">
             <ArrowLeft size={18} />
           </Link>
           <AppMenu />
-          <h1 className="text-xl lg:text-3xl font-black uppercase tracking-widest flex items-center gap-3">
-            <CreditCard className="text-[#FDB813]" /> Cards
+          <h1 className="font-display text-2xl lg:text-4xl font-light tracking-tight flex items-center gap-3">
+            <CreditCard className="text-[#C9A84C]" /> Cards
           </h1>
         </div>
-        <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mb-8 ml-1">
+        <p className="text-[13px] text-[#A0A0A8] mb-8 ml-1">
           A card for each thing you pay for, with its own limit
         </p>
 
         {loading ? (
-          <p className="text-xs font-mono text-[#94A3B8] uppercase tracking-widest py-20 text-center">Loading...</p>
+          <p className="text-[13px] text-[#72727A] py-20 text-center">Loading...</p>
         ) : !signedIn ? (
-          <div className="bg-[#111827] border border-[#1F2937] rounded-2xl p-8 text-center">
-            <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.15em]">
-              Please <Link href="/auth" className="text-[#FDB813] underline">sign in</Link> to see your cards.
+          <div className="bg-[#16161C] border border-[#26262E] rounded-2xl p-8 text-center">
+            <p className="text-[13px] text-[#A0A0A8]">
+              Please <Link href="/auth" className="text-[#C9A84C] underline">sign in</Link> to see your cards.
             </p>
           </div>
         ) : (
           <>
             {note && (
-              <div className="bg-[#EF4444]/10 border border-[#EF4444]/30 rounded-2xl p-4 mb-4 flex gap-3">
-                <AlertTriangle size={16} className="text-[#EF4444] shrink-0 mt-0.5" />
-                <p className="text-[11px] font-bold text-[#EF4444]">{note}</p>
+              <div className="bg-[#E74C3C]/10 border border-[#E74C3C]/30 rounded-2xl p-4 mb-4 flex gap-3">
+                <AlertTriangle size={16} className="text-[#E74C3C] shrink-0 mt-0.5" />
+                <p className="text-[11px] font-bold text-[#E74C3C]">{note}</p>
               </div>
             )}
 
             {/* Said once, at the top, in plain words. Not a badge on every
                 row and not a silence that leaves somebody waiting. */}
             {!data?.issuing_live && (
-              <div className="bg-[#FDB813]/5 border border-[#FDB813]/25 rounded-2xl p-5 mb-5">
-                <p className="text-[11px] font-bold text-[#FDB813] mb-1.5 uppercase tracking-wide">
+              <div className="bg-[#C9A84C]/5 border border-[#C9A84C]/25 rounded-2xl p-5 mb-5">
+                <p className="text-[11px] font-bold text-[#C9A84C] mb-1.5 uppercase tracking-wide">
                   Card numbers are not live yet
                 </p>
-                <p className="text-[11px] text-[#94A3B8] leading-relaxed">
+                <p className="text-[11px] text-[#A0A0A8] leading-relaxed">
                   You can set up your cards now — name them and set their limits — and
                   numbers will be added to them once our card partner goes live.
                   Nothing you set up here is lost in the meantime.
@@ -174,9 +174,9 @@ export default function CardsPage() {
             )}
 
             {n(data?.held) > 0 && (
-              <div className="bg-[#111827] border border-[#1F2937] rounded-2xl p-4 mb-5 flex items-center gap-3">
-                <Lock size={14} className="text-[#94A3B8] shrink-0" />
-                <p className="text-[11px] text-[#94A3B8]">
+              <div className="bg-[#16161C] border border-[#26262E] rounded-2xl p-4 mb-5 flex items-center gap-3">
+                <Lock size={14} className="text-[#A0A0A8] shrink-0" />
+                <p className="text-[11px] text-[#A0A0A8]">
                   <span className="font-bold text-white">{money(data?.held)} KPC</span>{" "}
                   is being held while a card payment goes through. It comes back if the
                   payment does not complete.
@@ -189,8 +189,8 @@ export default function CardsPage() {
                 <CardRow key={c.id} card={c} busy={busy} onStatus={setStatus} onOpen={() => setOpen(c)} />
               ))}
               {(data?.cards ?? []).length === 0 && (
-                <div className="bg-[#111827] border border-[#1F2937] rounded-2xl p-8 text-center">
-                  <p className="text-[11px] text-[#94A3B8] leading-relaxed">
+                <div className="bg-[#16161C] border border-[#26262E] rounded-2xl p-8 text-center">
+                  <p className="text-[11px] text-[#A0A0A8] leading-relaxed">
                     No cards yet. Make one for each thing you pay for — a subscription,
                     a shop you use often — and give each one its own limit.
                   </p>
@@ -198,12 +198,12 @@ export default function CardsPage() {
               )}
             </div>
 
-            <div className="bg-[#111827] border border-[#1F2937] rounded-2xl p-5 lg:p-6">
-              <h2 className="text-[11px] font-black uppercase tracking-widest flex items-center gap-2 mb-4">
-                <Plus size={14} className="text-[#FDB813]" /> New card
+            <div className="bg-[#16161C] border border-[#26262E] rounded-2xl p-5 lg:p-6">
+              <h2 className="text-[15px] font-display font-light flex items-center gap-2 mb-4 tracking-tight">
+                <Plus size={14} className="text-[#C9A84C]" /> New card
               </h2>
 
-              <label className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-2">
+              <label className="block text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.2em] mb-2">
                 What is it for
               </label>
               <input
@@ -211,10 +211,10 @@ export default function CardsPage() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Netflix"
                 maxLength={40}
-                className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#FDB813]/40 mb-4"
+                className="w-full bg-[#07070A] border border-[#26262E] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#C9A84C]/40 mb-4"
               />
 
-              <label className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-2">
+              <label className="block text-[12px] text-[#A0A0A8] mb-2">
                 Most it can spend each month
               </label>
               <input
@@ -222,14 +222,14 @@ export default function CardsPage() {
                 onChange={(e) => setLimit(e.target.value.replace(/[^0-9.]/g, ""))}
                 inputMode="decimal"
                 placeholder="15"
-                className="w-full bg-[#0A0E14] border border-[#1F2937] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#FDB813]/40 mb-2"
+                className="w-full bg-[#07070A] border border-[#26262E] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#C9A84C]/40 mb-2"
               />
               <p className="text-[10px] text-[#6B7280] mb-4">
                 Nothing can take more than this from the card in a month, even if you
                 are asked to pay more.
               </p>
 
-              <label className="block text-[9px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] mb-2">
+              <label className="block text-[9px] font-mono text-[#A0A0A8] uppercase tracking-[0.2em] mb-2">
                 Stop working after (optional)
               </label>
               <div className="flex items-center gap-2 mb-2">
@@ -238,7 +238,7 @@ export default function CardsPage() {
                   onChange={(e) => setDays(e.target.value.replace(/[^0-9]/g, ""))}
                   inputMode="numeric"
                   placeholder="30"
-                  className="w-24 bg-[#0A0E14] border border-[#1F2937] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#FDB813]/40"
+                  className="w-24 bg-[#07070A] border border-[#26262E] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#C9A84C]/40"
                 />
                 <span className="text-[11px] text-[#6B7280]">days</span>
               </div>
@@ -255,13 +255,13 @@ export default function CardsPage() {
                 onClick={() => setSingleUse(!singleUse)}
                 aria-pressed={singleUse}
                 className={`w-full flex items-start gap-3 p-4 rounded-xl border text-left mb-5 transition-colors ${
-                  singleUse ? "border-[#FDB813]/40 bg-[#FDB813]/5" : "border-[#1F2937] bg-[#0A0E14]"
+                  singleUse ? "border-[#C9A84C]/40 bg-[#C9A84C]/5" : "border-[#26262E] bg-[#07070A]"
                 }`}
               >
                 <span className={`mt-0.5 w-4 h-4 rounded border shrink-0 flex items-center justify-center ${
-                  singleUse ? "bg-[#FDB813] border-[#FDB813]" : "border-[#374151]"
+                  singleUse ? "bg-[#C9A84C] border-[#C9A84C]" : "border-[#33333C]"
                 }`}>
-                  {singleUse && <Check size={11} className="text-[#0A0E14]" />}
+                  {singleUse && <Check size={11} className="text-[#07070A]" />}
                 </span>
                 <span className="min-w-0">
                   <span className="block text-[11px] font-bold text-white mb-1">
@@ -277,7 +277,7 @@ export default function CardsPage() {
               <button
                 onClick={create}
                 disabled={busy}
-                className="w-full py-3.5 bg-[#FDB813] text-[#0A0E14] rounded-xl text-[10px] font-mono font-black uppercase tracking-[0.18em] disabled:opacity-50"
+                className="w-full py-3.5 bg-[#C9A84C] text-[#07070A] rounded-xl text-[10px] font-mono font-black uppercase tracking-[0.18em] disabled:opacity-50"
               >
                 {busy ? "Working..." : "Create card"}
               </button>
@@ -317,9 +317,9 @@ function CardSheet({ card, busy, onStatus, onClose }: {
   return createPortal(
     <div className="fixed inset-0 z-[300] flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className="relative w-full sm:max-w-sm bg-[#111827] border border-[#1F2937] rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 max-h-[92dvh] overflow-y-auto">
+      <div className="relative w-full sm:max-w-sm bg-[#16161C] border border-[#26262E] rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 max-h-[92dvh] overflow-y-auto">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-[11px] font-black uppercase tracking-widest">Your card</h2>
+          <h2 className="text-[15px] font-display font-light tracking-tight">Your card</h2>
           <button onClick={onClose} aria-label="Close" className="text-[#6B7280] hover:text-white p-1">
             <X size={18} />
           </button>
@@ -339,7 +339,7 @@ function CardSheet({ card, busy, onStatus, onClose }: {
             <button
               onClick={() => { onStatus(card.id, frozen ? "active" : "frozen"); onClose(); }}
               disabled={busy}
-              className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#0A0E14] border border-[#1F2937] rounded-xl text-[10px] font-mono uppercase tracking-[0.15em] text-[#94A3B8] hover:border-[#22D3EE]/40 disabled:opacity-50"
+              className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#07070A] border border-[#26262E] rounded-xl text-[10px] font-mono uppercase tracking-[0.15em] text-[#A0A0A8] hover:border-[#8FB8D4]/40 disabled:opacity-50"
             >
               <Snowflake size={12} /> {frozen ? "Turn on" : "Freeze"}
             </button>
@@ -347,7 +347,7 @@ function CardSheet({ card, busy, onStatus, onClose }: {
           <button
             onClick={() => { onStatus(card.id, "closed"); onClose(); }}
             disabled={busy}
-            className="flex-1 py-3 border border-[#1F2937] rounded-xl text-[10px] font-mono uppercase tracking-[0.15em] text-[#6B7280] hover:text-[#EF4444] hover:border-[#EF4444]/40 disabled:opacity-50"
+            className="flex-1 py-3 border border-[#26262E] rounded-xl text-[10px] font-mono uppercase tracking-[0.15em] text-[#6B7280] hover:text-[#E74C3C] hover:border-[#E74C3C]/40 disabled:opacity-50"
           >
             Close card
           </button>
@@ -365,13 +365,13 @@ function CardRow({ card, busy, onStatus, onOpen }: {
   const frozen = card.status === "frozen";
 
   return (
-    <div className={`bg-[#111827] border rounded-2xl p-5 ${frozen ? "border-[#22D3EE]/30" : "border-[#1F2937]"}`}>
+    <div className={`bg-[#16161C] border rounded-2xl p-5 ${frozen ? "border-[#8FB8D4]/30" : "border-[#26262E]"}`}>
       <div className="flex items-start justify-between gap-3 mb-4">
         {/* Tapping the card opens its face. The whole left side is the
             target, because a small chevron is a poor thing to hit on a
             phone. */}
         <button onClick={onOpen} className="min-w-0 text-left group">
-          <p className="font-bold text-sm truncate group-hover:text-[#FDB813] transition-colors">
+          <p className="font-bold text-sm truncate group-hover:text-[#C9A84C] transition-colors">
             {card.name}
           </p>
           <p className="text-[10px] font-mono text-[#6B7280] uppercase tracking-[0.15em] mt-1">
@@ -379,25 +379,25 @@ function CardRow({ card, busy, onStatus, onOpen }: {
           </p>
         </button>
         <span className={`text-[9px] font-mono uppercase tracking-[0.15em] px-2.5 py-1 rounded-full shrink-0 ${
-          card.ended ? "bg-[#1F2937] text-[#6B7280]"
-          : frozen ? "bg-[#22D3EE]/10 text-[#22D3EE]"
-          : card.status === "active" ? "bg-[#10B981]/10 text-[#10B981]"
-          : "bg-[#1F2937] text-[#94A3B8]"
+          card.ended ? "bg-[#26262E] text-[#6B7280]"
+          : frozen ? "bg-[#8FB8D4]/10 text-[#8FB8D4]"
+          : card.status === "active" ? "bg-[#2ECC71]/10 text-[#2ECC71]"
+          : "bg-[#26262E] text-[#A0A0A8]"
         }`}>
           {card.ended ? "Ended" : frozen ? "Frozen" : card.status === "active" ? "On" : "Waiting"}
         </span>
       </div>
 
-      <div className="h-1.5 bg-[#0A0E14] rounded-full overflow-hidden border border-[#1F2937] mb-2">
-        <div className="h-full bg-[#FDB813] transition-all" style={{ width: `${pct}%` }} />
+      <div className="h-1.5 bg-[#07070A] rounded-full overflow-hidden border border-[#26262E] mb-2">
+        <div className="h-full bg-[#C9A84C] transition-all" style={{ width: `${pct}%` }} />
       </div>
-      <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.15em] mb-1.5">
+      <p className="text-[13px] text-[#A0A0A8] mb-1.5">
         {money(card.spent)} of {money(card.limit)} KPC used this month
         {" · "}
         <span className="text-white">{money(card.remaining)} left</span>
       </p>
       {card.valid_until && (
-        <p className={`text-[10px] font-mono uppercase tracking-[0.15em] mb-4 ${card.ended ? "text-[#6B7280]" : "text-[#94A3B8]"}`}>
+        <p className={`text-[10px] font-mono uppercase tracking-[0.15em] mb-4 ${card.ended ? "text-[#6B7280]" : "text-[#A0A0A8]"}`}>
           {card.ended
             ? `Stopped working ${new Date(card.valid_until).toLocaleDateString()}`
             : card.days_left === 0
@@ -414,7 +414,7 @@ function CardRow({ card, busy, onStatus, onOpen }: {
           <button
             onClick={() => onStatus(card.id, frozen ? "active" : "frozen")}
             disabled={busy}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#0A0E14] border border-[#1F2937] rounded-lg text-[10px] font-mono uppercase tracking-[0.15em] text-[#94A3B8] hover:border-[#22D3EE]/40 disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2.5 bg-[#07070A] border border-[#26262E] rounded-lg text-[10px] font-mono uppercase tracking-[0.15em] text-[#A0A0A8] hover:border-[#8FB8D4]/40 disabled:opacity-50"
           >
             <Snowflake size={12} /> {frozen ? "Turn on" : "Freeze"}
           </button>
@@ -422,7 +422,7 @@ function CardRow({ card, busy, onStatus, onOpen }: {
         <button
           onClick={() => onStatus(card.id, "closed")}
           disabled={busy}
-          className="px-4 py-2.5 border border-[#1F2937] rounded-lg text-[10px] font-mono uppercase tracking-[0.15em] text-[#6B7280] hover:text-[#EF4444] hover:border-[#EF4444]/40 disabled:opacity-50 ml-auto"
+          className="px-4 py-2.5 border border-[#26262E] rounded-lg text-[10px] font-mono uppercase tracking-[0.15em] text-[#6B7280] hover:text-[#E74C3C] hover:border-[#E74C3C]/40 disabled:opacity-50 ml-auto"
         >
           Close
         </button>
