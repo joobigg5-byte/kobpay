@@ -260,7 +260,7 @@ export default function EcosystemPage() {
                 
                 <div className="p-6 bg-[#07070A] border border-dashed border-[#33333C] rounded-2xl">
                   <p className="text-[12px] text-[#A0A0A8] leading-relaxed">
-                    This adds a preview card to your current session only. It is not yet submitted anywhere or visible to other users.
+                    A preview, visible only to you.
                   </p>
                 </div>
 

@@ -126,8 +126,8 @@ export default function CardFace({ name, last4, expiry, status, limit, spent }: 
       {/* Said under the card rather than on it, so the face stays a face. */}
       {!issued && (
         <p className="text-[10px] text-[#6B7280] leading-relaxed mt-3 text-center px-2">
-          The number appears here once our card partner goes live. Your name and
-          limit are already set.
+          Your card number appears here once it&rsquo;s issued. The name and limit
+          are already set.
         </p>
       )}
 
