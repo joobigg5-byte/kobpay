@@ -212,6 +212,24 @@ export default function KPCSovereignDashboard() {
     merchants: 0
   });
 
+  // The savings rates, read from the table rather than typed into this file.
+  // savings_products has an RLS policy of USING (active), so a signed-out
+  // visitor can read it — which is the point: the rate a stranger is shown
+  // on the landing page is the same row the accrual job pays against. Change
+  // it in the database and this follows. There is no second copy to forget.
+  const [savingsProducts, setSavingsProducts] = useState<
+    { id: string; name: string; blurb: string; apy_bps: number; locked: boolean }[]
+  >([]);
+
+  useEffect(() => {
+    supabase
+      .from("savings_products")
+      .select("id,name,blurb,apy_bps,locked")
+      .eq("active", true)
+      .order("apy_bps", { ascending: false })
+      .then(({ data }) => { if (data) setSavingsProducts(data as any); });
+  }, []);
+
   useEffect(() => {
     supabase.rpc("public_stats").then(({ data }) => {
       if (!data) { setLedgerLive(false); return; }
@@ -537,6 +555,52 @@ export default function KPCSovereignDashboard() {
               <StatCard label="Send Fee" customValue={<span className="text-[#2ECC71]">{networkStats.transferFeeBps === 0 ? "FREE" : `${(networkStats.transferFeeBps / 100).toFixed(2)}%`}</span>} onClick={() => setActiveDrawer("fee")} />
               <StatCard label="Circulating" value={networkStats.circulating} suffix="M KPC" decimals={1} onClick={() => setActiveDrawer("circulating")} />
             </div>
+
+            {/* WHAT YOU GET, NOT ONLY WHAT IT IS.
+                The page led with the peg, which is the proof rather than the
+                offer. A visitor had to click into /savings to learn that
+                money sitting here earns. These rates are already live and
+                already accruing daily; they were simply not on the page
+                anybody lands on. */}
+            {savingsProducts.length > 0 && (
+              <div>
+                <div className="mb-4 sm:mb-6">
+                  <h3 className="text-2xl sm:text-3xl font-display font-light tracking-tight mb-1">Money you leave here earns</h3>
+                  <p className="text-[13px] text-[#A0A0A8]">Interest is worked out every day, not at the end of the month.</p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4">
+                  {savingsProducts.map((p) => (
+                    <Link
+                      key={p.id}
+                      href="/savings"
+                      className="bg-[#16161C] border border-[#26262E] rounded-2xl p-5 lg:p-6 flex flex-col gap-3 hover:border-[#C9A84C]/40 hover:-translate-y-1 transition-all duration-300 shadow-lg group"
+                    >
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-[15px] font-bold text-white">{p.name}</span>
+                        {p.locked && (
+                          <span className="text-[9px] font-mono uppercase tracking-[0.15em] text-[#A0A0A8] border border-[#33333C] rounded-full px-2 py-0.5">
+                            Fixed term
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-baseline gap-1.5">
+                        {/* apy_bps is basis points: 800 is 8%. Divided here
+                            rather than stored as a percent so the ledger
+                            keeps one unit for every rate it holds. */}
+                        <span className="font-display text-4xl lg:text-5xl font-light text-[#C9A84C] leading-none">
+                          {(p.apy_bps / 100).toFixed(p.apy_bps % 100 === 0 ? 0 : 2)}
+                        </span>
+                        <span className="text-[13px] text-[#C9A84C]">% a year</span>
+                      </div>
+                      <p className="text-[13px] text-[#A0A0A8] leading-relaxed flex-1">{p.blurb}</p>
+                      <span className="text-[11px] font-mono uppercase tracking-[0.15em] text-[#72727A] group-hover:text-[#C9A84C] transition-colors">
+                        Start saving &rarr;
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-8">
               <div className="lg:col-span-8 bg-[#16161C]/80 backdrop-blur-xl border border-[#26262E] rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 lg:p-10 flex flex-col shadow-2xl">
