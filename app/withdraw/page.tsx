@@ -44,18 +44,39 @@ type Rail = {
 };
 type RailCountry = { country: string; country_name: string; rails: Rail[] };
 
+// The browser already knows where its owner is, near enough: "en-US" gives
+// US, "en-GB" gives GB. No IP lookup and no third party. A locale with no
+// region returns nothing, and then we fall back to the first country we can
+// actually pay rather than to anywhere in particular.
+//
+// This replaced a hardcoded "Ghana". A Ghanaian default is invisible in
+// Accra and tells everyone else they are using somebody else's local app.
+function browserRegion(): string | null {
+  try {
+    const tags = [navigator.language, ...(navigator.languages ?? [])];
+    for (const tag of tags) {
+      const region = new Intl.Locale(tag).region;
+      if (region) return region;
+    }
+  } catch {
+    // Intl.Locale is not everywhere; falling through is the safe miss.
+  }
+  return null;
+}
+
 export default function WithdrawPage() {
   const [currentUser, setCurrentUser] = useState<{ id: string; accessToken: string } | null>(null);
-  const [payoutType, setPayoutType] = useState<"mobile_money" | "nuban">("mobile_money");
-  const [country, setCountry] = useState("Ghana");
+  const [payoutType, setPayoutType] = useState<"mobile_money" | "bank">("mobile_money");
+  const [country, setCountry] = useState("");
   const [amount, setAmount] = useState("");
-  const [phone, setPhone] = useState("");
-  const [provider, setProvider] = useState("MTN");
-  const [accountNumber, setAccountNumber] = useState("");
+  // One field for where the money goes, whichever kind of rail it is. The
+  // rail's own destination_label says what to call it.
+  const [destination, setDestination] = useState("");
+  const [railCode, setRailCode] = useState("");
   const [bankCode, setBankCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState<{ amount: number; currency: string } | null>(null);
 
   const { balance } = useKpcBalance(currentUser?.id ?? null);
 
@@ -69,25 +90,47 @@ export default function WithdrawPage() {
       const list = (data as { countries?: RailCountry[] } | null)?.countries;
       if (!error && Array.isArray(list)) {
         setRailCountries(list);
-        // Default to the first country we can actually pay rather than a
-        // hardcoded "Ghana" that may not be live.
-        if (list.length > 0 && !list.some((c) => c.country_name === country)) {
-          setCountry(list[0].country_name);
-        }
+        // Prefer wherever the browser says it is, among the countries we can
+        // actually pay. Otherwise the first payable one — never a fixed
+        // country, which is what this used to be.
+        setCountry((current) => {
+          if (current && list.some((c) => c.country_name === current)) return current;
+          const region = browserRegion();
+          const mine = region ? list.find((c) => c.country === region) : null;
+          return mine?.country_name ?? list[0]?.country_name ?? "";
+        });
       }
       setRailsLoaded(true);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const providersForCountry =
-    railCountries.find((c) => c.country_name === country)?.rails ?? [];
-  const selectedProviderInfo = providersForCountry.find((p) => p.code === provider);
+  const countryRails = railCountries.find((c) => c.country_name === country)?.rails ?? [];
+
+  // The toggle chooses a kind, so only rails of that kind belong in the
+  // dropdown. Previously every rail for the country went into a select
+  // labelled "Mobile Money Network", which listed "Bank transfer" as a
+  // network and then sent its code to Paystack as a mobile money provider.
+  const railsForType = countryRails.filter((r) => r.kind === payoutType);
+  const rail = railsForType.find((r) => r.code === railCode) ?? null;
+
+  const hasMobileMoney = countryRails.some((r) => r.kind === "mobile_money");
+  const hasBank = countryRails.some((r) => r.kind === "bank");
+
+  // A country may offer one kind and not the other, so do not strand anyone
+  // on an empty dropdown because of which toggle happened to be selected.
+  useEffect(() => {
+    if (!railsLoaded || countryRails.length === 0) return;
+    if (railsForType.length === 0) {
+      setPayoutType(hasMobileMoney ? "mobile_money" : "bank");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [country, payoutType, railCountries, railsLoaded]);
 
   useEffect(() => {
-    setProvider(providersForCountry[0]?.code ?? "");
+    setRailCode(railsForType[0]?.code ?? "");
+    setDestination("");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [country, railCountries]);
+  }, [country, payoutType, railCountries]);
 
   const requestCountry = async () => {
     if (!askCountry.trim()) return;
@@ -108,34 +151,31 @@ export default function WithdrawPage() {
     e.preventDefault();
     if (!currentUser) return;
 
+    if (!rail) {
+      setError("Choose where you would like the money sent.");
+      return;
+    }
+
     // Every rail on the list is live, so there is nothing left to warn
     // about. What is worth checking is the destination itself: catching a
     // mistyped number here saves a failed payout, a reversal and a
     // confused customer. The pattern comes from the rail's own row, so
-    // adding a market brings its number format with it.
-    if (payoutType === "mobile_money") {
-      if (!selectedProviderInfo) {
-        setError("Choose where you would like the money sent.");
+    // adding a market brings its number format with it. The server checks
+    // the same pattern against the same row — this is only the early, kind
+    // version of the refusal.
+    if (rail.destination_regex) {
+      let valid = true;
+      try { valid = new RegExp(rail.destination_regex).test(destination.replace(/\s/g, "")); }
+      catch { valid = true; }   // a bad pattern in the table must not block a real payout
+      if (!valid) {
+        setError(`That does not look like a ${rail.label} ${rail.destination_label.toLowerCase()}. Please check it.`);
         return;
-      }
-      const pattern = selectedProviderInfo.destination_regex;
-      if (pattern) {
-        let valid = true;
-        try { valid = new RegExp(pattern).test(phone.replace(/\s/g, "")); }
-        catch { valid = true; }   // a bad pattern in the table must not block a real payout
-        if (!valid) {
-          setError(`That does not look like a ${selectedProviderInfo.label} number. Please check it.`);
-          return;
-        }
       }
     }
 
     setIsSubmitting(true);
     setError(null);
-    setSuccess(false);
-
-    const accountDetails =
-      payoutType === "mobile_money" ? { phone, provider } : { accountNumber, bankCode };
+    setSuccess(null);
 
     try {
       const res = await fetch("/api/withdrawals/initialize", {
@@ -143,9 +183,11 @@ export default function WithdrawPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           accessToken: currentUser.accessToken,
-          amountUsd: Number(amount),
-          payoutType,
-          accountDetails,
+          amountKpc: Number(amount),
+          railCode: rail.code,
+          destination,
+          // Only a bank needs one, and only the customer knows which bank.
+          ...(rail.kind === "bank" ? { bankCode } : {}),
         }),
       });
 
@@ -155,10 +197,9 @@ export default function WithdrawPage() {
         throw new Error(data.error || "That did not go through. Your money has not left your wallet.");
       }
 
-      setSuccess(true);
+      setSuccess({ amount: data.amountFiat, currency: data.currency });
       setAmount("");
-      setPhone("");
-      setAccountNumber("");
+      setDestination("");
       setBankCode("");
     } catch (err: any) {
       setError(err.message);
@@ -199,165 +240,170 @@ export default function WithdrawPage() {
           </div>
         ) : (
           <form onSubmit={handleWithdraw} className="space-y-6">
-            <div className="flex p-1.5 bg-[#07070A] rounded-2xl border border-[#26262E]">
-              <button
-                type="button"
-                onClick={() => setPayoutType("mobile_money")}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-mono text-[11px] font-bold uppercase tracking-widest transition-all ${
-                  payoutType === "mobile_money" ? "bg-[#26262E] text-[#C9A84C]" : "text-[#A0A0A8] hover:text-white"
-                }`}
+            {/* A country with only one kind of rail gets no toggle rather
+                than a button that leads to an empty list. */}
+            {hasMobileMoney && hasBank && (
+              <div className="flex p-1.5 bg-[#07070A] rounded-2xl border border-[#26262E]">
+                <button
+                  type="button"
+                  onClick={() => setPayoutType("mobile_money")}
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-mono text-[11px] font-bold uppercase tracking-widest transition-all ${
+                    payoutType === "mobile_money" ? "bg-[#26262E] text-[#C9A84C]" : "text-[#A0A0A8] hover:text-white"
+                  }`}
+                >
+                  <Smartphone size={14} /> Mobile Money
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPayoutType("bank")}
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-mono text-[11px] font-bold uppercase tracking-widest transition-all ${
+                    payoutType === "bank" ? "bg-[#26262E] text-[#C9A84C]" : "text-[#A0A0A8] hover:text-white"
+                  }`}
+                >
+                  <Landmark size={14} /> Bank Account
+                </button>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <label className="text-[13px] text-[#A0A0A8] ml-1">
+                Country
+              </label>
+              <select
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C] transition-colors"
               >
-                <Smartphone size={14} /> Mobile Money
-              </button>
-              <button
-                type="button"
-                onClick={() => setPayoutType("nuban")}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-mono text-[11px] font-bold uppercase tracking-widest transition-all ${
-                  payoutType === "nuban" ? "bg-[#26262E] text-[#C9A84C]" : "text-[#A0A0A8] hover:text-white"
-                }`}
-              >
-                <Landmark size={14} /> Bank Account
-              </button>
+                {railCountries.length === 0 ? (
+                  <option value="">{railsLoaded ? "—" : "Loading…"}</option>
+                ) : (
+                  railCountries.map((c) => (
+                    <option key={c.country} value={c.country_name}>
+                      {c.country_name}
+                    </option>
+                  ))
+                )}
+              </select>
             </div>
 
-            {payoutType === "mobile_money" ? (
-              <>
-                <div className="space-y-2">
-                  <label className="text-[13px] text-[#A0A0A8] ml-1">
-                    Country
-                  </label>
-                  <select
-                    value={country}
-                    onChange={(e) => setCountry(e.target.value)}
-                    className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C] transition-colors"
-                  >
-                    {railCountries.map((c) => (
-                      <option key={c.country} value={c.country_name}>
-                        {c.country_name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[13px] text-[#A0A0A8] ml-1">
-                    Mobile Money Network
-                  </label>
-                  <select
-                    value={provider}
-                    onChange={(e) => setProvider(e.target.value)}
-                    className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C] transition-colors"
-                  >
-                    {providersForCountry.map((p) => (
-                      <option key={p.code} value={p.code}>
-                        {p.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                {/* Every rail offered here is live, because
-                    public_payout_rails() returns nothing else. So there is
-                    no "this might not work" warning any more — if it is on
-                    the list, it pays.
+            {railsForType.length > 1 && (
+              <div className="space-y-2">
+                <label className="text-[13px] text-[#A0A0A8] ml-1">
+                  {payoutType === "mobile_money" ? "Mobile Money Network" : "Where to send it"}
+                </label>
+                <select
+                  value={railCode}
+                  onChange={(e) => setRailCode(e.target.value)}
+                  className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C] transition-colors"
+                >
+                  {railsForType.map((r) => (
+                    <option key={r.code} value={r.code}>
+                      {r.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
-                    What replaces it is the case the old page handled worst:
-                    somebody whose country is not here at all. They used to
-                    get an "Other" option that silently did nothing. */}
-                {railsLoaded && railCountries.length === 0 && (
-                  <div className="bg-[#C9A84C]/10 border border-[#C9A84C]/30 p-4 rounded-xl flex items-start gap-3">
-                    <AlertCircle className="text-[#C9A84C] shrink-0" size={16} />
-                    <p className="text-[11px] text-[#C9A84C] leading-relaxed">
-                      Cash withdrawals are not open yet. Your KPC is safe and you can
-                      still send and spend it.
+            {/* Every rail offered here is live, because
+                public_payout_rails() returns nothing else. So there is
+                no "this might not work" warning any more — if it is on
+                the list, it pays.
+
+                What replaces it is the case the old page handled worst:
+                somebody whose country is not here at all. They used to
+                get an "Other" option that silently did nothing. */}
+            {railsLoaded && railCountries.length === 0 && (
+              <div className="bg-[#C9A84C]/10 border border-[#C9A84C]/30 p-4 rounded-xl flex items-start gap-3">
+                <AlertCircle className="text-[#C9A84C] shrink-0" size={16} />
+                <p className="text-[11px] text-[#C9A84C] leading-relaxed">
+                  Cash withdrawals are not open yet. Your KPC is safe and you can
+                  still send and spend it.
+                </p>
+              </div>
+            )}
+
+            {railsLoaded && railCountries.length > 0 && (
+              <div className="bg-[#16161C] border border-[#26262E] p-4 rounded-xl">
+                {asked ? (
+                  <p className="text-[11px] text-[#2ECC71] leading-relaxed">
+                    Noted — we will let you know when we can pay out there.
+                  </p>
+                ) : (
+                  <>
+                    <p className="text-[11px] text-[#A0A0A8] leading-relaxed mb-3">
+                      Not seeing your country? Tell us where you are and we will
+                      take it into account when we open the next one.
+                    </p>
+                    <div className="flex gap-2">
+                      <input
+                        value={askCountry}
+                        onChange={(e) => setAskCountry(e.target.value)}
+                        placeholder="Your country"
+                        maxLength={56}
+                        className="flex-1 min-w-0 bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#C9A84C]/40"
+                      />
+                      <button
+                        type="button"
+                        onClick={requestCountry}
+                        className="px-4 py-2.5 border border-[#26262E] rounded-lg text-[10px] font-mono uppercase tracking-[0.15em] text-[#A0A0A8] hover:border-[#C9A84C]/40 hover:text-white shrink-0"
+                      >
+                        Tell us
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+            {rail && (
+              <>
+                {/* What to ask for, and what to call it, both come from the
+                    rail. No country-shaped example in the placeholder: the
+                    old "+233..." was a Ghanaian number pretending to be a
+                    hint. */}
+                <div className="space-y-2">
+                  <label className="text-[13px] text-[#A0A0A8] ml-1">
+                    {rail.destination_label}
+                  </label>
+                  <input
+                    type={rail.kind === "mobile_money" ? "tel" : "text"}
+                    inputMode={rail.kind === "mobile_money" ? "tel" : "numeric"}
+                    placeholder={rail.destination_label}
+                    value={destination}
+                    onChange={(e) => setDestination(e.target.value)}
+                    disabled={isSubmitting}
+                    className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C] transition-colors placeholder:text-[#33333C]"
+                    required
+                  />
+                </div>
+
+                {rail.kind === "bank" && (
+                  <div className="space-y-2">
+                    <label className="text-[13px] text-[#A0A0A8] ml-1">
+                      Bank Code
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="Your bank's code"
+                      value={bankCode}
+                      onChange={(e) => setBankCode(e.target.value)}
+                      disabled={isSubmitting}
+                      className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C] transition-colors placeholder:text-[#33333C]"
+                      required
+                    />
+                    <p className="text-[12px] text-[#33333C] ml-1">
+                      Find your bank's code via Paystack's public bank list API — not hardcoded here since it changes.
                     </p>
                   </div>
                 )}
-
-                {railsLoaded && railCountries.length > 0 && (
-                  <div className="bg-[#16161C] border border-[#26262E] p-4 rounded-xl">
-                    {asked ? (
-                      <p className="text-[11px] text-[#2ECC71] leading-relaxed">
-                        Noted — we will let you know when we can pay out there.
-                      </p>
-                    ) : (
-                      <>
-                        <p className="text-[11px] text-[#A0A0A8] leading-relaxed mb-3">
-                          Not seeing your country? Tell us where you are and we will
-                          take it into account when we open the next one.
-                        </p>
-                        <div className="flex gap-2">
-                          <input
-                            value={askCountry}
-                            onChange={(e) => setAskCountry(e.target.value)}
-                            placeholder="Your country"
-                            maxLength={56}
-                            className="flex-1 min-w-0 bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#C9A84C]/40"
-                          />
-                          <button
-                            type="button"
-                            onClick={requestCountry}
-                            className="px-4 py-2.5 border border-[#26262E] rounded-lg text-[10px] font-mono uppercase tracking-[0.15em] text-[#A0A0A8] hover:border-[#C9A84C]/40 hover:text-white shrink-0"
-                          >
-                            Tell us
-                          </button>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                )}
-                <div className="space-y-2">
-                  <label className="text-[13px] text-[#A0A0A8] ml-1">
-                    Mobile Money Number
-                  </label>
-                  <input
-                    type="tel"
-                    placeholder="+233..."
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    disabled={isSubmitting}
-                    className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C] transition-colors placeholder:text-[#33333C]"
-                    required
-                  />
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="space-y-2">
-                  <label className="text-[13px] text-[#A0A0A8] ml-1">
-                    Bank Account Number
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="0123456789"
-                    value={accountNumber}
-                    onChange={(e) => setAccountNumber(e.target.value)}
-                    disabled={isSubmitting}
-                    className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C] transition-colors placeholder:text-[#33333C]"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[13px] text-[#A0A0A8] ml-1">
-                    Bank Code
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. 300302 (GCB)"
-                    value={bankCode}
-                    onChange={(e) => setBankCode(e.target.value)}
-                    disabled={isSubmitting}
-                    className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C] transition-colors placeholder:text-[#33333C]"
-                    required
-                  />
-                  <p className="text-[12px] text-[#33333C] ml-1">
-                    Find your bank's code via Paystack's public bank list API — not hardcoded here since it changes.
-                  </p>
-                </div>
               </>
             )}
 
             <div className="space-y-2">
               <label className="text-[13px] text-[#A0A0A8] ml-1">
-                Amount (USD)
+                Amount
               </label>
               <div className="relative">
                 <input
@@ -374,6 +420,15 @@ export default function WithdrawPage() {
                   KPC
                 </div>
               </div>
+              {/* Say which money arrives, without quoting a rate the page
+                  does not hold. The server prices it at the rate current
+                  when the transfer goes out, and the confirmation below
+                  states the figure it actually used. */}
+              {rail && (
+                <p className="text-[12px] text-[#33333C] ml-1">
+                  Paid out in {rail.currency} at the rate when it is sent.
+                </p>
+              )}
             </div>
 
             <button
@@ -396,7 +451,8 @@ export default function WithdrawPage() {
               <div className="bg-[#2ECC71]/10 border border-[#2ECC71]/30 p-4 rounded-xl flex items-center gap-3 text-[#2ECC71]">
                 <CheckCircle2 size={20} />
                 <span className="text-[13px]">
-                  Withdrawal initiated — funds will arrive shortly.
+                  Withdrawal initiated — {success.currency}{" "}
+                  {success.amount?.toLocaleString()} will arrive shortly.
                 </span>
               </div>
             )}
