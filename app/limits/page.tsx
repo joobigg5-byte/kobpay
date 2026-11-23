@@ -8,6 +8,32 @@ import AppMenu from "../components/AppMenu";
 import PasskeyCard from "../components/PasskeyCard";
 import toast, { Toaster } from "react-hot-toast";
 
+// The badge beside "Your account" read:
+//
+//   {limits.jurisdiction === "GH" ? "Ghana" : "International"}
+//
+// So everyone who was not Ghanaian was told they were the exception. On a
+// product used from New York and Berlin that is the wrong way round, and it
+// is also less information than the code itself carries.
+//
+// Intl.DisplayNames turns the code into the country's name in the reader's
+// own language — "GH" is Ghana, "DE" is Germany, and in a German browser it
+// is Deutschland. No lookup table and no request. An unknown code shows as
+// itself, which at least says something true.
+function countryName(code: string | null | undefined): string | null {
+  if (!code) return null;
+  const upper = code.toUpperCase();
+  try {
+    const names = new Intl.DisplayNames(
+      [typeof navigator !== "undefined" ? navigator.language : "en"],
+      { type: "region" },
+    );
+    return names.of(upper) ?? upper;
+  } catch {
+    return upper;
+  }
+}
+
 type NextTier = {
   id: string;
   name: string;
@@ -144,7 +170,7 @@ export default function LimitsPage() {
                   Your account
                 </p>
                 <span className="text-[9px] font-mono text-[#72727A] uppercase tracking-[0.15em]">
-                  {limits.jurisdiction === "GH" ? "Ghana" : "International"}
+                  {countryName(limits.jurisdiction) ?? ""}
                 </span>
               </div>
               <p className="text-2xl font-black text-[#C9A84C]">{limits.tier_name}</p>
