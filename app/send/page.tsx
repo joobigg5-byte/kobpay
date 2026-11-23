@@ -103,9 +103,14 @@ function SendForm() {
               <label className="text-[13px] text-[#A0A0A8] ml-1">
                 Recipient's Phone Number
               </label>
+              {/* The old placeholder was "+233...", which is a Ghanaian
+                  number dressed up as a format hint. What actually matters
+                  is that the country code is there at all, so ask for that
+                  in words. An example number would just be some other
+                  country's default. */}
               <input
                 type="tel"
-                placeholder="+233..."
+                placeholder="Phone number, including country code"
                 value={recipientPhone}
                 onChange={(e) => setRecipientPhone(e.target.value)}
                 disabled={isSending}

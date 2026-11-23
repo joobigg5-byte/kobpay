@@ -25,13 +25,33 @@ function toE164(dial: string, national: string): string {
   return `+${cc}${rest}`;
 }
 
+// The browser already knows where its owner is, near enough: "en-US" gives
+// US, "en-GB" gives GB, "fr-CA" gives CA. No IP lookup, no request, no
+// third party — and no guess dressed up as a default, because a locale with
+// no region ("en" alone) returns nothing and the field simply stays empty.
+//
+// This replaced a hardcoded +233. A Ghanaian default is invisible in Accra
+// and tells everyone else they are using somebody else's local app.
+function browserRegion(): string | null {
+  try {
+    const tags = [navigator.language, ...(navigator.languages ?? [])];
+    for (const tag of tags) {
+      const region = new Intl.Locale(tag).region;
+      if (region) return region;
+    }
+  } catch {
+    // Intl.Locale is not everywhere; an empty country box is the safe miss.
+  }
+  return null;
+}
+
 function AuthForm() {
   const searchParams = useSearchParams();
   const redirectUri = searchParams.get("redirect_uri");
 
   const [dialCodes, setDialCodes] = useState<DialCode[]>([]);
   const [chargeable, setChargeable] = useState<string[] | null>(null);
-  const [dial, setDial] = useState("+233");
+  const [dial, setDial] = useState("");
   const [national, setNational] = useState("");
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState<"phone" | "otp">("phone");
@@ -52,7 +72,18 @@ function AuthForm() {
       .select("dial_code, country, country_name, currency")
       .order("country_name")
       .then(({ data }) => {
-        if (data) setDialCodes(data as DialCode[]);
+        if (!data) return;
+        const codes = data as DialCode[];
+        setDialCodes(codes);
+
+        // Pre-select only what the browser actually told us. Unknown stays
+        // unselected rather than falling back to anywhere in particular.
+        setDial((current) => {
+          if (current) return current;
+          const region = browserRegion();
+          const match = region ? codes.find((d) => d.country === region) : null;
+          return match ? match.dial_code : "";
+        });
       });
 
     supabase.rpc("chargeable_currencies").then(({ data }) => {
@@ -63,6 +94,13 @@ function AuthForm() {
   }, []);
 
   const handleSendCode = async () => {
+    // With no default country there may genuinely be none chosen. Say so,
+    // rather than sending an OTP to a number with no dial code in front.
+    if (!dial) {
+      setError("Choose your country first");
+      return;
+    }
+
     const digits = national.replace(/\D/g, "").replace(/^0+/, "");
     if (digits.length < 6) {
       setError("That number looks too short");
@@ -159,13 +197,18 @@ function AuthForm() {
               className="w-full mb-4 bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C] appearance-none"
             >
               {dialCodes.length === 0 ? (
-                <option value={dial}>Loading…</option>
+                <option value="">Loading…</option>
               ) : (
-                dialCodes.map((d) => (
-                  <option key={d.dial_code} value={d.dial_code}>
-                    {d.country_name} ({d.dial_code})
+                <>
+                  <option value="" disabled>
+                    Select your country
                   </option>
-                ))
+                  {dialCodes.map((d) => (
+                    <option key={d.dial_code} value={d.dial_code}>
+                      {d.country_name} ({d.dial_code})
+                    </option>
+                  ))}
+                </>
               )}
             </select>
 
@@ -185,8 +228,8 @@ function AuthForm() {
                 inputMode="tel"
                 value={national}
                 onChange={(e) => setNational(e.target.value)}
-                placeholder="24 412 3456"
-                style={{ paddingLeft: `${44 + dial.length * 9}px` }}
+                placeholder="Without the leading zero"
+                style={{ paddingLeft: `${dial ? 44 + dial.length * 9 : 44}px` }}
                 className="w-full bg-[#07070A] border border-[#33333C] rounded-xl pr-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C]"
               />
             </div>

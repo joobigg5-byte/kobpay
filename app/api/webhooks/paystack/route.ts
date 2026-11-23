@@ -13,7 +13,10 @@ export async function POST(req: Request) {
     .update(rawBody)
     .digest("hex");
 
-  if (signature !== expectedSignature) {
+  // Constant-time, so the comparison cannot be probed a byte at a time by
+  // timing the response. Lengths are checked first because timingSafeEqual
+  // throws on a mismatch rather than returning false.
+  if (!signatureMatches(signature, expectedSignature)) {
     console.error("Paystack webhook signature mismatch — possible forged request");
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
@@ -33,6 +36,11 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json({ received: true });
+}
+
+function signatureMatches(signature: string | null, expected: string): boolean {
+  if (!signature || signature.length !== expected.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
 }
 
 async function handleChargeSuccess(data: any) {
@@ -174,16 +182,38 @@ async function handleTransferSuccess(data: any) {
   }
 }
 
+// transfer.failed and transfer.reversed are not the same event, and this
+// used to treat them as one by setting status = 'failed' and stopping there.
+//
+//   failed    the transfer never left. No debit was made, so nothing is owed
+//             back — but the row has to stop withholding the amount.
+//   reversed  it left, the webhook debited the wallet, and the money has come
+//             back to us. The customer was left out of pocket with nothing to
+//             show for it, because nothing here ever credited them.
+//
+// Both now go to reverse_withdrawal(), which reads the row's own status to
+// tell which case it is. The claim and the credit happen in one database
+// transaction: as two calls from here, a crash between them would either
+// lose the credit or repeat it, and Paystack retries webhooks.
 async function handleTransferFailure(data: any) {
   const { transfer_code } = data;
 
   try {
-    await supabaseAdmin
-      .from("withdrawals")
-      .update({ status: "failed" })
-      .eq("external_reference", transfer_code);
+    const { data: result, error } = await supabaseAdmin.rpc("reverse_withdrawal", {
+      p_external_reference: transfer_code,
+    });
 
-    return NextResponse.json({ received: true });
+    if (error) throw error;
+
+    // A reference we do not hold is not an error worth retrying — a 200 stops
+    // Paystack redelivering something this system has no row for. It is still
+    // logged, because it should not happen.
+    if (result?.found === false) {
+      console.error("No matching withdrawal for reversed/failed transfer:", transfer_code);
+      return NextResponse.json({ received: true, note: result.note });
+    }
+
+    return NextResponse.json({ received: true, ...result });
   } catch (error) {
     console.error("Transfer failure webhook processing error:", error);
     return NextResponse.json({ error: "Internal processing error" }, { status: 500 });

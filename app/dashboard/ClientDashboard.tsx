@@ -69,10 +69,46 @@ type RateSeries = { currency: string; name: string; points: number; from: string
 // The currencies the chart argues about. Each one has to be priced and
 // recorded before it draws; anything missing is simply absent rather than
 // filled in.
-const CHART_CODES = ['GHS', 'NGN', 'KES', 'ZAR'];
+//
+// This was a fixed ['GHS', 'NGN', 'KES', 'ZAR']. The chart's whole argument
+// is that the money in your pocket loses value and KPC does not — which only
+// lands if your money is on it. Four African currencies make that case to a
+// Ghanaian and show a reader in Berlin four lines about countries they have
+// no money in.
+//
+// So the viewer's own currency goes first, worked out from their browser's
+// region and the dial_codes table that already maps country to currency. The
+// rest fill in behind it. A currency with no recorded history simply does not
+// draw, which is the existing behaviour and needs no special case.
+const BASE_CODES = ['GHS', 'NGN', 'KES', 'ZAR'];
+const MAX_CHART_SERIES = 4;
+
 const CHART_COLOURS: Record<string, string> = {
   GHS: '#E74C3C', NGN: '#8FB8D4', KES: '#9A8FC4', ZAR: '#D98B4A',
 };
+// For a currency with no colour of its own. Same muted register as the four
+// above — nothing that glows.
+const SPARE_COLOURS = ['#7FA68A', '#B08D7A', '#A3899C', '#C2A878'];
+
+function colourFor(code: string, index: number): string {
+  return CHART_COLOURS[code] ?? SPARE_COLOURS[index % SPARE_COLOURS.length];
+}
+
+// The browser knows its own region: "en-GB" is GB, "de-DE" is DE. No request
+// and no IP lookup, and a locale carrying no region simply yields nothing
+// rather than a guess.
+function browserRegion(): string | null {
+  try {
+    const tags = [navigator.language, ...(navigator.languages ?? [])];
+    for (const tag of tags) {
+      const region = new Intl.Locale(tag).region;
+      if (region) return region;
+    }
+  } catch {
+    // Intl.Locale is not everywhere; the base list is the safe miss.
+  }
+  return null;
+}
 
 // Was six invented products carrying invented metrics, scrolling across the
 // top of a live payments site:
@@ -310,13 +346,32 @@ export default function KPCSovereignDashboard() {
   // otherwise with a timer is how the previous version ended up animating
   // numbers nobody had measured.
   useEffect(() => {
-    supabase.rpc("public_rate_history", { p_codes: CHART_CODES, p_days: 365 })
-      .then(({ data, error }) => {
-        if (error || !data) return;
-        const d = data as { currencies?: RateSeries[]; recording_since?: string };
-        setRateHistory(Array.isArray(d.currencies) ? d.currencies : []);
-        setRecordingSince(d.recording_since ?? null);
-      });
+    // Ask dial_codes what this region spends, then put that currency at the
+    // front. dial_codes is readable signed-out by design — the auth page
+    // reads it before anyone has an account — so this needs no session.
+    const region = browserRegion();
+
+    const buildCodes = async (): Promise<string[]> => {
+      if (!region) return BASE_CODES.slice(0, MAX_CHART_SERIES);
+      const { data } = await supabase
+        .from("dial_codes")
+        .select("currency")
+        .eq("country", region)
+        .maybeSingle();
+      const mine = (data as { currency?: string } | null)?.currency;
+      if (!mine) return BASE_CODES.slice(0, MAX_CHART_SERIES);
+      return Array.from(new Set([mine, ...BASE_CODES])).slice(0, MAX_CHART_SERIES);
+    };
+
+    buildCodes().then((codes) => {
+      supabase.rpc("public_rate_history", { p_codes: codes, p_days: 365 })
+        .then(({ data, error }) => {
+          if (error || !data) return;
+          const d = data as { currencies?: RateSeries[]; recording_since?: string };
+          setRateHistory(Array.isArray(d.currencies) ? d.currencies : []);
+          setRecordingSince(d.recording_since ?? null);
+        });
+    });
 
     supabase.rpc("public_reserve").then(({ data, error }) => {
       if (error || !data) return;
@@ -620,13 +675,13 @@ export default function KPCSovereignDashboard() {
                         />
                         <Legend />
                         <Line type="monotone" dataKey="KPC" name="KPC" stroke="#C9A84C" strokeWidth={3} dot={false} isAnimationActive={false} />
-                        {rateHistory.map(s => (
+                        {rateHistory.map((s, i) => (
                           <Line
                             key={s.currency}
                             type="monotone"
                             dataKey={s.currency}
                             name={s.currency}
-                            stroke={CHART_COLOURS[s.currency] ?? '#A0A0A8'}
+                            stroke={colourFor(s.currency, i)}
                             strokeWidth={2}
                             strokeOpacity={0.7}
                             dot={false}

@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import {
   Menu, X, Wallet, Send, PiggyBank, LineChart, Users, ShieldCheck, Gauge,
   Receipt, ShoppingCart, Store, TrendingUp, Activity, Scale, LayoutDashboard, HandCoins,
-  CreditCard,
+  CreditCard, Globe, Bitcoin,
 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 
@@ -31,9 +31,15 @@ const GROUPS: { group: string; items: Item[] }[] = [
     items: [
       { label: "Wallet", href: "/wallet", icon: <Wallet size={16} /> },
       { label: "Send", href: "/send", icon: <Send size={16} /> },
+      // Next to Send, because that is what someone is looking for when they
+      // want to get money to a person who is not on KobPay.
+      { label: "Send Abroad", href: "/send-abroad", icon: <Globe size={16} /> },
       { label: "Cards", href: "/cards", icon: <CreditCard size={16} /> },
       { label: "Savings", href: "/savings", icon: <PiggyBank size={16} /> },
       { label: "Invest", href: "/invest", icon: <LineChart size={16} /> },
+      // Beside Invest rather than under Paying: both are turning a balance
+      // into something you hold.
+      { label: "Buy Crypto", href: "/buy-crypto", icon: <Bitcoin size={16} /> },
       { label: "Circles", href: "/circles", icon: <Users size={16} /> },
       { label: "Limits", href: "/limits", icon: <ShieldCheck size={16} /> },
       { label: "Score", href: "/score", icon: <Gauge size={16} /> },
