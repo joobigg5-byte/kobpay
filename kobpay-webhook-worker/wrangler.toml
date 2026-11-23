@@ -1,0 +1,8 @@
+name = "kobpay-webhooks"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+
+# Once a minute. The backoff in mark_webhook decides when a failed delivery
+# is actually retried; this only decides how often the queue is looked at.
+[triggers]
+crons = ["* * * * *"]

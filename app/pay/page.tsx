@@ -1,351 +1,174 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import Link from "next/link";
-import AppMenu from "../components/AppMenu";
-import { useRouter } from "next/navigation";
-import {
-  ArrowLeft,
-  QrCode,
-  ScanLine,
-  Copy,
-  CheckCircle2,
-  Loader2,
-  Keyboard,
-  CameraOff,
-} from "lucide-react";
-import QRCode from "react-qr-code";
-import { Scanner } from "@yudiel/react-qr-scanner";
-import { supabase } from "../lib/supabaseClient";
-import toast, { Toaster } from "react-hot-toast";
-
-// WHAT THIS PAGE USED TO DO
-//
-// Receive generated a QR of the user's wagmi wallet address, falling back to
-// 0x0000…0000 when none was connected — which is almost always, because
-// KobPay users sign in with a phone number. Anyone scanning it was shown a
-// dead destination.
-//
-// Scan read a hex string and raised a toast. No payment followed.
-//
-// And every camera failure collapsed into "Camera currently unavailable",
-// which is the one message that tells you nothing you can act on.
-//
-// WHAT IT DOES NOW
-//
-// Receive encodes a link to /send addressed to the user's phone, optionally
-// with an amount. Scan decodes a KobPay link and goes where it points — a
-// merchant payment link opens that invoice, a personal link opens Send with
-// the recipient filled in.
-//
-// And there is a typed fallback, because a desktop with no camera is not an
-// error state, it is Tuesday.
-
-const SITE =
-  typeof window !== "undefined" ? window.location.origin : "https://www.kobpay.app";
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, QrCode, ScanLine, Wallet, Copy, CheckCircle2, Zap, Loader2, X } from 'lucide-react';
+import QRCode from 'react-qr-code';
+import { Scanner } from '@yudiel/react-qr-scanner';
+import { useAccount } from 'wagmi';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function PayTerminal() {
-  const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"scan" | "receive">("scan");
-  const [mounted, setMounted] = useState(false);
+  const [activeTab, setActiveTab] = useState<'scan' | 'receive'>('scan');
+  const [scanResult, setScanResult] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-
-  const [phone, setPhone] = useState<string | null>(null);
-  const [askAmount, setAskAmount] = useState("");
-
+  const [mounted, setMounted] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
-  const [typing, setTyping] = useState(false);
-  const [typed, setTyped] = useState("");
-  const [resolving, setResolving] = useState(false);
+  
+  // Get the user's connected wallet address (fallback to a dummy if disconnected)
+  const { address } = useAccount(); 
+  const sovereignAddress = address || "0x0000000000000000000000000000000000000000";
 
   useEffect(() => {
     setMounted(true);
-    supabase.auth.getSession().then(({ data }) => {
-      setPhone(data.session?.user.phone ?? null);
-    });
   }, []);
 
-  // The link a payer lands on. /send reads these and fills itself in.
-  const receiveLink = phone
-    ? `${SITE}/send?to=${encodeURIComponent(phone)}${
-        Number(askAmount) > 0 ? `&amount=${encodeURIComponent(askAmount)}` : ""
-      }`
-    : null;
-
   const handleCopy = () => {
-    if (!receiveLink) return;
-    navigator.clipboard.writeText(receiveLink);
+    navigator.clipboard.writeText(sovereignAddress);
     setCopied(true);
-    toast.success("Link copied");
+    toast.success('Sovereign Address Copied', {
+      style: { background: '#10B981', color: '#0A0E14', fontWeight: 'bold', fontSize: '12px', fontFamily: 'monospace' }
+    });
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Decode anything a KobPay QR might reasonably contain, and refuse the
-  // rest rather than guessing. A wrong guess here sends money somewhere.
-  const route = async (raw: string) => {
-    const text = (raw ?? "").trim();
-    if (!text) return;
-
-    // A full KobPay link: take the path, ignore the host so a link shared
-    // from a preview deployment still works.
-    try {
-      const u = new URL(text);
-      const m = u.pathname.match(/^\/m\/([A-Za-z0-9_-]+)$/);
-      if (m) return router.push(`/m/${m[1]}`);
-      if (u.pathname === "/send") {
-        const to = u.searchParams.get("to");
-        const amt = u.searchParams.get("amount");
-        if (to) {
-          return router.push(
-            `/send?to=${encodeURIComponent(to)}${amt ? `&amount=${encodeURIComponent(amt)}` : ""}`,
-          );
-        }
-      }
-      toast.error("That link is not a KobPay payment code");
-      return;
-    } catch {
-      // Not a URL — fall through to treat it as a phone number or tag.
-    }
-
-    // A bare phone number or @tag. Resolve it before navigating, so a typo
-    // fails here with a clear message rather than on the Send screen.
-    setResolving(true);
-    const { data, error } = await supabase.rpc("find_recipient", { p_identifier: text });
-    setResolving(false);
-
-    if (error || !data || (Array.isArray(data) && data.length === 0)) {
-      toast.error("No KobPay account matches that");
-      return;
-    }
-    router.push(`/send?to=${encodeURIComponent(text)}`);
-  };
-
-  // Each failure gets the sentence that tells you what to do about it.
-  const describeCameraError = (err: unknown) => {
-    const name = (err as { name?: string })?.name ?? "";
-    switch (name) {
-      case "NotAllowedError":
-      case "PermissionDeniedError":
-        return "Camera permission was declined. Allow it for this site in your browser settings, then reload.";
-      case "NotFoundError":
-      case "DevicesNotFoundError":
-        return "No camera on this device. Type the code instead.";
-      case "NotReadableError":
-      case "TrackStartError":
-        return "Another app is using the camera. Close it and reload.";
-      case "OverconstrainedError":
-        return "No camera matched what the scanner asked for. Type the code instead.";
-      case "SecurityError":
-        return "The camera needs a secure connection. Open this page over https.";
-      default:
-        return name
-          ? `The camera could not start (${name}). Type the code instead.`
-          : "The camera could not start. Type the code instead.";
+  const handleScan = (text: string) => {
+    if (text && text !== scanResult) {
+      setScanResult(text);
+      toast.success(`Address detected: ${text.slice(0, 8)}...`, {
+        icon: '⚡',
+        style: { background: '#111827', color: '#fff', border: '1px solid #FDB813', fontSize: '12px', fontFamily: 'monospace' }
+      });
     }
   };
 
-  if (!mounted) return <div className="min-h-[100dvh] bg-[#07070A]" />;
+  if (!mounted) return <div className="min-h-screen bg-[#0A0E14]" />;
 
   return (
-    <div className="min-h-[100dvh] bg-[#07070A] text-[#F5F2EC] font-sans selection:bg-[#8A6D2F]/30 flex flex-col">
+    <div className="min-h-screen bg-[#0A0E14] text-[#F9FAFB] font-sans selection:bg-[#AA771C]/30 flex flex-col">
       <Toaster position="top-center" />
-
-      <header className="h-16 lg:h-20 border-b border-[#26262E] bg-[#16161C]/80 backdrop-blur-xl sticky top-0 z-40 flex items-center px-4 lg:px-8">
-        <Link
-          href="/wallet"
-          className="flex items-center gap-3 text-[#A0A0A8] hover:text-[#C9A84C] transition-colors group"
-        >
-          <div className="p-2 bg-[#26262E] rounded-lg group-hover:bg-[#C9A84C]/20 transition-colors">
+      
+      {/* HEADER */}
+      <header className="h-20 border-b border-[#1F2937] bg-[#111827]/80 backdrop-blur-xl sticky top-0 z-40 flex items-center px-8">
+        <Link href="/" className="flex items-center gap-3 text-[#94A3B8] hover:text-[#FDB813] transition-colors group">
+          <div className="p-2 bg-[#1F2937] rounded-lg group-hover:bg-[#FDB813]/20 transition-colors">
             <ArrowLeft size={18} />
           </div>
-          <span className="font-mono font-bold tracking-widest uppercase text-[10px] lg:text-xs">
-            Back
-          </span>
+          <span className="font-mono font-bold tracking-widest uppercase text-xs">Return to Dashboard</span>
         </Link>
-        <div className="ml-auto">
-          <AppMenu />
-        </div>
       </header>
 
-      <main className="flex-1 flex items-start justify-center p-4 lg:p-6">
-        <div className="w-full max-w-md bg-[#16161C] border border-[#26262E] rounded-3xl shadow-2xl overflow-hidden flex flex-col">
-          <div className="flex p-2 bg-[#07070A] m-3 lg:m-4 rounded-2xl border border-[#26262E]">
-            <button
-              onClick={() => setActiveTab("scan")}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-mono text-[10px] lg:text-[11px] font-bold uppercase tracking-widest transition-all ${
-                activeTab === "scan"
-                  ? "bg-[#26262E] text-[#C9A84C] shadow-lg"
-                  : "text-[#A0A0A8] hover:text-white"
-              }`}
+      {/* MAIN TERMINAL */}
+      <main className="flex-1 flex items-center justify-center p-6">
+        <div className="w-full max-w-md bg-[#111827] border border-[#1F2937] rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col">
+          
+          {/* TOGGLE TABS */}
+          <div className="flex p-2 bg-[#0A0E14] m-4 rounded-2xl border border-[#1F2937]">
+            <button 
+              onClick={() => setActiveTab('scan')}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-mono text-[11px] font-bold uppercase tracking-widest transition-all ${activeTab === 'scan' ? 'bg-[#1F2937] text-[#FDB813] shadow-lg' : 'text-[#94A3B8] hover:text-white'}`}
             >
-              <ScanLine size={15} /> Scan to pay
+              <ScanLine size={16} /> Scan to Pay
             </button>
-            <button
-              onClick={() => setActiveTab("receive")}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-mono text-[10px] lg:text-[11px] font-bold uppercase tracking-widest transition-all ${
-                activeTab === "receive"
-                  ? "bg-[#26262E] text-[#2ECC71] shadow-lg"
-                  : "text-[#A0A0A8] hover:text-white"
-              }`}
+            <button 
+              onClick={() => setActiveTab('receive')}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-mono text-[11px] font-bold uppercase tracking-widest transition-all ${activeTab === 'receive' ? 'bg-[#1F2937] text-[#10B981] shadow-lg' : 'text-[#94A3B8] hover:text-white'}`}
             >
-              <QrCode size={15} /> Get paid
+              <QrCode size={16} /> Receive KPC
             </button>
           </div>
 
-          {activeTab === "scan" ? (
-            <div className="px-5 pb-6">
-              <h2 className="font-display text-xl font-light tracking-tight text-center">
-                Scan a code
-              </h2>
-              <p className="text-[13px] text-[#A0A0A8] text-center mt-1 mb-5">
-                Point at a KobPay QR to pay it
-              </p>
-
-              {typing || cameraError ? (
-                <div className="bg-[#07070A] border border-[#26262E] rounded-2xl p-5">
-                  {cameraError && !typing && (
-                    <div className="flex gap-3 mb-4">
-                      <CameraOff size={16} className="text-[#A0A0A8] shrink-0 mt-0.5" />
-                      <p className="text-[13px] text-[#A0A0A8] leading-relaxed">
-                        {cameraError}
-                      </p>
-                    </div>
-                  )}
-
-                  <label className="block text-[12px] text-[#A0A0A8] mb-2">
-                    Phone number, @tag or payment link
-                  </label>
-                  <input
-                    value={typed}
-                    onChange={(e) => setTyped(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && route(typed)}
-                    autoFocus
-                    placeholder="233244123456"
-                    className="w-full bg-[#16161C] border border-[#26262E] rounded-lg px-3 py-3 text-sm font-mono text-white placeholder-[#72727A] focus:border-[#C9A84C] outline-none"
-                  />
-                  <button
-                    disabled={resolving || !typed.trim()}
-                    onClick={() => route(typed)}
-                    className="w-full mt-3 py-3.5 bg-[#C9A84C] hover:bg-[#B8963F] disabled:opacity-40 text-[#07070A] font-black font-mono text-[10px] uppercase tracking-[0.2em] rounded-xl flex items-center justify-center gap-2"
-                  >
-                    {resolving && <Loader2 size={13} className="animate-spin" />}
-                    Continue
-                  </button>
-
-                  {cameraError && (
-                    <button
-                      onClick={() => {
-                        setCameraError(null);
-                        setTyping(false);
-                      }}
-                      className="w-full mt-3 text-[9px] font-mono uppercase tracking-[0.15em] text-[#72727A] hover:text-[#A0A0A8]"
-                    >
-                      Try the camera again
-                    </button>
-                  )}
-                  {!cameraError && (
-                    <button
-                      onClick={() => setTyping(false)}
-                      className="w-full mt-3 text-[9px] font-mono uppercase tracking-[0.15em] text-[#72727A] hover:text-[#A0A0A8]"
-                    >
-                      Back to the camera
-                    </button>
-                  )}
-                </div>
-              ) : (
-                <>
-                  <div className="relative rounded-2xl overflow-hidden border border-[#26262E] bg-black aspect-square">
-                    <Scanner
-                      onScan={(result: Array<{ rawValue: string }>) => {
-                        if (result?.[0]?.rawValue) route(result[0].rawValue);
-                      }}
-                      onError={(error: unknown) => setCameraError(describeCameraError(error))}
-                      constraints={{ facingMode: "environment" }}
-                      styles={{ container: { width: "100%", height: "100%" } }}
-                    />
-                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                      <div className="w-2/3 aspect-square border-2 border-[#C9A84C]/70 rounded-2xl" />
-                    </div>
+          <div className="p-8 pt-4 flex-1">
+            <AnimatePresence mode="wait">
+              
+              {/* SCANNER VIEW */}
+              {activeTab === 'scan' && (
+                <motion.div key="scan" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="flex flex-col items-center gap-6">
+                  <div className="text-center space-y-2">
+                    <h2 className="text-xl font-black uppercase tracking-widest text-white">Scan Invoice</h2>
+                    <p className="text-[10px] font-mono text-[#94A3B8] uppercase">Align QR code within the frame to send KPC.</p>
                   </div>
-
-                  {/* Not a fallback for failure — a lot of people would simply
-                      rather type, and a desktop with no camera is normal. */}
-                  <button
-                    onClick={() => setTyping(true)}
-                    className="w-full mt-4 flex items-center justify-center gap-2 py-3 bg-[#26262E] hover:bg-[#33333C] border border-[#33333C] rounded-lg text-[9px] font-mono uppercase tracking-[0.15em] text-[#A0A0A8]"
-                  >
-                    <Keyboard size={13} /> Type it instead
-                  </button>
-                </>
-              )}
-            </div>
-          ) : (
-            <div className="px-5 pb-6">
-              <h2 className="font-display text-xl font-light tracking-tight text-center">
-                Get paid
-              </h2>
-              <p className="text-[13px] text-[#A0A0A8] text-center mt-1 mb-5">
-                Let someone scan this to send you KPC
-              </p>
-
-              {!phone ? (
-                <div className="bg-[#07070A] border border-[#26262E] rounded-2xl p-6 text-center">
-                  <p className="text-[13px] text-[#A0A0A8] leading-relaxed">
-                    Please{" "}
-                    <Link href="/auth" className="text-[#C9A84C] underline">
-                      sign in
-                    </Link>{" "}
-                    to show your code.
-                  </p>
-                </div>
-              ) : (
-                <>
-                  <div className="bg-white p-5 rounded-2xl flex items-center justify-center">
-                    <QRCode value={receiveLink ?? ""} size={200} />
-                  </div>
-
-                  <div className="mt-4">
-                    <label className="block text-[12px] text-[#A0A0A8] mb-2">
-                      Ask for a set amount (optional)
-                    </label>
-                    <input
-                      value={askAmount}
-                      onChange={(e) => setAskAmount(e.target.value)}
-                      inputMode="decimal"
-                      placeholder="Any amount"
-                      className="w-full bg-[#07070A] border border-[#26262E] rounded-lg px-3 py-3 text-sm font-mono text-white placeholder-[#72727A] focus:border-[#2ECC71] outline-none text-center"
-                    />
-                  </div>
-
-                  <p className="text-[13px] text-[#A0A0A8] text-center mt-4">
-                    {phone.startsWith("+") ? phone : `+${phone}`}
-                  </p>
-
-                  <button
-                    onClick={handleCopy}
-                    className="w-full mt-3 flex items-center justify-center gap-2 py-3 bg-[#26262E] hover:bg-[#33333C] border border-[#33333C] rounded-lg text-[9px] font-mono uppercase tracking-[0.15em] text-[#A0A0A8]"
-                  >
-                    {copied ? (
-                      <>
-                        <CheckCircle2 size={13} className="text-[#2ECC71]" /> Copied
-                      </>
+                  
+                  {/* CAMERA FRAME W/ ERROR HANDLING */}
+                  <div className="w-full aspect-square bg-[#0A0E14] border-2 border-[#1F2937] rounded-3xl overflow-hidden relative shadow-inner flex items-center justify-center">
+                    {cameraError ? (
+                      <div className="flex flex-col items-center justify-center p-6 text-center z-20">
+                        <div className="w-12 h-12 rounded-full bg-[#EF4444]/10 flex items-center justify-center mb-3 border border-[#EF4444]/20">
+                          <X size={20} className="text-[#EF4444]" />
+                        </div>
+                        <span className="text-[10px] font-mono text-[#EF4444] uppercase tracking-widest leading-relaxed">
+                          {cameraError}
+                        </span>
+                      </div>
                     ) : (
                       <>
-                        <Copy size={13} /> Copy link
+                        <Scanner 
+                          onScan={(result: any[]) => handleScan(result[0].rawValue)}
+                          onError={(err: unknown) => {
+                            const error = err as Error;
+                            if (error.name === 'NotFoundError') setCameraError("No camera detected on this device.");
+                            else if (error.name === 'NotAllowedError') setCameraError("Camera access denied.");
+                            else setCameraError("Camera currently unavailable.");
+                          }}
+                          components={{ finder: false }}
+                        />
+                        {/* UI Overlay for Scanner */}
+                        <div className="absolute inset-0 border-[3px] border-[#FDB813]/50 m-8 rounded-xl rounded-tl-[2rem] rounded-br-[2rem] pointer-events-none" />
                       </>
                     )}
-                  </button>
+                  </div>
 
-                  <Link
-                    href="/merchant"
-                    className="block text-center text-[9px] font-mono uppercase tracking-[0.15em] text-[#72727A] hover:text-[#C9A84C] mt-4"
-                  >
-                    Taking payments for a business? Make a payment link
-                  </Link>
-                </>
+                  {scanResult ? (
+                    <div className="w-full bg-[#0A0E14] border border-[#FDB813]/30 p-4 rounded-xl flex flex-col gap-3">
+                      <span className="text-[9px] font-mono text-[#FDB813] tracking-widest uppercase">Target Address Detected</span>
+                      <span className="font-mono text-xs text-white truncate">{scanResult}</span>
+                      <button
+                        onClick={() => toast('Payment execution is not yet live — this is a preview build.', {
+                          icon: '🚧',
+                          style: { background: '#111827', color: '#fff', border: '1px solid #FDB813', fontSize: '12px', fontFamily: 'monospace' }
+                        })}
+                        className="w-full py-3 bg-[#FDB813] text-[#0A0E14] font-black font-mono text-[10px] uppercase rounded-lg shadow-lg hover:bg-[#F59E0B] transition-all flex items-center justify-center gap-2"
+                      >
+                        Proceed to Payment <Zap size={14} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-[10px] font-mono text-[#94A3B8] animate-pulse uppercase tracking-widest">
+                      {!cameraError && <Loader2 size={12} className="animate-spin" />} 
+                      {cameraError ? "Awaiting Camera Connection..." : "Waiting for network data..."}
+                    </div>
+                  )}
+                </motion.div>
               )}
-            </div>
-          )}
+
+              {/* RECEIVE VIEW */}
+              {activeTab === 'receive' && (
+                <motion.div key="receive" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col items-center gap-8">
+                  <div className="text-center space-y-2">
+                    <h2 className="text-xl font-black uppercase tracking-widest text-white">Your Sovereign Code</h2>
+                    <p className="text-[10px] font-mono text-[#94A3B8] uppercase">Scan this code to receive KPC instantly.</p>
+                  </div>
+
+                  <div className="bg-white p-4 rounded-3xl shadow-[0_0_40px_rgba(16,185,129,0.15)] border-4 border-[#10B981]/20">
+                    <QRCode value={sovereignAddress} size={200} level="H" fgColor="#0A0E14" />
+                  </div>
+
+                  <div className="w-full space-y-3">
+                    <span className="text-[9px] font-mono text-[#94A3B8] tracking-widest uppercase pl-2">Wallet Address</span>
+                    <button onClick={handleCopy} className="w-full bg-[#0A0E14] border border-[#1F2937] p-4 rounded-xl flex items-center justify-between group hover:border-[#10B981]/50 transition-all">
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        <Wallet size={16} className="text-[#10B981] shrink-0" />
+                        <span className="font-mono text-xs text-white truncate">{sovereignAddress}</span>
+                      </div>
+                      {copied ? <CheckCircle2 size={16} className="text-[#10B981] shrink-0" /> : <Copy size={16} className="text-[#94A3B8] group-hover:text-white shrink-0 transition-colors" />}
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
+            </AnimatePresence>
+          </div>
         </div>
       </main>
     </div>

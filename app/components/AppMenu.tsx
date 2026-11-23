@@ -4,12 +4,13 @@ import React, { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Menu, X, Wallet, Send, PiggyBank, LineChart, Users, ShieldCheck, Gauge,
-  Receipt, ShoppingCart, Store, TrendingUp, Activity, Scale, LayoutDashboard, HandCoins,
-  CreditCard, Globe, Bitcoin,
-} from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
+import {
+  NAV_GROUPS, NAV_HOME, NAV_AGENT, NAV_STAFF, navLabel, type NavItemDef,
+} from "../lib/nav";
+import { readLang, onLangChange } from "../lib/lang";
+import type { LanguageCode } from "../translations";
 
 // THE MENU ONLY EXISTED ON THE DASHBOARD.
 //
@@ -19,56 +20,19 @@ import { supabase } from "../lib/supabaseClient";
 //
 // Rather than lift the sidebar out of ClientDashboard (760 lines, and its
 // state is tangled with the landing page), this is a small slide-over that
-// carries the same grouped links and drops into any page header with one
-// line. ClientDashboard keeps its own sidebar on wide screens; this is what
-// every other page gets.
-
-type Item = { label: string; href: string; icon: React.ReactNode };
-
-const GROUPS: { group: string; items: Item[] }[] = [
-  {
-    group: "Money",
-    items: [
-      { label: "Wallet", href: "/wallet", icon: <Wallet size={16} /> },
-      { label: "Send", href: "/send", icon: <Send size={16} /> },
-      // Next to Send, because that is what someone is looking for when they
-      // want to get money to a person who is not on KobPay.
-      { label: "Send Abroad", href: "/send-abroad", icon: <Globe size={16} /> },
-      { label: "Cards", href: "/cards", icon: <CreditCard size={16} /> },
-      { label: "Savings", href: "/savings", icon: <PiggyBank size={16} /> },
-      { label: "Invest", href: "/invest", icon: <LineChart size={16} /> },
-      // Beside Invest rather than under Paying: both are turning a balance
-      // into something you hold.
-      { label: "Buy Crypto", href: "/buy-crypto", icon: <Bitcoin size={16} /> },
-      { label: "Circles", href: "/circles", icon: <Users size={16} /> },
-      { label: "Limits", href: "/limits", icon: <ShieldCheck size={16} /> },
-      { label: "Score", href: "/score", icon: <Gauge size={16} /> },
-      { label: "Borrow", href: "/loans", icon: <HandCoins size={16} /> },
-      { label: "Activity", href: "/activity", icon: <Receipt size={16} /> },
-    ],
-  },
-  {
-    group: "Paying",
-    items: [
-      { label: "Pay with KPC", href: "/pay", icon: <ShoppingCart size={16} /> },
-      { label: "Safe Send", href: "/safe", icon: <ShieldCheck size={16} /> },
-      { label: "Take Payments", href: "/merchant", icon: <Store size={16} /> },
-    ],
-  },
-  {
-    group: "Network",
-    items: [
-      { label: "Markets", href: "/markets", icon: <TrendingUp size={16} /> },
-      { label: "Ledger", href: "/explorer", icon: <Activity size={16} /> },
-    ],
-  },
-];
+// carries the same links and drops into any page header with one line.
+// ClientDashboard keeps its own sidebar on wide screens; this is what every
+// other page gets.
+//
+// The links themselves now come from app/lib/nav.ts, which both screens read.
+// They used to be two hand-kept copies and had drifted twice.
 
 export default function AppMenu() {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isStaff, setIsStaff] = useState(false);
   const [isAgent, setIsAgent] = useState(false);
+  const [lang, setLang] = useState<LanguageCode>("en");
   const pathname = usePathname();
 
   // The panel has to be portalled to <body>.
@@ -81,6 +45,14 @@ export default function AppMenu() {
   // ancestors do the same thing, so this cannot be fixed by styling the
   // overlay — it has to escape the subtree.
   useEffect(() => setMounted(true), []);
+
+  // Read on the client only. Doing it in the initial useState would run
+  // during the server render, where there is no window, and would also hand
+  // React a first client render that disagrees with the markup it hydrates.
+  useEffect(() => {
+    setLang(readLang());
+    return onLangChange(setLang);
+  }, []);
 
   // Same lesson as /score: wait for the session before calling an RPC that
   // anon is not allowed to run, or it goes out as anon and fails.
@@ -105,6 +77,12 @@ export default function AppMenu() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, close]);
+
+  const groups = [
+    ...NAV_GROUPS,
+    ...(isAgent ? [NAV_AGENT] : []),
+    ...(isStaff ? [NAV_STAFF] : []),
+  ];
 
   return (
     <>
@@ -148,12 +126,8 @@ export default function AppMenu() {
             </div>
 
             <div className="p-3 pb-8 space-y-0.5">
-              <Row
-                item={{ label: "Dashboard", href: "/", icon: <LayoutDashboard size={16} /> }}
-                active={pathname === "/"}
-                onClick={close}
-              />
-              {GROUPS.map((g) => (
+              <Row item={NAV_HOME} lang={lang} active={pathname === "/"} onClick={close} />
+              {groups.map((g) => (
                 <div key={g.group}>
                   <p className="text-[8px] font-mono text-[#72727A] uppercase tracking-[0.25em] px-3 pt-4 pb-1.5">
                     {g.group}
@@ -162,38 +136,13 @@ export default function AppMenu() {
                     <Row
                       key={it.href}
                       item={it}
+                      lang={lang}
                       active={pathname === it.href}
                       onClick={close}
                     />
                   ))}
                 </div>
               ))}
-              {isAgent && (
-                <div>
-                  <p className="text-[8px] font-mono text-[#72727A] uppercase tracking-[0.25em] px-3 pt-4 pb-1.5">
-                    Agent
-                  </p>
-                  <Row
-                    item={{ label: "Till", href: "/agent", icon: <Store size={16} /> }}
-                    active={pathname === "/agent"}
-                    onClick={close}
-                  />
-                </div>
-              )}
-              {/* Only for staff, gated on the same am_i_staff() the admin
-                  readers use, so this never shows a door that will not open. */}
-              {isStaff && (
-                <div>
-                  <p className="text-[8px] font-mono text-[#72727A] uppercase tracking-[0.25em] px-3 pt-4 pb-1.5">
-                    Staff
-                  </p>
-                  <Row
-                    item={{ label: "Operations", href: "/admin", icon: <Scale size={16} /> }}
-                    active={pathname === "/admin"}
-                    onClick={close}
-                  />
-                </div>
-              )}
             </div>
           </nav>
         </div>,
@@ -203,7 +152,15 @@ export default function AppMenu() {
   );
 }
 
-function Row({ item, active, onClick }: { item: Item; active: boolean; onClick: () => void }) {
+function Row({
+  item, lang, active, onClick,
+}: {
+  item: NavItemDef;
+  lang: LanguageCode;
+  active: boolean;
+  onClick: () => void;
+}) {
+  const Icon = item.icon;
   return (
     <Link
       href={item.href}
@@ -214,8 +171,8 @@ function Row({ item, active, onClick }: { item: Item; active: boolean; onClick: 
           : "text-[#A0A0A8] hover:text-white hover:bg-[#26262E] border border-transparent"
       }`}
     >
-      <span className="shrink-0">{item.icon}</span>
-      <span className="truncate">{item.label}</span>
+      <span className="shrink-0"><Icon size={16} /></span>
+      <span className="truncate">{navLabel(item, lang)}</span>
     </Link>
   );
 }

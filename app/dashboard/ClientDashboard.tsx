@@ -22,6 +22,8 @@ import {
 import toast, { Toaster } from 'react-hot-toast';
 import BuyKpcModal from '../components/BuyKpcModal';
 import { supabase } from '../lib/supabaseClient';
+import { NAV_AGENT, NAV_GROUPS, NAV_HOME, NAV_STAFF, navLabel } from '../lib/nav';
+import { readLang, writeLang, onLangChange } from '../lib/lang';
 
 // Loaded only when this component renders, in its own chunk. ssr:false
 // because wagmi and rainbowkit reach for window during render, and because
@@ -191,11 +193,18 @@ export default function KPCSovereignDashboard() {
   // use, so this can never show a door that will not open — and the page
   // enforces it server-side regardless of what the client believes.
   const [isStaff, setIsStaff] = useState(false);
+  // The agent's till. AppMenu already showed it and this sidebar did not, so
+  // an agent looking at the dashboard had no way to reach their own till —
+  // the third instance of the two nav lists disagreeing. my_agent() answers
+  // is_agent:false for everyone else.
+  const [isAgent, setIsAgent] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (!data.session) return;
       supabase.rpc("am_i_staff").then(({ data: staff }) => setIsStaff(Boolean(staff)));
+      supabase.rpc("my_agent").then(({ data: ag }) =>
+        setIsAgent(Boolean((ag as { is_agent?: boolean } | null)?.is_agent)));
     });
   }, []);
   const [activeDrawer, setActiveDrawer] = useState<string | null>(null);
@@ -306,9 +315,28 @@ export default function KPCSovereignDashboard() {
     return [...staticTickerItems, ...live];
   }, [networkStats]);
 
+  // 'en' until the client has read the stored choice. Reading localStorage in
+  // the initial state would run during the server render, where there is no
+  // window, and would hand React a first client render that disagrees with
+  // the markup it hydrates.
   const [currentLang, setCurrentLang] = useState<LanguageCode>('en');
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const t = translations[currentLang];
+
+  // The choice used to live only in the state above, so it lasted until the
+  // next navigation and the slide-over menu beside this sidebar could never
+  // know about it — a Spanish customer read "Billetera" here and "Wallet"
+  // there. chooseLang persists it and tells the rest of the page.
+  useEffect(() => {
+    setCurrentLang(readLang());
+    return onLangChange(setCurrentLang);
+  }, []);
+
+  const chooseLang = (lang: LanguageCode) => {
+    setCurrentLang(lang);
+    writeLang(lang);
+    setIsLangMenuOpen(false);
+  };
 
   // REMOVED: a 12-second poll of a public Ethereum RPC that, on every tick,
   // did this to the figures 025 had just made honest —
@@ -447,49 +475,41 @@ export default function KPCSovereignDashboard() {
             {/* Grouped, because a flat list of fifteen is a list nobody
                 reads. The money features were previously reachable only from
                 /wallet, which orphaned Savings, Invest, Circles, Safe Send,
-                Activity and Take Payments behind a single page. */}
-            <NavItem icon={<LayoutDashboard size={18} />} label={t.dashboard} href="/" active={pathname === '/'} onClick={() => setIsMobileMenuOpen(false)} />
+                Activity and Take Payments behind a single page.
 
-            <NavGroup label="Money" />
-            <NavItem icon={<Wallet size={18} />} label={t.wallet} href="/wallet" active={pathname === '/wallet'} onClick={() => setIsMobileMenuOpen(false)} />
-            <NavItem icon={<Send size={18} />} label={t.send} href="/send" active={pathname === '/send'} onClick={() => setIsMobileMenuOpen(false)} />
-            {/* This list and the one in AppMenu are two copies of the same
-                nav, and they had already drifted before tonight: Cards was in
-                AppMenu and missing here, so a customer on the dashboard had
-                no way to reach it. Adding Send Abroad and Buy Crypto to
-                AppMenu alone repeated that — the dashboard is the page most
-                people are looking at. Both lists now carry the same entries
-                in the same order. They should be one list; see the note by
-                NavItem. */}
-            <NavItem icon={<Globe size={18} />} label="Send Abroad" href="/send-abroad" active={pathname === '/send-abroad'} onClick={() => setIsMobileMenuOpen(false)} />
-            <NavItem icon={<CreditCard size={18} />} label="Cards" href="/cards" active={pathname === '/cards'} onClick={() => setIsMobileMenuOpen(false)} />
-            <NavItem icon={<PiggyBank size={18} />} label={t.savings} href="/savings" active={pathname === '/savings'} onClick={() => setIsMobileMenuOpen(false)} />
-            <NavItem icon={<LineChartIcon size={18} />} label={t.invest} href="/invest" active={pathname === '/invest'} onClick={() => setIsMobileMenuOpen(false)} />
-            <NavItem icon={<Bitcoin size={18} />} label="Buy Crypto" href="/buy-crypto" active={pathname === '/buy-crypto'} onClick={() => setIsMobileMenuOpen(false)} />
-            <NavItem icon={<Users size={18} />} label={t.circles} href="/circles" active={pathname === '/circles'} onClick={() => setIsMobileMenuOpen(false)} />
-            <NavItem icon={<ShieldCheck size={18} />} label="Limits" href="/limits" active={pathname === '/limits'} onClick={() => setIsMobileMenuOpen(false)} />
-            <NavItem icon={<Gauge size={18} />} label="Score" href="/score" active={pathname === '/score'} onClick={() => setIsMobileMenuOpen(false)} />
-            <NavItem icon={<HandCoins size={18} />} label="Borrow" href="/loans" active={pathname === '/loans'} onClick={() => setIsMobileMenuOpen(false)} />
-            <NavItem icon={<Receipt size={18} />} label={t.activity} href="/activity" active={pathname === '/activity'} onClick={() => setIsMobileMenuOpen(false)} />
+                The entries themselves live in app/lib/nav.ts and are read by
+                this sidebar and by the AppMenu slide-over. They used to be
+                two hand-kept copies and drifted twice: Cards was added to
+                AppMenu and not here, so the page most people are looking at
+                had no way to reach it, and Send Abroad and Buy Crypto then
+                did the same thing in reverse. */}
+            <NavItem
+              icon={<NAV_HOME.icon size={18} />}
+              label={navLabel(NAV_HOME, currentLang)}
+              href={NAV_HOME.href}
+              active={pathname === NAV_HOME.href}
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
 
-            <NavGroup label="Paying" />
-            <NavItem icon={<ShoppingCart size={18} />} label={t.pay} href="/pay" active={pathname === '/pay'} onClick={() => setIsMobileMenuOpen(false)} />
-            <NavItem icon={<ShieldCheck size={18} />} label={t.safe} href="/safe" active={pathname === '/safe'} onClick={() => setIsMobileMenuOpen(false)} />
-            <NavItem icon={<Store size={18} />} label={t.merchant} href="/merchant" active={pathname === '/merchant'} onClick={() => setIsMobileMenuOpen(false)} />
-
-            <NavGroup label="Network" />
-            <NavItem icon={<TrendingUp size={18} />} label={t.markets} href="/markets" active={pathname === '/markets'} onClick={() => setIsMobileMenuOpen(false)} />
-            <NavItem icon={<Activity size={18} />} label="Ledger" href="/explorer" active={pathname === '/explorer'} onClick={() => setIsMobileMenuOpen(false)} />
-
-            {/* Only rendered for staff. am_i_staff() is the same gate the
-                admin readers use, so this cannot show a door that will not
-                open. */}
-            {isStaff && (
-              <>
-                <NavGroup label="Staff" />
-                <NavItem icon={<Scale size={18} />} label={t.operations} href="/admin" active={pathname === '/admin'} onClick={() => setIsMobileMenuOpen(false)} />
-              </>
-            )}
+            {[
+              ...NAV_GROUPS,
+              ...(isAgent ? [NAV_AGENT] : []),
+              ...(isStaff ? [NAV_STAFF] : []),
+            ].map((g) => (
+              <React.Fragment key={g.group}>
+                <NavGroup label={g.group} />
+                {g.items.map((it) => (
+                  <NavItem
+                    key={it.href}
+                    icon={<it.icon size={18} />}
+                    label={navLabel(it, currentLang)}
+                    href={it.href}
+                    active={pathname === it.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  />
+                ))}
+              </React.Fragment>
+            ))}
           </nav>
         </div>
       </aside>
@@ -539,12 +559,12 @@ export default function KPCSovereignDashboard() {
                     exit={{ opacity: 0, y: -10 }}
                     className="absolute right-0 mt-2 w-32 bg-[#16161C] border border-[#26262E] rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.8)] overflow-hidden z-50 flex flex-col"
                   >
-                    <button onClick={() => { setCurrentLang('en'); setIsLangMenuOpen(false); }} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#26262E] transition-colors ${currentLang === 'en' ? 'text-[#C9A84C]' : 'text-white'}`}>English</button>
-                    <button onClick={() => { setCurrentLang('es'); setIsLangMenuOpen(false); }} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#26262E] transition-colors border-t border-[#26262E] ${currentLang === 'es' ? 'text-[#C9A84C]' : 'text-white'}`}>Español</button>
-                    <button onClick={() => { setCurrentLang('fr'); setIsLangMenuOpen(false); }} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#26262E] transition-colors border-t border-[#26262E] ${currentLang === 'fr' ? 'text-[#C9A84C]' : 'text-white'}`}>Français</button>
-                    <button onClick={() => { setCurrentLang('pt'); setIsLangMenuOpen(false); }} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#26262E] transition-colors border-t border-[#26262E] ${currentLang === 'pt' ? 'text-[#C9A84C]' : 'text-white'}`}>Português</button>
-                    <button onClick={() => { setCurrentLang('zh'); setIsLangMenuOpen(false); }} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#26262E] transition-colors border-t border-[#26262E] ${currentLang === 'zh' ? 'text-[#C9A84C]' : 'text-white'}`}>简体中文</button>
-                    <button onClick={() => { setCurrentLang('ja'); setIsLangMenuOpen(false); }} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#26262E] transition-colors border-t border-[#26262E] ${currentLang === 'ja' ? 'text-[#C9A84C]' : 'text-white'}`}>日本語</button>
+                    <button onClick={() => chooseLang('en')} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#26262E] transition-colors ${currentLang === 'en' ? 'text-[#C9A84C]' : 'text-white'}`}>English</button>
+                    <button onClick={() => chooseLang('es')} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#26262E] transition-colors border-t border-[#26262E] ${currentLang === 'es' ? 'text-[#C9A84C]' : 'text-white'}`}>Español</button>
+                    <button onClick={() => chooseLang('fr')} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#26262E] transition-colors border-t border-[#26262E] ${currentLang === 'fr' ? 'text-[#C9A84C]' : 'text-white'}`}>Français</button>
+                    <button onClick={() => chooseLang('pt')} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#26262E] transition-colors border-t border-[#26262E] ${currentLang === 'pt' ? 'text-[#C9A84C]' : 'text-white'}`}>Português</button>
+                    <button onClick={() => chooseLang('zh')} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#26262E] transition-colors border-t border-[#26262E] ${currentLang === 'zh' ? 'text-[#C9A84C]' : 'text-white'}`}>简体中文</button>
+                    <button onClick={() => chooseLang('ja')} className={`px-4 py-3 text-left text-xs font-mono tracking-widest hover:bg-[#26262E] transition-colors border-t border-[#26262E] ${currentLang === 'ja' ? 'text-[#C9A84C]' : 'text-white'}`}>日本語</button>
                   </motion.div>
                 )}
               </AnimatePresence>

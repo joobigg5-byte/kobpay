@@ -1,0 +1,1309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Try KobPay</title>
+<meta name="description" content="A walk through KobPay: tap the product or read the guide. Either can be read aloud.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F5F2EC">
+<meta property="og:title" content="Try KobPay">
+<meta property="og:description" content="Tap through the product, or read the guide.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap">
+
+</head>
+<body>
+<style>
+/* Two ways through the same material: a phone you tap, or the guide you read.
+   One narrator reads whichever is open, so an investor can listen while they
+   look. */
+:root {
+  --paper: #F2EFE9; --paper-2: #E8E3D9; --ink-text: #1A1814; --ink-soft: #5E584D;
+  --rule: rgba(26,24,20,0.12); --gold-text: #8A6D1F;
+
+  /* The phone screen never changes theme: it is a photograph of a dark app,
+     and these are the app's own values. */
+  --app-ink: #07070A; --app-card: #1A1A22; --app-card-2: #14141A;
+  --app-white: #F5F2EC; --app-silver: #A0A0A8; --app-muted: #72727A;
+  --app-gold: #C9A84C; --app-gold-2: #E8C97A;
+  --app-line: rgba(255,255,255,0.065); --app-goldln: rgba(201,168,76,0.22);
+  --app-good: #2ECC71; --app-bad: #E74C3C; --app-blue: #8FB8D4;
+
+  --display: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'Syne', system-ui, -apple-system, sans-serif;
+  --mono: 'DM Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #15140F; --paper-2: #1E1C16; --ink-text: #EDE8DC;
+    --ink-soft: #A49C8A; --rule: rgba(237,232,220,0.14); --gold-text: #D8B960;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #15140F; --paper-2: #1E1C16; --ink-text: #EDE8DC;
+  --ink-soft: #A49C8A; --rule: rgba(237,232,220,0.14); --gold-text: #D8B960;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--paper); color: var(--ink-text); font-family: var(--sans); margin: 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 72px; line-height: 1.55; -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 480px; margin: 0 auto; }
+
+h1 { font-family: var(--display); font-weight: 300; font-size: clamp(2rem, 8.5vw, 2.8rem); letter-spacing: -0.015em; line-height: 1.05; margin: 0 0 8px; text-wrap: balance; }
+h1 em { font-style: normal; color: var(--gold-text); }
+.standfirst { font-size: 0.93rem; color: var(--ink-soft); margin: 0 0 18px; max-width: 40ch; }
+
+/* ---- mode switch + narrator ---- */
+.modebar { display: flex; gap: 8px; align-items: center; margin-bottom: 18px; flex-wrap: wrap; }
+.mode { display: flex; background: var(--paper-2); border: 1px solid var(--rule); border-radius: 99px; padding: 3px; }
+.mode button {
+  background: none; border: none; cursor: pointer; padding: 8px 16px; border-radius: 99px;
+  font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-soft);
+}
+.mode button[aria-current="true"] { background: var(--ink-text); color: var(--paper); }
+.listen {
+  display: inline-flex; align-items: center; gap: 7px; cursor: pointer; margin-left: auto;
+  background: none; border: 1px solid var(--rule); border-radius: 99px; padding: 8px 14px;
+  font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-soft);
+}
+.listen:hover { color: var(--ink-text); border-color: var(--gold-text); }
+.listen[aria-pressed="true"] { background: var(--gold-text); color: var(--paper); border-color: var(--gold-text); }
+.listen svg { width: 13px; height: 13px; fill: currentColor; }
+
+/* ---- chapters ---- */
+.chapters { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 22px; }
+.chapters button {
+  font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.09em;
+  padding: 6px 10px; border-radius: 99px; cursor: pointer; background: transparent;
+  color: var(--ink-soft); border: 1px solid var(--rule);
+}
+.chapters button:hover { color: var(--ink-text); }
+.chapters button[aria-current="true"] { background: var(--ink-text); color: var(--paper); border-color: var(--ink-text); }
+
+/* ---- phone ---- */
+.phone {
+  width: 100%; max-width: 360px; margin: 0 auto; aspect-ratio: 360 / 740;
+  background: var(--app-ink); border-radius: 34px; border: 1px solid var(--rule);
+  box-shadow: 0 24px 60px -24px rgba(0,0,0,0.5), 0 2px 0 rgba(255,255,255,0.04) inset;
+  overflow: hidden; display: flex; flex-direction: column; color: var(--app-white);
+}
+.status { flex: 0 0 auto; display: flex; justify-content: space-between; padding: 12px 20px 4px; font-family: var(--mono); font-size: 10px; color: var(--app-silver); letter-spacing: 0.06em; }
+.status .dots { display: flex; gap: 3px; align-items: center; }
+.status .dots i { width: 3px; height: 3px; border-radius: 50%; background: var(--app-silver); display: block; }
+.screen { flex: 1 1 auto; overflow-y: auto; padding: 10px 20px 14px; }
+.screen::-webkit-scrollbar { width: 0; }
+
+.greet { font-family: var(--display); font-size: 1.5rem; font-weight: 300; margin: 6px 0 2px; }
+.greet em { font-style: normal; color: var(--app-gold); }
+.datel { font-family: var(--mono); font-size: 9px; color: var(--app-muted); letter-spacing: 0.1em; margin-bottom: 14px; }
+.lbl { font-family: var(--mono); font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.24em; color: var(--app-muted); margin-bottom: 8px; }
+
+.balcard { background: var(--app-card); border: 1px solid var(--app-line); border-radius: 16px; padding: 16px; margin-bottom: 10px; }
+.figure { font-family: var(--display); font-weight: 300; letter-spacing: -0.02em; line-height: 1; color: var(--app-gold); font-size: 2.9rem; font-variant-numeric: tabular-nums; }
+.figure .frac { font-size: 0.6em; }
+.figure-unit { font-family: var(--display); font-weight: 300; font-size: 1.4rem; color: var(--app-white); margin-left: 7px; }
+.usd { font-family: var(--mono); font-size: 10px; color: var(--app-muted); margin-top: 7px; }
+
+.actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 16px; }
+.act { background: var(--app-card-2); border: 1px solid var(--app-line); color: var(--app-silver); border-radius: 10px; padding: 9px 2px; font-family: var(--mono); font-size: 7.5px; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; font-weight: 500; }
+.act:hover, .act:focus-visible { border-color: var(--app-goldln); color: var(--app-white); outline: none; }
+.act.primary { background: var(--app-gold); color: var(--app-ink); border-color: var(--app-gold); font-weight: 700; }
+.act svg { width: 13px; height: 13px; stroke-width: 2; fill: none; }
+
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.tile { background: var(--app-card); border: 1px solid var(--app-line); border-radius: 12px; padding: 12px; text-align: left; width: 100%; cursor: pointer; color: inherit; font: inherit; }
+.tile:hover { border-color: var(--app-goldln); }
+.tile .v { font-family: var(--display); font-size: 1.4rem; font-weight: 300; font-variant-numeric: tabular-nums; }
+.tile .k { font-family: var(--mono); font-size: 7.5px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--app-muted); margin-bottom: 3px; }
+
+.field { margin-bottom: 13px; }
+.inp { width: 100%; background: var(--app-card-2); border: 1px solid var(--app-line); border-radius: 11px; padding: 12px 13px; color: var(--app-white); font-family: var(--mono); font-size: 14px; }
+.inp:focus { outline: none; border-color: var(--app-goldln); }
+.inp::placeholder { color: #4A4A52; }
+
+.btn { width: 100%; background: var(--app-gold); color: var(--app-ink); border: none; border-radius: 11px; padding: 13px; font-family: var(--mono); font-weight: 700; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.16em; cursor: pointer; }
+.btn:hover { background: var(--app-gold-2); }
+.btn[disabled] { opacity: 0.35; cursor: default; }
+.btn.ghost { background: transparent; color: var(--app-silver); border: 1px solid var(--app-line); font-weight: 400; }
+.btn.ghost:hover { color: var(--app-white); border-color: var(--app-goldln); }
+.btn.sm { padding: 9px 8px; font-size: 8.5px; letter-spacing: 0.1em; }
+
+.who { background: var(--app-card); border: 1px solid var(--app-goldln); border-radius: 12px; padding: 13px; margin-bottom: 13px; display: flex; gap: 11px; align-items: center; }
+.avatar { width: 34px; height: 34px; border-radius: 50%; flex: 0 0 auto; background: linear-gradient(135deg, var(--app-gold-2), #AA771C); color: var(--app-ink); display: grid; place-items: center; font-weight: 800; font-size: 12px; }
+.who .nm { font-weight: 700; font-size: 13px; }
+.who .ph { font-family: var(--mono); font-size: 10px; color: var(--app-muted); }
+
+.warn { font-size: 10.5px; color: var(--app-silver); line-height: 1.55; background: rgba(201,168,76,0.06); border: 1px solid var(--app-goldln); border-radius: 10px; padding: 11px; margin-bottom: 13px; }
+.warn.bad { background: rgba(231,76,60,0.08); border-color: rgba(231,76,60,0.3); }
+.warn.good { background: rgba(46,204,113,0.07); border-color: rgba(46,204,113,0.25); }
+
+.rowline { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--app-line); }
+.rowline:last-of-type { border-bottom: none; }
+.rowline .k { font-family: var(--mono); font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--app-muted); }
+.rowline .v { font-family: var(--mono); font-size: 12.5px; font-variant-numeric: tabular-nums; text-align: right; }
+.rowline .v.free { color: var(--app-good); }
+.rowline .v.big { font-family: var(--display); font-size: 1.4rem; }
+
+.done { text-align: center; padding: 34px 0 16px; }
+.tick { width: 54px; height: 54px; border-radius: 50%; margin: 0 auto 16px; border: 1.5px solid var(--app-good); display: grid; place-items: center; animation: pop 0.4s cubic-bezier(.2,.9,.3,1.3); }
+.tick.bad { border-color: var(--app-bad); }
+@keyframes pop { from { transform: scale(0.5); opacity: 0 } }
+.tick svg { width: 22px; height: 22px; stroke: var(--app-good); stroke-width: 2.5; fill: none; }
+.tick.bad svg { stroke: var(--app-bad); }
+.done .big { font-family: var(--display); font-size: 1.9rem; font-weight: 300; }
+.done .sub { font-family: var(--mono); font-size: 9.5px; color: var(--app-muted); letter-spacing: 0.08em; margin-top: 5px; }
+
+.qrbox { background: var(--app-white); border-radius: 14px; padding: 14px; width: 164px; margin: 4px auto 12px; }
+.qr { display: grid; grid-template-columns: repeat(21, 1fr); aspect-ratio: 1; }
+.qr i { display: block; background: transparent; }
+.qr i.on { background: #07070A; }
+
+.segment { display: grid; gap: 4px; background: var(--app-card-2); border: 1px solid var(--app-line); border-radius: 11px; padding: 4px; margin-bottom: 14px; }
+.segment.c3 { grid-template-columns: repeat(3, 1fr); }
+.segment.c2 { grid-template-columns: repeat(2, 1fr); }
+.segment button { background: none; border: none; cursor: pointer; padding: 8px 2px; border-radius: 8px; font-family: var(--mono); font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--app-muted); }
+.segment button[aria-current="true"] { background: var(--app-gold); color: var(--app-ink); font-weight: 700; }
+
+.cardface { aspect-ratio: 1.586; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid var(--app-goldln); background: linear-gradient(135deg, #1A1A22 0%, #0E0E14 45%, #231d0e 100%); position: relative; overflow: hidden; margin-bottom: 10px; }
+.cardface::after { content: ""; position: absolute; inset: 0; opacity: 0.07; background: linear-gradient(115deg, transparent 30%, #FFF0A8 50%, transparent 70%); }
+.cardface.frozen { border-color: rgba(34,211,238,0.35); filter: grayscale(0.45) brightness(0.8); }
+.cardface .brand { font-family: var(--display); font-size: 0.9rem; letter-spacing: 0.2em; }
+.cardface .brand b { color: var(--app-gold); font-weight: 400; }
+.chip { width: 29px; height: 21px; border-radius: 4px; background: linear-gradient(135deg, var(--app-gold-2), #AA771C); position: relative; }
+.chip::before { content: ""; position: absolute; inset: 7px 4px; border-top: 1px solid rgba(7,7,10,0.35); border-bottom: 1px solid rgba(7,7,10,0.35); }
+.cardface .num { font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.09em; }
+.cardface .foot { display: flex; justify-content: space-between; align-items: flex-end; }
+.cardface .foot .t { font-family: var(--mono); font-size: 7px; letter-spacing: 0.15em; color: var(--app-muted); text-transform: uppercase; }
+
+.bar { height: 5px; background: var(--app-ink); border: 1px solid var(--app-line); border-radius: 99px; overflow: hidden; }
+.bar > span { display: block; height: 100%; background: var(--app-gold); }
+.bar.good > span { background: var(--app-good); }
+
+.pill { font-family: var(--mono); font-size: 7.5px; text-transform: uppercase; letter-spacing: 0.13em; padding: 3px 7px; border-radius: 99px; background: rgba(255,255,255,0.06); color: var(--app-silver); }
+.pill.on { background: rgba(46,204,113,0.12); color: var(--app-good); }
+.pill.cold { background: rgba(34,211,238,0.12); color: var(--app-blue); }
+.pill.bad { background: rgba(231,76,60,0.12); color: var(--app-bad); }
+
+.fp { display: grid; place-items: center; padding: 20px 0 10px; }
+.fpring { width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; border: 1.5px solid var(--app-goldln); cursor: pointer; position: relative; }
+.fpring svg { width: 38px; height: 38px; stroke: var(--app-gold); fill: none; stroke-width: 1.4; }
+.fpring::before { content: ""; position: absolute; inset: -7px; border-radius: 50%; border: 1px solid var(--app-goldln); opacity: 0; }
+.fpring.scanning::before { animation: ring 1s ease-out infinite; }
+@keyframes ring { from { opacity: 0.8; transform: scale(0.9) } to { opacity: 0; transform: scale(1.18) } }
+.fpring.ok { border-color: var(--app-good); }
+.fpring.ok svg { stroke: var(--app-good); }
+
+.browser { border: 1px solid var(--app-line); border-radius: 12px; overflow: hidden; margin-bottom: 13px; }
+.browser .bar2 { background: #22222A; padding: 7px 10px; font-family: var(--mono); font-size: 8.5px; color: var(--app-muted); }
+.browser .body2 { background: #F4F4F6; color: #15151A; padding: 13px; }
+.browser h4 { margin: 0 0 2px; font-size: 13px; font-weight: 800; }
+.browser .price { font-family: var(--display); font-size: 1.6rem; font-weight: 400; }
+.browser .cardinput { background: #fff; border: 1px solid #D8D8DE; border-radius: 8px; padding: 8px 9px; font-family: var(--mono); font-size: 10.5px; margin-top: 8px; color: #15151A; }
+
+.code6 { font-family: var(--mono); font-size: 2rem; letter-spacing: 0.28em; text-align: center; color: var(--app-gold); padding: 14px 0 4px; font-variant-numeric: tabular-nums; }
+
+.gauge { text-align: center; padding: 10px 0 4px; }
+.gauge .n { font-family: var(--display); font-size: 3.4rem; font-weight: 300; color: var(--app-gold); line-height: 1; }
+.gauge .band { font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em; color: var(--app-good); text-transform: uppercase; margin-top: 6px; }
+
+.evt { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--app-line); }
+.evt:last-child { border-bottom: none; }
+.evt .t { font-size: 12px; font-weight: 600; }
+.evt .d { font-family: var(--mono); font-size: 8.5px; color: var(--app-muted); letter-spacing: 0.08em; margin-top: 2px; }
+.evt .a { font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+.evt .a.in { color: var(--app-good); }
+
+.nav { flex: 0 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--app-line); background: rgba(10,14,20,0.96); }
+.nav button { background: none; border: none; cursor: pointer; padding: 10px 2px 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; font-family: var(--mono); font-size: 7px; text-transform: uppercase; letter-spacing: 0.1em; color: #6B7280; }
+.nav button svg { width: 15px; height: 15px; stroke-width: 1.8; fill: none; }
+.nav button[aria-current="true"] { color: var(--app-gold); }
+
+.caption { margin-top: 20px; border-top: 1px solid var(--rule); padding-top: 16px; }
+.caption h2 { font-family: var(--display); font-weight: 400; font-size: 1.3rem; margin: 0 0 6px; }
+.caption p { margin: 0 0 10px; font-size: 0.89rem; color: var(--ink-soft); }
+.caption p:last-of-type { margin-bottom: 0; }
+.caption strong { color: var(--ink-text); font-weight: 600; }
+.try { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold-text); border: 1px solid var(--rule); border-radius: 99px; padding: 6px 12px; margin-top: 10px; }
+.try::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--gold-text); }
+
+/* ---- the written guide ---- */
+.guide h2 { font-family: var(--display); font-weight: 400; font-size: 1.5rem; margin: 30px 0 8px; letter-spacing: -0.01em; text-wrap: balance; }
+.guide h2:first-child { margin-top: 0; }
+.guide p { font-size: 0.93rem; margin: 0 0 12px; }
+.guide p.lede { font-size: 1.02rem; color: var(--ink-text); }
+.guide strong { font-weight: 700; }
+.guide ul, .guide ol { margin: 0 0 12px; padding-left: 20px; }
+.guide li { margin-bottom: 5px; font-size: 0.91rem; }
+.guide .gtable { width: 100%; border-collapse: collapse; margin: 0 0 14px; font-size: 0.85rem; }
+.guide .gtable th { text-align: left; font-family: var(--mono); font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.13em; color: var(--ink-soft); padding: 7px 8px 7px 0; border-bottom: 1px solid var(--rule); font-weight: 400; }
+.guide .gtable td { padding: 9px 8px 9px 0; border-bottom: 1px solid var(--rule); vertical-align: top; color: var(--ink-soft); }
+.guide .gtable td:first-child { color: var(--ink-text); font-weight: 600; width: 36%; }
+.sect { scroll-margin-top: 20px; }
+.sect.on h2 { color: var(--gold-text); }
+
+.foot-note { margin-top: 30px; padding-top: 18px; border-top: 1px solid var(--rule); font-size: 0.8rem; color: var(--ink-soft); }
+
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <h1>Try <em>KobPay</em></h1>
+  <p class="standfirst">The whole product, two ways: tap through it, or read it. Either can be read aloud.</p>
+
+  <div class="modebar">
+    <div class="mode" id="mode">
+      <button data-mode="demo" aria-current="true">Demo</button>
+      <button data-mode="guide" aria-current="false">Read</button>
+    </div>
+    <button class="listen" id="listen" aria-pressed="false" hidden>
+      <svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 00-2.5-4v8a4.5 4.5 0 002.5-4zM14 2v2a8 8 0 010 16v2a10 10 0 000-20z"/></svg>
+      <span id="listenLabel">Listen</span>
+    </button>
+  </div>
+
+  <div id="demoMode">
+    <div class="chapters" id="chapters"></div>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span class="dots"><i></i><i></i><i></i></span></div>
+      <div class="screen" id="screen"></div>
+      <nav class="nav" id="nav">
+        <button data-ch="wallet"><svg viewBox="0 0 24 24" stroke="currentColor"><path d="M3 10l9-7 9 7v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Home</button>
+        <button data-ch="send"><svg viewBox="0 0 24 24" stroke="currentColor"><path d="M7 17L17 7M9 7h8v8"/></svg>Send</button>
+        <button data-ch="paid"><svg viewBox="0 0 24 24" stroke="currentColor"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"/></svg>Pay</button>
+        <button data-ch="cards"><svg viewBox="0 0 24 24" stroke="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Cards</button>
+      </nav>
+    </div>
+    <div class="caption" id="caption"></div>
+  </div>
+
+  <div id="guideMode" class="guide" hidden></div>
+
+  <p class="foot-note">
+    A demonstration. Every balance, name, merchant and card number in it is invented,
+    and none of it connects to a real account. The live app is at <strong>kobpay.app</strong>.
+  </p>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var S = {
+    mode: "demo", ch: "wallet", step: 0, balance: 247.5, amount: "",
+    payMode: "show", openCard: 0, frozen: false, momoMode: "in", momoAmt: "",
+    saved: 310, speaking: false, guideSection: 0
+  };
+
+  var cards = [
+    { name: "Streaming",       last4: "4242", exp: "12/29", limit: 15,  spent: 0,    kind: "Stops after 30 days" },
+    { name: "Cloud hosting",   last4: "8842", exp: "08/28", limit: 100, spent: 62.4, kind: "Open, no end date" },
+    { name: "That shop in Osu", last4: null,  exp: null,    limit: 40,  spent: 0,    kind: "Use once, then stop" }
+  ];
+
+  function money(n) { return Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+  var I = {
+    send: '<svg viewBox="0 0 24 24" stroke="currentColor"><path d="M7 17L17 7M9 7h8v8"/></svg>',
+    receive: '<svg viewBox="0 0 24 24" stroke="currentColor"><path d="M17 7L7 17M15 17H7V9"/></svg>',
+    plus: '<svg viewBox="0 0 24 24" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>',
+    card: '<svg viewBox="0 0 24 24" stroke="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>',
+    check: '<svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M4 12l6 6L20 6"/></svg>',
+    cross: '<svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+    finger: '<svg viewBox="0 0 24 24"><path d="M12 3a7 7 0 00-7 7v3M12 3a7 7 0 017 7v6M8.5 20a14 14 0 001-5v-5a2.5 2.5 0 015 0v6M12 21v-6"/></svg>'
+  };
+
+  // A picture of a QR code with the three finder squares a real one has.
+  // Deliberately not scannable: a demo that resolved to something real would
+  // be a different and more careless thing.
+  var qrHtml = (function () {
+    var N = 21, out = [];
+    function finder(r, c, x, y) {
+      var dx = x - c, dy = y - r;
+      if (dx < 0 || dy < 0 || dx > 6 || dy > 6) return null;
+      return Math.max(Math.abs(dx - 3), Math.abs(dy - 3)) !== 1;
+    }
+    for (var y = 0; y < N; y++) for (var x = 0; x < N; x++) {
+      var f = finder(0, 0, x, y);
+      if (f === null) f = finder(0, N - 7, x, y);
+      if (f === null) f = finder(N - 7, 0, x, y);
+      var on = f !== null ? f : ((x * 7 + y * 13 + ((x * y) % 5)) % 3) === 0;
+      out.push('<i class="' + (on ? "on" : "") + '"></i>');
+    }
+    return '<div class="qrbox"><div class="qr">' + out.join("") + "</div></div>";
+  })();
+
+  function cardFace(c, state) {
+    var pill = state === "frozen" ? '<span class="pill cold">Frozen</span>'
+             : c.last4 ? '<span class="pill on">On</span>' : '<span class="pill">Not issued</span>';
+    return '<div class="cardface' + (state === "frozen" ? " frozen" : "") + '">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start"><span class="brand">KOB<b>PAY</b></span>' + pill + '</div>' +
+      '<div class="chip"></div><div><div class="num">&bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; ' + (c.last4 || "&bull;&bull;&bull;&bull;") + '</div>' +
+      '<div class="foot" style="margin-top:9px"><div><div class="t">Card name</div><div style="font-weight:700;font-size:11px">' + esc(c.name) + '</div></div>' +
+      '<div style="text-align:right"><div class="t">Expires</div><div style="font-family:var(--mono);font-size:11px">' + (c.exp || "&bull;&bull;/&bull;&bull;") + '</div></div></div></div></div>';
+  }
+
+  var CH = [
+    { id: "wallet",  label: "Wallet" },
+    { id: "send",    label: "Send" },
+    { id: "paid",    label: "Get paid" },
+    { id: "safe",    label: "Safe Send" },
+    { id: "merchant",label: "Take payments" },
+    { id: "cards",   label: "Cards" },
+    { id: "online",  label: "Pay online" },
+    { id: "momo",    label: "Mobile money" },
+    { id: "save",    label: "Savings" },
+    { id: "invest",  label: "Invest" },
+    { id: "circle",  label: "Circles" },
+    { id: "borrow",  label: "Borrow" },
+    { id: "score",   label: "Score" },
+    { id: "cash",    label: "Cash" },
+    { id: "activity",label: "Activity" },
+    { id: "safety",  label: "Security" },
+    { id: "limits",  label: "Limits" },
+    { id: "markets", label: "Markets" },
+    { id: "reserve", label: "The reserve" }
+  ];
+
+  var V = {
+
+  wallet: function () {
+    var w = Math.floor(S.balance).toLocaleString(), f = (S.balance % 1).toFixed(2).slice(1);
+    return { html:
+      '<div class="greet">' + (new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 17 ? "Good afternoon" : "Good evening") + ', <em>Ama</em></div>' +
+      '<div class="datel">' + new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).toUpperCase() + '</div>' +
+      '<div class="balcard"><div class="lbl">KPC Balance</div>' +
+      '<div><span class="figure">' + w + '<span class="frac">' + f + '</span></span><span class="figure-unit">KPC</span></div>' +
+      '<div class="usd">&asymp; $' + money(S.balance) + ' USD</div>' +
+      '<div class="actions">' +
+      '<button class="act primary" data-ch="send">' + I.send + 'Send</button>' +
+      '<button class="act" data-ch="paid">' + I.receive + 'Receive</button>' +
+      '<button class="act" data-ch="momo">' + I.plus + 'Top up</button>' +
+      '<button class="act" data-ch="cards">' + I.card + 'Cards</button></div></div>' +
+      '<div class="tiles">' +
+      '<button class="tile" data-ch="save"><div class="k">In savings</div><div class="v">' + money(S.saved) + '</div></button>' +
+      '<button class="tile" data-ch="score"><div class="k">Your score</div><div class="v">712</div></button>' +
+      '<button class="tile" data-ch="circle"><div class="k">Circles</div><div class="v">1</div></button>' +
+      '<button class="tile" data-ch="reserve"><div class="k">Reserve cover</div><div class="v" style="color:var(--app-good)">106%</div></button>' +
+      '</div>',
+      title: "Your wallet",
+      body: "<p>The gold number is everything you have. <strong>247.50 KPC is 247 dollars and 50 cents</strong> — the line beneath says the same in dollars, so the two can never disagree.</p>" +
+            "<p>Each tile opens a part of the app. The reserve one is the number most people never check, and the one that matters most.</p>",
+      hint: "Tap a tile, or step through the chapters above" };
+  },
+
+  send: function () {
+    if (S.step === 0) return { html:
+      '<div class="lbl" style="margin-top:8px">Send money</div>' +
+      '<div class="field"><input class="inp" value="+233 24 555 0147" readonly></div>' +
+      '<div class="who"><div class="avatar">KO</div><div><div class="nm">Kwame Osei</div><div class="ph">+233 24 555 0147</div></div></div>' +
+      '<div class="warn"><strong style="color:var(--app-gold)">Read the name.</strong> A wrong digit sends your money to a stranger, and once it arrives it is theirs.</div>' +
+      '<button class="btn" data-act="s1">That&rsquo;s him &mdash; continue</button>',
+      title: "Who gets it",
+      body: "<p>You need their phone number, nothing else. KobPay looks it up and shows <strong>the name on the account</strong> before anything moves.</p>" +
+            "<p>That check exists because a mistyped transfer cannot be reversed — not here, not at a bank.</p>",
+      hint: "Confirm the name" };
+    if (S.step === 1) return { html:
+      '<div class="lbl" style="margin-top:8px">How much</div>' +
+      '<div class="field"><input class="inp" id="amt" inputmode="decimal" placeholder="0.00" value="' + esc(S.amount) + '" style="font-size:25px;font-family:var(--display)"></div>' +
+      '<div class="rowline"><span class="k">Your balance</span><span class="v">' + money(S.balance) + ' KPC</span></div>' +
+      '<div class="rowline"><span class="k">Fee</span><span class="v free">FREE</span></div><div style="height:14px"></div>' +
+      '<button class="btn" id="go" data-act="s2"' + (Number(S.amount) > 0 && Number(S.amount) <= S.balance ? "" : " disabled") + '>Continue</button>' +
+      '<div style="height:7px"></div><button class="btn ghost" data-act="back">Back</button>',
+      title: "How much",
+      body: "<p>Sending to another KobPay user is <strong>free</strong>. A transfer is a line moving inside KobPay's own records, so there is nothing to charge for.</p>" +
+            "<p>The button stays off until the number works, rather than letting you tap it and then explaining why not.</p>",
+      hint: "Type an amount, say 25" };
+    if (S.step === 2) return { html:
+      '<div class="lbl" style="margin-top:8px">Approve</div>' +
+      '<div class="rowline"><span class="k">To</span><span class="v">Kwame Osei</span></div>' +
+      '<div class="rowline"><span class="k">Amount</span><span class="v">' + money(S.amount) + ' KPC</span></div>' +
+      '<div class="rowline"><span class="k">Fee</span><span class="v free">FREE</span></div>' +
+      '<div class="fp"><div class="fpring" id="fp" role="button" tabindex="0" aria-label="Approve with fingerprint">' + I.finger + '</div></div>' +
+      '<div style="text-align:center;font-family:var(--mono);font-size:9px;color:var(--app-muted);letter-spacing:0.08em;margin-bottom:12px">TOUCH TO APPROVE</div>' +
+      '<button class="btn ghost" data-act="back">Back</button>',
+      title: "Approving it",
+      body: "<p>Your phone checks your fingerprint and unlocks a key that never leaves the handset. <strong>KobPay never sees your fingerprint.</strong> There is no copy of it anywhere to be stolen.</p>" +
+            "<p>It also will not work on a fake site. A convincing copy of KobPay can ask for your PIN and you might type it in — a fingerprint simply refuses an address that is not really KobPay.</p>",
+      hint: "Touch the sensor" };
+    return { html:
+      '<div class="done"><div class="tick">' + I.check + '</div><div class="big">' + money(S.amount) + ' KPC</div><div class="sub">SENT TO KWAME OSEI</div></div>' +
+      '<div class="rowline"><span class="k">Arrived</span><span class="v">Instantly</span></div>' +
+      '<div class="rowline"><span class="k">Fee</span><span class="v free">FREE</span></div>' +
+      '<div class="rowline"><span class="k">New balance</span><span class="v">' + money(S.balance) + ' KPC</span></div>' +
+      '<div style="height:16px"></div><button class="btn ghost" data-act="again">Send another</button>',
+      title: "Gone, and arrived",
+      body: "<p>It is with him already. Not pending, not clearing overnight — <strong>there is no bank in the middle</strong> to wait for.</p>" +
+            "<p>Every movement is listed on the Activity page with its date and amount, permanently.</p>",
+      hint: "Next: Get paid" };
+  },
+
+  paid: function () {
+    var seg = '<div class="segment c3">' +
+      '<button data-act="pm" data-m="show" aria-current="' + (S.payMode === "show") + '">Show code</button>' +
+      '<button data-act="pm" data-m="scan" aria-current="' + (S.payMode === "scan") + '">Scan</button>' +
+      '<button data-act="pm" data-m="type" aria-current="' + (S.payMode === "type") + '">Type</button></div>';
+    if (S.payMode === "show") return { html:
+      '<div class="lbl" style="margin-top:8px">Get paid</div>' + seg + qrHtml +
+      '<div style="text-align:center;margin-bottom:12px"><div style="font-weight:700;font-size:14px">Ama Boateng</div>' +
+      '<div style="font-family:var(--mono);font-size:10px;color:var(--app-muted);margin-top:3px">+233 20 555 0192</div></div>' +
+      '<div class="warn">Anyone can also just send to your number. The code only saves them typing it.</div>',
+      title: "Three ways, not one",
+      body: "<p>Show the code and they scan it. <strong>Neither of you types a number</strong>, so neither can get a digit wrong.</p>" +
+            "<p>But a QR is not the only route, and an app that insisted on one would be useless on a desktop or with a cracked camera.</p>",
+      hint: "Try the other two tabs" };
+    if (S.payMode === "scan") return { html:
+      '<div class="lbl" style="margin-top:8px">Pay someone</div>' + seg +
+      '<div style="aspect-ratio:1;background:#000;border:1px solid var(--app-line);border-radius:14px;position:relative;overflow:hidden;margin-bottom:12px">' +
+      '<div style="position:absolute;inset:18%;border:1.5px solid var(--app-gold);border-radius:10px"></div>' +
+      '<div style="position:absolute;inset:0;display:grid;place-items:center;font-family:var(--mono);font-size:9px;color:var(--app-muted);letter-spacing:0.14em">CAMERA</div></div>' +
+      '<button class="btn ghost" data-act="pm" data-m="type">Type it instead</button>',
+      title: "Scanning",
+      body: "<p>Point at a KobPay code and it reads where the money is going — the fast path when you are standing in front of someone.</p>" +
+            "<p><strong>Type it instead</strong> sits right under it, not hidden behind a failure, because plenty of people simply prefer to type.</p>",
+      hint: "Tap Type it instead" };
+    return { html:
+      '<div class="lbl" style="margin-top:8px">Pay someone</div>' + seg +
+      '<div class="field"><label class="lbl">Their number or @name</label><input class="inp" value="233245550147"></div>' +
+      '<button class="btn">Continue</button><div style="height:12px"></div>' +
+      '<div class="warn">Works on a laptop, on a phone with no camera, and when the code on the counter is too scratched to read.</div>',
+      title: "Typing it",
+      body: "<p>A phone number or an <strong>@name</strong>. KobPay resolves it and shows who it found, exactly as after a scan — the name check is never skipped because the route was different.</p>" +
+            "<p>This is the path that makes the app work on a desktop, which matters more than it sounds for anyone running a business.</p>",
+      hint: "Next: Safe Send" };
+  },
+
+  safe: function () {
+    return { html:
+      '<div class="lbl" style="margin-top:8px">Safe Send</div>' +
+      '<div class="balcard"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">' +
+      '<div style="font-weight:700;font-size:13px">Phone from Kojo</div><span class="pill cold">Held</span></div>' +
+      '<div style="font-family:var(--display);font-size:2.1rem;font-weight:300;color:var(--app-gold)">400.00<span style="font-size:0.85rem;color:var(--app-white);margin-left:6px">KPC</span></div>' +
+      '<div style="font-family:var(--mono);font-size:9px;color:var(--app-muted);margin-top:8px;letter-spacing:0.08em">SELLER CAN SEE IT &middot; CANNOT SPEND IT</div></div>' +
+      '<div class="rowline"><span class="k">Released when</span><span class="v">You confirm</span></div>' +
+      '<div class="rowline"><span class="k">If it goes wrong</span><span class="v">Open a dispute</span></div>' +
+      '<div style="height:14px"></div>' +
+      '<button class="btn">I got it &mdash; release</button><div style="height:7px"></div>' +
+      '<button class="btn ghost">Something&rsquo;s wrong</button>',
+      title: "Buying from a stranger",
+      body: "<p>The money sits in the middle instead of going straight across. The seller can <strong>see it is there</strong>, which is what makes them ship — but cannot touch it until you say you got what you paid for.</p>" +
+            "<p>If it goes wrong, you open a dispute and KobPay decides. This is the mechanism that makes buying from someone you do not know reasonable at all.</p>",
+      hint: "Next: Take payments" };
+  },
+
+  merchant: function () {
+    return { html:
+      '<div class="lbl" style="margin-top:8px">Take payments</div>' +
+      '<div class="field"><label class="lbl">What for</label><input class="inp" value="Two bags of rice" readonly></div>' +
+      '<div class="field"><label class="lbl">Amount</label><input class="inp" value="48.00" readonly style="font-family:var(--display);font-size:22px"></div>' +
+      '<div class="balcard" style="text-align:center"><div class="lbl">Your payment link</div>' +
+      '<div style="font-family:var(--mono);font-size:11px;color:var(--app-gold);word-break:break-all">kobpay.app/m/8KD2QX</div></div>' +
+      '<div class="warn">Send it in WhatsApp. They tap, pay, and you see it arrive &mdash; no card machine, no bank visit, no monthly fee.</div>' +
+      '<button class="btn">Copy link</button>',
+      title: "Selling without a card machine",
+      body: "<p>A link anyone can pay, made in about four seconds. Send it in WhatsApp, put it in a bio, print the code on a sign.</p>" +
+            "<p>For a market trader this replaces a card terminal they could never justify. <strong>The merchant fee is capped at 1%</strong>, against the 2 to 4% a terminal costs them.</p>",
+      hint: "Next: Cards" };
+  },
+
+  cards: function () {
+    var c = cards[S.openCard], isFrozen = S.openCard === 1 && S.frozen;
+    var pct = Math.min(100, (c.spent / c.limit) * 100);
+    return { html:
+      '<div class="lbl" style="margin-top:8px">Your cards</div>' + cardFace(c, isFrozen ? "frozen" : "live") +
+      '<div class="bar"><span style="width:' + pct.toFixed(0) + '%"></span></div>' +
+      '<div style="font-family:var(--mono);font-size:8.5px;color:var(--app-muted);letter-spacing:0.1em;margin:8px 0 12px;text-transform:uppercase">' +
+      money(c.spent) + ' of ' + money(c.limit) + ' KPC used &middot; ' + esc(c.kind) + '</div>' +
+      (c.last4 ? '<button class="btn ghost" data-act="freeze" style="margin-bottom:12px">' + (isFrozen ? "Turn on" : "Freeze") + '</button>' : '') +
+      '<div class="lbl">Switch card</div><div style="display:flex;gap:5px">' +
+      cards.map(function (x, i) {
+        return '<button class="btn ghost sm" data-act="card" data-i="' + i + '" style="flex:1' +
+          (i === S.openCard ? ';border-color:var(--app-goldln);color:var(--app-white)' : '') + '">' + esc(x.name.split(" ")[0]) + '</button>';
+      }).join("") + '</div>',
+      title: "A card for each thing",
+      body: "<p>Not one card — <strong>a card for each thing you pay for</strong>, each with its own limit. Put 15 KPC on the streaming card and nothing can ever take more than 15, whatever anyone types.</p>" +
+            "<p>The third stops working the moment one payment goes through: a number worthless to whoever steals it afterwards.</p>",
+      hint: "Now use one — Pay online" };
+  },
+
+  online: function () {
+    var c = cards[0];
+    if (S.step === 0) return { html:
+      '<div class="browser"><div class="bar2">&#128274; lumen-stream.example</div><div class="body2">' +
+      '<h4>Lumen Stream</h4><div style="font-size:11px;color:#55555E">Monthly plan</div>' +
+      '<div class="price">$12.99</div><div class="cardinput">4242 4242 4242 ' + c.last4 + '</div>' +
+      '<div style="display:flex;gap:7px"><div class="cardinput" style="flex:1">' + c.exp + '</div><div class="cardinput" style="flex:1">&bull;&bull;&bull;</div></div></div></div>' +
+      '<button class="btn" data-act="s1">Pay $12.99</button><div style="height:9px"></div>' +
+      '<div class="warn">A made-up shop. Real card details would come from the card issuer and appear only in your browser &mdash; never stored by KobPay.</div>',
+      title: "Paying a shop that has never heard of KobPay",
+      body: "<p>This is the point of the card. Lumen Stream takes card numbers like every shop online. It does not need to know what KobPay is.</p>" +
+            "<p>The card's limit is <strong>15 KPC</strong> and the charge is $12.99. Watch what happens.</p>",
+      hint: "Tap Pay" };
+    if (S.step === 1) return { html:
+      '<div class="done" style="padding-top:28px"><div class="tick">' + I.check + '</div><div class="big">$12.99</div>' +
+      '<div class="sub">APPROVED &middot; LUMEN STREAM</div></div>' +
+      '<div class="rowline"><span class="k">Card</span><span class="v">Streaming &bull;&bull;&bull;&bull; ' + c.last4 + '</span></div>' +
+      '<div class="rowline"><span class="k">Held from your wallet</span><span class="v">12.99 KPC</span></div>' +
+      '<div class="rowline"><span class="k">Left on this card</span><span class="v">' + money(15 - 12.99) + ' KPC</span></div>' +
+      '<div style="height:14px"></div><button class="btn" data-act="s2">Now try a second charge</button>',
+      title: "Approved, and held",
+      body: "<p>KobPay was asked to approve it and had a tenth of a second to decide: is the card on, is it inside its limit, is the money there. All three, so yes.</p>" +
+            "<p>The 12.99 moved out of the wallet into a hold. It is still your money until the shop actually takes it — and if they never do, it comes back on its own.</p>",
+      hint: "See what a price rise does" };
+    return { html:
+      '<div class="done" style="padding-top:28px"><div class="tick bad">' + I.cross + '</div><div class="big">$4.00</div>' +
+      '<div class="sub" style="color:var(--app-bad)">DECLINED</div></div>' +
+      '<div class="warn bad"><strong style="color:var(--app-bad)">Over this card&rsquo;s limit of 15.00 KPC.</strong><br><br>' +
+      'Lumen Stream tried to take another $4.00 this month. The card has 2.01 left, so the charge was refused before it reached your balance.</div>' +
+      '<div class="rowline"><span class="k">Your wallet</span><span class="v">' + money(S.balance) + ' KPC &mdash; untouched</span></div>' +
+      '<div style="height:14px"></div><button class="btn ghost" data-act="again">Start over</button>',
+      title: "The limit doing its job",
+      body: "<p>This is why a card per thing beats one card. A subscription that quietly raises its price, a shop that charges twice, a stolen number — <strong>all of them hit the cap</strong> instead of your balance.</p>" +
+            "<p>Nobody had to notice, dispute anything or cancel a card. The limit refused it in the moment.</p>",
+      hint: "Next: Mobile money" };
+  },
+
+  momo: function () {
+    var seg = '<div class="segment c2">' +
+      '<button data-act="mm" data-m="in" aria-current="' + (S.momoMode === "in") + '">Money in</button>' +
+      '<button data-act="mm" data-m="out" aria-current="' + (S.momoMode === "out") + '">Money out</button></div>';
+    if (S.step === 1) return { html:
+      '<div class="done"><div class="tick">' + I.check + '</div><div class="big">' + money(S.momoAmt || 0) + ' KPC</div>' +
+      '<div class="sub">' + (S.momoMode === "in" ? "ADDED FROM MTN MOBILE MONEY" : "SENT TO MTN MOBILE MONEY") + '</div></div>' +
+      '<div class="rowline"><span class="k">New balance</span><span class="v">' + money(S.balance) + ' KPC</span></div>' +
+      '<div style="height:16px"></div><button class="btn ghost" data-act="again">Again</button>',
+      title: S.momoMode === "in" ? "Cedis in, dollars held" : "Dollars out, cedis received",
+      body: S.momoMode === "in"
+        ? "<p>You paid in cedis from your mobile money wallet. What you now hold is <strong>dollars</strong>. If the cedi weakens next month, this does not shrink with it.</p><p>That conversion is the product. Everything else is plumbing around it.</p>"
+        : "<p>The money left as dollars and arrived in your mobile money wallet as cedis, at the rate shown before you confirmed.</p><p>Nothing is trapped. Being able to leave easily is what makes it reasonable to stay.</p>",
+      hint: "Try the other direction" };
+    return { html:
+      '<div class="lbl" style="margin-top:8px">' + (S.momoMode === "in" ? "Add money" : "Take money out") + '</div>' + seg +
+      '<div class="field"><label class="lbl">Network</label><div style="display:flex;flex-direction:column;gap:4px">' +
+      ["MTN Mobile Money", "Telecel Cash", "AirtelTigo Money"].map(function (n, i) {
+        return '<div class="btn ghost sm" style="text-align:left;padding:10px 11px' + (i === 0 ? ';border-color:var(--app-goldln);color:var(--app-white)' : '') + '">' + n + '</div>';
+      }).join("") + '</div></div>' +
+      '<div class="field"><label class="lbl">Amount in cedis</label>' +
+      '<input class="inp" id="mamt" inputmode="decimal" placeholder="0.00" value="' + (S.momoAmt ? (S.momoAmt * 12.4).toFixed(2) : "") + '" style="font-size:21px;font-family:var(--display)"></div>' +
+      '<div class="rowline"><span class="k">Rate today</span><span class="v">1 KPC = 12.40 GHS</span></div>' +
+      '<div class="rowline"><span class="k">You ' + (S.momoMode === "in" ? "get" : "send") + '</span><span class="v big">' + money(S.momoAmt || 0) + ' KPC</span></div>' +
+      '<div style="height:14px"></div>' +
+      '<button class="btn" id="mgo" data-act="mgo"' + (Number(S.momoAmt) > 0 ? "" : " disabled") + '>Continue</button>',
+      title: "Mobile money, both directions",
+      body: "<p>Pay in cedis from MTN, Telecel or AirtelTigo and hold <strong>dollars</strong>. Take it out and it arrives back as cedis, on the same number.</p>" +
+            "<p>The rate is shown before you commit, not after, and what you will receive is a number on screen rather than a percentage to work out.</p>",
+      hint: "Type an amount in cedis, say 1240" };
+  },
+
+  save: function () {
+    var target = 500, pct = Math.min(100, (S.saved / target) * 100);
+    return { html:
+      '<div class="lbl" style="margin-top:8px">Savings</div>' +
+      '<div class="balcard"><div style="display:flex;justify-content:space-between;align-items:baseline">' +
+      '<div style="font-weight:700;font-size:13px">Laptop</div>' +
+      '<div style="font-family:var(--mono);font-size:9px;color:var(--app-good);letter-spacing:0.12em">' + pct.toFixed(0) + '%</div></div>' +
+      '<div style="font-family:var(--display);font-size:2.2rem;font-weight:300;color:var(--app-gold);margin:8px 0 10px">' + money(S.saved) +
+      '<span style="font-size:0.9rem;color:var(--app-white);margin-left:6px">of ' + target + '</span></div>' +
+      '<div class="bar good"><span style="width:' + pct.toFixed(0) + '%"></span></div>' +
+      '<div style="font-family:var(--mono);font-size:8.5px;color:var(--app-muted);margin-top:9px;letter-spacing:0.1em">' + money(target - S.saved) + ' KPC TO GO</div></div>' +
+      '<div class="rowline"><span class="k">Interest this month</span><span class="v" style="color:var(--app-good)">+1.84</span></div>' +
+      '<div class="rowline"><span class="k">Take out any time</span><span class="v">Yes</span></div>' +
+      '<div style="height:12px"></div><button class="btn" data-act="addsave">Add 20 KPC</button>',
+      title: "Saving with a name on it",
+      body: "<p>Money in a plan earns interest; money in the wallet does not. That is the only difference, and it is why the wallet's interest tile reads zero until you open one.</p>" +
+            "<p>The name matters more than it sounds. <strong>&ldquo;Laptop&rdquo; is harder to raid than &ldquo;Savings&rdquo;</strong>, and a target you can see fills faster than one you cannot.</p>",
+      hint: "Next: Invest" };
+  },
+
+  invest: function () {
+    if (S.step === 0) return { html:
+      '<div class="lbl" style="margin-top:8px">Invest</div>' +
+      '<div class="balcard"><div class="lbl">Available to buy</div>' +
+      '<div style="font-family:var(--display);font-size:1.7rem;font-weight:300;color:var(--app-silver)">Nothing listed</div>' +
+      '<div class="usd">The rail is built. The shelf is empty.</div></div>' +
+      '<div class="rowline"><span class="k">Holdings in units</span><span class="v" style="color:var(--app-good)">Built</span></div>' +
+      '<div class="rowline"><span class="k">Buy, sell, settlement</span><span class="v" style="color:var(--app-good)">Built</span></div>' +
+      '<div class="rowline"><span class="k">Treasury bills listed</span><span class="v">None yet</span></div>' +
+      '<div style="height:12px"></div>' +
+      '<div class="warn">What may be offered is a licensed issuer&rsquo;s decision, not ours to write into the app.</div>' +
+      '<button class="btn" data-act="step" data-i="1">How a holding works</button>',
+      title: "Built, and deliberately empty",
+      body: "<p>This screen is real and it is empty, which is the honest state of it. Everything underneath works — buying, holding, pricing, selling, settlement — but <strong>no instrument is listed</strong>.</p>" +
+            "<p>That is on purpose. Listing something people can put money into is a licensing matter and the issuer&rsquo;s call. The day a partner confirms what may be offered, it appears here; until then an empty shelf is the only truthful thing to show.</p>",
+      hint: "See how a holding works" };
+
+    if (S.step === 1) return { html:
+      '<div class="lbl" style="margin-top:8px">How a holding works</div>' +
+      '<div class="balcard"><div class="lbl">Example &middot; not a live offer</div>' +
+      '<div><span class="figure">96.15</span><span class="figure-unit">UNITS</span></div>' +
+      '<div class="usd">Bought with 100.00 KPC at 1.0400</div></div>' +
+      '<div class="rowline"><span class="k">You spend</span><span class="v">100.00 KPC</span></div>' +
+      '<div class="rowline"><span class="k">You hold</span><span class="v">96.15 units</span></div>' +
+      '<div class="rowline"><span class="k">Unit price today</span><span class="v">1.0400</span></div>' +
+      '<div class="rowline"><span class="k">Worth today</span><span class="v big">100.00</span></div>' +
+      '<div style="height:12px"></div>' +
+      '<div class="warn">Between buying and selling your money is not KPC at all. That is what makes it an investment.</div>' +
+      '<button class="btn" data-act="step" data-i="2">Sell it</button>',
+      title: "Units, never KPC",
+      body: "<p>One KPC is one dollar, always — that is the entire promise and every balance in the ledger depends on it. An investment is the opposite: its value is <em>supposed</em> to move.</p>" +
+            "<p>So an investment is never held as KPC. You spend KPC to buy <strong>units</strong>, and your holding is units multiplied by whatever a unit is worth today. KPC is only how you get in and out.</p>" +
+            "<p>Hold it as KPC instead and you face an impossible choice the first time it gains: either the peg breaks, or the gain cannot be recorded. Units avoid the question entirely.</p>",
+      hint: "Now sell it" };
+
+    return { html:
+      '<div class="done"><div class="tick">' + I.check + '</div>' +
+      '<div class="big">108.17 KPC</div>' +
+      '<div class="sub">SOLD &middot; ARRIVES IN 2 DAYS</div></div>' +
+      '<div class="rowline"><span class="k">Units sold</span><span class="v">96.15</span></div>' +
+      '<div class="rowline"><span class="k">Price struck today</span><span class="v">1.1250</span></div>' +
+      '<div class="rowline"><span class="k">Gross</span><span class="v">108.17</span></div>' +
+      '<div class="rowline"><span class="k">Settles</span><span class="v">In 2 days</span></div>' +
+      '<div style="height:12px"></div>' +
+      '<div class="warn good">The price is fixed the moment you ask, not the day the money lands.</div>' +
+      '<button class="btn" data-act="again">Start again</button>',
+      title: "The price you saw is the price you get",
+      body: "<p>Selling takes a couple of days to settle, because the money has to come back from the issuer. The question is which day&rsquo;s price you get.</p>" +
+            "<p><strong>The price is struck when you ask.</strong> If it were struck on settlement day you would be carrying two days of market risk you never agreed to, having already decided to get out.</p>" +
+            "<p>Some instruments also carry a minimum holding period, and the app refuses the sale by name rather than letting it fail quietly: it tells you which one and how many days.</p>",
+      hint: "Next: Circles" };
+  },
+
+  circle: function () {
+    var PER = 20, SIZE = 8;
+    var M = [
+      { n: "Ama (you)", p: 1, paid: true  }, { n: "Kwame", p: 2, paid: true  },
+      { n: "Akosua",    p: 3, paid: true  }, { n: "Yaw",   p: 4, paid: false },
+      { n: "Efua",      p: 5, paid: true  }, { n: "Kojo",  p: 6, paid: true  },
+      { n: "Esi",       p: 7, paid: false }, { n: "Nii",   p: 8, paid: true  }
+    ];
+    var PAID = 6, POT = PER * PAID, FULL = PER * SIZE;
+
+    function roster(skip) {
+      return M.map(function (m) {
+        var tag = m.paid ? '<span class="pill on">Paid</span>' : '<span class="pill bad">Behind</span>';
+        if (skip === m.n) tag = '<span class="pill bad">Passed over</span>';
+        return '<div class="evt"><div><div class="t">' + m.n + '</div>' +
+          '<div class="d">POSITION ' + m.p + '</div></div>' + tag + '</div>';
+      }).join("");
+    }
+
+    if (S.step === 0) return { html:
+      '<div class="lbl" style="margin-top:8px">Family circle &middot; round 4 of 8</div>' +
+      '<div class="balcard"><div class="lbl">Collected this round</div>' +
+      '<div><span class="figure">' + money(POT) + '</span><span class="figure-unit">KPC</span></div>' +
+      '<div class="usd">6 of 8 paid &middot; 20.00 each</div></div>' +
+      roster() +
+      '<div style="height:12px"></div>' +
+      '<div class="warn">This money is not in anybody&rsquo;s wallet. It sits in the circle&rsquo;s own account until the round pays out.</div>' +
+      '<button class="btn" data-act="step" data-i="1">Run the payout</button>',
+      title: "Eight people, one pot",
+      body: "<p>Everyone puts in the same amount each round and one person takes the pot. Eight people at 20 KPC a month means somebody walks away with the lot this month instead of waiting eight months to save it.</p>" +
+            "<p>The contributions go into <strong>the circle&rsquo;s own account</strong>, not the organiser&rsquo;s. That account is governed by the same rule as every other account in the ledger: it cannot go below zero. So a circle cannot pay out money it does not hold — not because we promise, because it is not possible.</p>",
+      hint: "Run the payout" };
+
+    if (S.step === 1) return { html:
+      '<div class="done"><div class="tick">' + I.check + '</div>' +
+      '<div class="big">' + money(POT) + ' KPC</div>' +
+      '<div class="sub">PAID TO AKOSUA</div></div>' +
+      '<div class="rowline"><span class="k">Eight members at 20.00</span><span class="v">' + money(FULL) + '</span></div>' +
+      '<div class="rowline"><span class="k">Yaw &mdash; did not pay</span><span class="v" style="color:var(--app-bad)">&minus;20.00</span></div>' +
+      '<div class="rowline"><span class="k">Esi &mdash; did not pay</span><span class="v" style="color:var(--app-bad)">&minus;20.00</span></div>' +
+      '<div class="rowline"><span class="k">Akosua receives</span><span class="v big">' + money(POT) + '</span></div>' +
+      '<div style="height:12px"></div>' +
+      '<div class="warn">Akosua gets six shares, not eight. Nobody covers the gap and nobody owes it to her.</div>' +
+      '<button class="btn" data-act="step" data-i="2">Now Yaw&rsquo;s turn comes round</button>',
+      title: "The pot is what was collected",
+      body: "<p>This is the rule most people get wrong about these groups. <strong>The payout is whatever actually came in — never a promised figure.</strong> Two of eight did not pay, so Akosua receives 120, not 160.</p>" +
+            "<p>It matters because the alternative is worse. If the circle guaranteed 160, the missing 40 would have to come from somewhere: the organiser&rsquo;s pocket, or the other six members. Here the shortfall stays exactly where it belongs — with the two who did not pay.</p>",
+      hint: "Now watch Yaw's turn come round" };
+
+    if (S.step === 2) return { html:
+      '<div class="lbl" style="margin-top:8px">Round 5 of 8</div>' +
+      '<div class="balcard"><div class="lbl">Whose turn it is</div>' +
+      '<div style="font-family:var(--display);font-size:1.7rem;font-weight:300;color:var(--app-gold)">Efua</div>' +
+      '<div class="usd">Position 5 &middot; Yaw was next, and was passed over</div></div>' +
+      roster("Yaw") +
+      '<div style="height:12px"></div>' +
+      '<div class="warn bad">Yaw is position 4, so this was his round. He is behind on round 4, so the pot went to the next member who is paid up.</div>' +
+      '<button class="btn" data-act="step" data-i="3">Yaw settles up</button>',
+      title: "Arrears cost you your turn",
+      body: "<p>Payout order follows position — but <strong>only among members who are paid up</strong>. When your turn arrives and you owe an earlier round, you are skipped and the pot goes to the next person in line who is not behind.</p>" +
+            "<p>This is the whole enforcement mechanism, and it is worth being honest about what it is not. There is no debt collector, no court, no insurance fund. There are two consequences and that is all: you lose your turn, and your score drops. The rest is the fact that these are people who know where you live.</p>",
+      hint: "Yaw settles up" };
+
+    return { html:
+      '<div class="done"><div class="tick">' + I.check + '</div>' +
+      '<div class="big">20.00 KPC</div>' +
+      '<div class="sub">YAW &rarr; AKOSUA</div></div>' +
+      '<div class="rowline"><span class="k">Round Yaw missed</span><span class="v">4</span></div>' +
+      '<div class="rowline"><span class="k">Who was short that round</span><span class="v">Akosua</span></div>' +
+      '<div class="rowline"><span class="k">Where it went</span><span class="v">Straight to her</span></div>' +
+      '<div style="height:12px"></div>' +
+      '<div class="warn good">Not into the circle&rsquo;s account. To the person who was actually short-changed.</div>' +
+      '<button class="btn" data-act="again">Replay this circle</button>',
+      title: "A late payment finds the right person",
+      body: "<p>Yaw pays his missed round. The money does <strong>not</strong> go into the pot for whoever is receiving now — it goes directly to Akosua, who was the one left 40 short back in round 4.</p>" +
+            "<p>Send it to the current round instead and Akosua stays permanently down while a member who was never affected gets a windfall. The defaulter&rsquo;s loss would land on the wrong person and never be corrected. So it is routed to her, by name, years later if that is when he pays.</p>",
+      hint: "Next: Borrow" };
+  },
+
+  borrow: function () {
+    return { html:
+      '<div class="lbl" style="margin-top:8px">Borrow</div>' +
+      '<div class="balcard"><div class="lbl">You can borrow</div>' +
+      '<div style="font-family:var(--display);font-size:2.4rem;font-weight:300;color:var(--app-gold)">600.00<span style="font-size:0.85rem;color:var(--app-white);margin-left:6px">KPC</span></div></div>' +
+      '<div class="warn good" style="font-size:11.5px;line-height:1.6">' +
+      'You get <strong style="color:var(--app-white)">600.00 KPC</strong> today.<br>' +
+      'You pay back <strong style="color:var(--app-white)">624.00 KPC</strong><br>' +
+      'on <strong style="color:var(--app-white)">Friday 21 November</strong>.</div>' +
+      '<div class="rowline"><span class="k">Fee</span><span class="v">24.00 KPC</span></div>' +
+      '<div class="rowline"><span class="k">Not a percentage</span><span class="v">A cash amount</span></div>' +
+      '<div style="height:12px"></div><button class="btn">Take it</button>',
+      title: "One sentence, three numbers",
+      body: "<p>How much arrives, how much goes back, and the day. <strong>The fee is cash, not a percentage</strong> you have to work out — and the sentence is the whole offer, not a summary of terms elsewhere.</p>" +
+            "<p>Someone who does not qualify is told why and what would change it, rather than just refused.</p>",
+      hint: "What decides it: your score" };
+  },
+
+  score: function () {
+    var PARTS = [
+      { n: "Account age",        d: "490 days with KobPay",     v: 54, max: 60  },
+      { n: "Activity",           d: "25 payments in 90 days",   v: 56, max: 70  },
+      { n: "Identity verified",  d: "Full &mdash; ID and address", v: 40, max: 60 },
+      { n: "Saving",             d: "2 plans, still running",   v: 32, max: 80  },
+      { n: "Circles",            d: "Contributing to 1 circle", v: 30, max: 120 },
+      { n: "Disputes and flags", d: "None",                     v: 0,  max: 0   }
+    ];
+
+    if (S.step === 0) return { html:
+      '<div class="lbl" style="margin-top:8px">Your KobPay score</div>' +
+      '<div class="balcard"><div class="gauge"><div class="n">712</div>' +
+      '<div class="band">300 is the floor &middot; 850 the ceiling</div></div></div>' +
+      PARTS.map(function (x) {
+        return '<div class="evt"><div><div class="t">' + x.n + '</div><div class="d">' + x.d + '</div></div>' +
+          '<div class="a' + (x.v > 0 ? ' in' : '') + '">' + (x.v > 0 ? "+" + x.v : "0") + '</div></div>';
+      }).join("") +
+      '<div style="height:12px"></div>' +
+      '<div class="warn">Six inputs, all of them shown to you. There is no seventh one we keep to ourselves.</div>' +
+      '<button class="btn" data-act="step" data-i="1">See the arithmetic</button>',
+      title: "What the score is made of",
+      body: "<p>Most people in this market have no credit file — no bank history, no payslip, nothing a lender can price. What they do have is a record of keeping their word, and this reads it.</p>" +
+            "<p>Six components, each with a ceiling of its own so no single one can carry the number. The person being described sees every line, including the ones scoring zero.</p>",
+      hint: "See the arithmetic" };
+
+    if (S.step === 1) return { html:
+      '<div class="lbl" style="margin-top:8px">How 712 is reached</div>' +
+      '<div class="rowline"><span class="k">Everyone starts at</span><span class="v">500</span></div>' +
+      PARTS.filter(function (x) { return x.v > 0; }).map(function (x) {
+        return '<div class="rowline"><span class="k">' + x.n + ' &middot; max ' + x.max + '</span><span class="v" style="color:var(--app-good)">+' + x.v + '</span></div>';
+      }).join("") +
+      '<div class="rowline"><span class="k">Score</span><span class="v big">712</span></div>' +
+      '<div style="height:12px"></div>' +
+      '<div class="warn">Disputes upheld cost 40 each and open fraud flags 30 each. Those are the only inputs that subtract.</div>' +
+      '<button class="btn" data-act="step" data-i="2">What moves it most</button>',
+      title: "Five hundred, then earned",
+      body: "<p>Everybody opens at 500 and moves from there. Nothing is withheld at the start and nothing is assumed about a new customer.</p>" +
+            "<p>One detail worth knowing when somebody asks why they scored nothing for good behaviour: <strong>having no disputes earns you no points.</strong> Clean is the default, not an achievement. Only trouble moves that line, and only downwards.</p>" +
+            "<p>Activity counts <em>payments, not amounts</em> — deliberately, so that three large transfers cannot look like a habit the way thirty small ones do.</p>",
+      hint: "What moves it most" };
+
+    return { html:
+      '<div class="lbl" style="margin-top:8px">The heaviest input</div>' +
+      '<div class="balcard"><div class="lbl">Circles can be worth</div>' +
+      '<div><span class="figure">120</span><span class="figure-unit">PTS</span></div>' +
+      '<div class="usd">More than any other single component</div></div>' +
+      '<div class="rowline"><span class="k">Each circle you pay into</span><span class="v" style="color:var(--app-good)">+30</span></div>' +
+      '<div class="rowline"><span class="k">Took the pot, kept paying</span><span class="v big" style="color:var(--app-good)">+60</span></div>' +
+      '<div class="rowline"><span class="k">Behind on a circle</span><span class="v" style="color:var(--app-bad)">&minus;50</span></div>' +
+      '<div style="height:12px"></div>' +
+      '<div class="warn good">Taking the pot and continuing to contribute is the strongest single signal in the system.</div>' +
+      '<button class="btn" data-act="again">Back to the breakdown</button>',
+      title: "Why a circle counts for so much",
+      body: "<p>Think about what somebody has just done when they take the pot in round three of eight. They have their money. Five rounds of contributions remain and nothing physical compels them to make any of them.</p>" +
+            "<p><strong>Paying anyway is the most informative thing a person can do in this app</strong>, and it is why that one line is worth 60 points on its own. A credit bureau cannot see it, because no bureau has a record of an ajo.</p>" +
+            "<p>That is the argument for lending against this score rather than a bureau file: for most people here the bureau file is empty, and this one is not.</p>",
+      hint: "Next: Cash" };
+  },
+
+  cash: function () {
+    return { html:
+      '<div class="lbl" style="margin-top:8px">Cash out at an agent</div>' +
+      '<div class="balcard" style="text-align:center"><div class="lbl" style="margin-bottom:0">Show this code</div>' +
+      '<div class="code6">547349</div>' +
+      '<div style="font-family:var(--mono);font-size:9px;color:var(--app-muted);letter-spacing:0.1em">EXPIRES IN 14:32</div></div>' +
+      '<div class="rowline"><span class="k">Amount</span><span class="v">100.00 KPC</span></div>' +
+      '<div class="rowline"><span class="k">You receive</span><span class="v">GH&cent; 1,240.00</span></div>' +
+      '<div style="height:12px"></div>' +
+      '<div class="warn"><strong style="color:var(--app-gold)">An agent can never reach into your account.</strong> ' +
+      'The only thing that moves money out is a code you made yourself, this minute. If an agent asks for your PIN, they are not following the rules.</div>',
+      title: "Cash, without a bank",
+      body: "<p>An agent is a shop or a stall, like a mobile money agent. Hand them the code, they hand you notes; the code is used up and dies after fifteen minutes either way.</p>" +
+            "<p>This is how the app reaches people with no bank account — which in this market is most of it, not a corner of it.</p>",
+      hint: "Next: Activity" };
+  },
+
+  activity: function () {
+    var rows = [
+      { t: "Kwame Osei", d: "Sent &middot; today 9:38", a: "-25.00", i: false },
+      { t: "Lumen Stream", d: "Card &middot; today 8:02", a: "-12.99", i: false },
+      { t: "Akosua Mensah", d: "Received &middot; yesterday", a: "+120.00", i: true },
+      { t: "Laptop", d: "Into savings &middot; 21 Oct", a: "-50.00", i: false },
+      { t: "Savings interest", d: "20 Oct", a: "+1.84", i: true },
+      { t: "Family circle", d: "Round 4 &middot; 18 Oct", a: "-20.00", i: false }
+    ];
+    return { html:
+      '<div class="lbl" style="margin-top:8px">Activity</div>' +
+      rows.map(function (r) {
+        return '<div class="evt"><div><div class="t">' + r.t + '</div><div class="d">' + r.d + '</div></div>' +
+          '<div class="a' + (r.i ? " in" : "") + '">' + r.a + '</div></div>';
+      }).join("") +
+      '<div style="height:12px"></div>' +
+      '<div class="warn">Every movement of your money, with its date and amount, kept permanently.</div>',
+      title: "Nothing happens off the record",
+      body: "<p>Every line here is a double entry in the ledger — money leaving one account and arriving in another, never created or destroyed in between.</p>" +
+            "<p>That is not a reporting feature bolted on afterwards. <strong>It is how the money moves</strong>, which is why the totals on the reserve page can be trusted to add up.</p>",
+      hint: "Next: Security" };
+  },
+
+  safety: function () {
+    return { html:
+      '<div class="lbl" style="margin-top:8px">Limits &amp; verification</div>' +
+      '<div class="balcard"><div class="lbl">This device</div>' +
+      '<div style="display:flex;align-items:center;gap:12px"><div style="width:36px;height:36px;border-radius:10px;border:1px solid var(--app-goldln);display:grid;place-items:center">' +
+      '<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--app-gold);fill:none;stroke-width:1.4"><path d="M12 3a7 7 0 00-7 7v3M12 3a7 7 0 017 7v6M8.5 20a14 14 0 001-5v-5a2.5 2.5 0 015 0v6M12 21v-6"/></svg></div>' +
+      '<div><div style="font-weight:700;font-size:12.5px">Pixel 9</div><div style="font-family:var(--mono);font-size:9px;color:var(--app-muted)">Added 12 October</div></div>' +
+      '<span class="pill on" style="margin-left:auto">Active</span></div></div>' +
+      '<div class="rowline"><span class="k">Daily limit</span><span class="v">15,000 KPC</span></div>' +
+      '<div class="rowline"><span class="k">Verification</span><span class="v">ID confirmed</span></div>' +
+      '<div class="rowline"><span class="k">Payment PIN</span><span class="v">Set</span></div>' +
+      '<div style="height:12px"></div>' +
+      '<div class="warn"><strong style="color:var(--app-gold)">KobPay will never ask for your PIN.</strong> Not by phone, text or WhatsApp. Anyone asking is stealing from you.</div>',
+      title: "The security that regulators now insist on",
+      body: "<p>Japan's financial regulator has ruled that passwords <em>and SMS one-time codes</em> are no longer sufficient for financial accounts. Every major brokerage there moved to passkeys through 2025 and 2026.</p>" +
+            "<p>KobPay uses the same mechanism. <strong>The fingerprint never leaves the phone</strong> — there is no biometric database here to breach — and it cannot be used on a fake site at all, which is what stops the phishing that SMS codes cannot.</p>",
+      hint: "Next: Limits" };
+  },
+
+  limits: function () {
+    if (S.step === 0) return { html:
+      '<div class="lbl" style="margin-top:8px">Your limits</div>' +
+      '<div class="balcard"><div class="lbl">Your tier</div>' +
+      '<div style="font-family:var(--display);font-size:1.9rem;font-weight:300;color:var(--app-gold)">Verified</div>' +
+      '<div class="usd">Photo ID, and a name that matches it</div></div>' +
+      '<div class="rowline"><span class="k">One payment</span><span class="v">600.00</span></div>' +
+      '<div class="rowline"><span class="k">In a day</span><span class="v">1,200.00</span></div>' +
+      '<div class="rowline"><span class="k">In a month</span><span class="v">12,000.00</span></div>' +
+      '<div class="rowline"><span class="k">Most you may hold</span><span class="v">4,000.00</span></div>' +
+      '<div style="height:10px"></div>' +
+      '<div class="lbl">Used today</div><div class="bar"><span style="width:21%"></span></div>' +
+      '<div style="font-family:var(--mono);font-size:8.5px;color:var(--app-muted);margin-top:6px;letter-spacing:0.1em">247.50 OF 1,200.00</div>' +
+      '<button class="btn" data-act="step" data-i="1">How to raise them</button>',
+      title: "Four numbers, not one",
+      body: "<p>A limit is not a single figure. Four of them apply at once: the most in one payment, the most in a day, the most in a month, and the most you may ever be holding.</p>" +
+            "<p>The last one catches people out. You can be well inside your daily limit and still be refused because the payment would push your <em>balance</em> over the ceiling for your tier.</p>",
+      hint: "See how to raise them" };
+
+    return { html:
+      '<div class="lbl" style="margin-top:8px">The four tiers</div>' +
+      '<div class="evt"><div><div class="t">Basic</div><div class="d">A VERIFIED PHONE NUMBER</div></div><div class="a">240 / day</div></div>' +
+      '<div class="evt"><div><div class="t">Verified &mdash; you</div><div class="d">GOVERNMENT PHOTO ID</div></div><div class="a in">1,200 / day</div></div>' +
+      '<div class="evt"><div><div class="t">Full</div><div class="d">PHOTO ID AND PROOF OF ADDRESS</div></div><div class="a">4,000 / day</div></div>' +
+      '<div class="evt"><div><div class="t">Business</div><div class="d">REGISTRATION, OWNER AT FULL</div></div><div class="a">25,000 / day</div></div>' +
+      '<div style="height:12px"></div>' +
+      '<div class="warn">Above 5,000 KPC you will also be asked where the money came from. That is the rule everywhere, not a KobPay invention.</div>' +
+      '<button class="btn" data-act="again">Back to your limits</button>',
+      title: "Every tier is a document away",
+      body: "<p>Nobody has to apply or wait for a decision. Each tier states exactly which document opens it, and sending that document is the whole process.</p>" +
+            "<p>A new account starts on Basic — 240 KPC a day — which is deliberately cautious. It is the setting that lets someone try the app the same hour they hear about it, without a stranger being able to move real money through a phone number nobody has checked.</p>" +
+            "<p>Card limits are separate and sit underneath all of this. A card capped at 15 KPC a month stays capped at 15 whatever your tier allows.</p>",
+      hint: "Next: Markets" };
+  },
+
+  markets: function () {
+    var rows = [
+      { c: "GHS", n: "Ghana", r: "12.40", d: "-8.4%" },
+      { c: "NGN", n: "Nigeria", r: "1,580.00", d: "-5.1%" },
+      { c: "KES", n: "Kenya", r: "129.10", d: "-0.3%" },
+      { c: "ZAR", n: "South Africa", r: "17.45", d: "+1.2%" }
+    ];
+    return { html:
+      '<div class="lbl" style="margin-top:8px">Rates &mdash; 96 currencies priced</div>' +
+      rows.map(function (r) {
+        var down = r.d.charAt(0) === "-";
+        return '<div class="evt"><div><div class="t">' + r.c + ' &middot; ' + r.n + '</div>' +
+          '<div class="d">' + r.r + ' per dollar</div></div>' +
+          '<div class="a" style="color:' + (down ? "var(--app-bad)" : "var(--app-good)") + '">' + r.d + '</div></div>';
+      }).join("") +
+      '<div style="height:12px"></div>' +
+      '<div class="warn">Rates are fetched daily and recorded. A move of more than 25 percent in one refresh is rejected rather than applied &mdash; a feed that wrong is more likely broken than real.</div>',
+      title: "Why anyone wants dollars",
+      body: "<p>This is the demand in one screen. The percentages are what a year of holding the local currency cost someone, against the dollar.</p>" +
+            "<p>KobPay prices <strong>96 currencies</strong> and records every rate it has ever used, so a deposit from three months ago can be checked against the rate that was actually live when it was taken. An examiner will ask; so will a customer.</p>",
+      hint: "Last: the reserve" };
+  },
+
+  reserve: function () {
+    return { html:
+      '<div class="lbl" style="margin-top:8px">The reserve &mdash; public</div>' +
+      '<div class="balcard"><div class="lbl">KPC in existence</div>' +
+      '<div style="font-family:var(--display);font-size:1.9rem;font-weight:300">1,482,900<span style="font-size:0.85rem;color:var(--app-gold);margin-left:6px">KPC</span></div>' +
+      '<div style="font-family:var(--mono);font-size:8.5px;color:var(--app-muted);margin-top:6px">EVERY ONE IS A DOLLAR OWED TO SOMEBODY</div></div>' +
+      '<div class="balcard"><div class="lbl">Money held to back it</div>' +
+      '<div style="font-family:var(--display);font-size:1.9rem;font-weight:300"><span style="color:var(--app-good);font-size:0.95rem">$</span>1,575,100</div></div>' +
+      '<div class="balcard" style="border-color:rgba(46,204,113,0.25)"><div class="lbl">Cover</div>' +
+      '<div style="font-family:var(--display);font-size:2.5rem;font-weight:300;color:var(--app-good)">106.22%</div>' +
+      '<div style="font-family:var(--mono);font-size:8.5px;color:var(--app-muted);margin-top:4px">EVERY KPC IS COVERED</div></div>' +
+      '<div class="warn">These figures are KobPay&rsquo;s own, checked against KobPay&rsquo;s own bank statements. They have not been examined by an independent accountant.</div>',
+      title: "The number nobody can fake",
+      body: "<p>Anyone can open this without an account — a customer, a journalist, a regulator. It shows what is owed, what is held and the ratio between them, read from the ledger rather than typed in.</p>" +
+            "<p>The grey box is there on purpose. <strong>These are self-reported figures, and the page says so.</strong> A money app that shows numbers without saying who checked them is asking for more trust than it has earned.</p>",
+      hint: "That's the tour — jump back to any chapter" };
+  }
+  };
+
+  /* ------------------------------------------------------------------ guide */
+
+  var GUIDE = [
+    { h: "What KobPay is", html:
+      '<p class="lede">KobPay is an app that holds your money as US dollars and lets you send it to other people instantly, for free.</p>' +
+      '<p>Think of it like a bank account on your phone, with one difference that matters: the money inside is counted in dollars rather than cedis. If the cedi loses value against the dollar next month, what you are holding does not shrink with it.</p>' +
+      '<p>You can also use it to:</p><ul>' +
+      '<li>Send money to anyone else who has KobPay, using their phone number</li>' +
+      '<li>Get paid, by showing a QR code</li><li>Pay shops and apps that accept KobPay</li>' +
+      '<li>Put money aside in a savings plan and earn interest on it</li>' +
+      '<li>Save together with a group of friends or family</li>' +
+      '<li>Borrow a small amount, if you have been using the app for a while</li></ul>' +
+      '<p>Everything in this guide is something the app does today. Where a part is not switched on yet, it says so.</p>' },
+
+    { h: "What one KPC is worth", html:
+      '<p class="lede">One KPC is one US dollar. It does not move.</p>' +
+      '<p>KPC stands for KobPay Coin. It is the unit your balance is counted in, the way a bank account is counted in cedis or pounds. If your balance says 40.00 KPC, that is forty US dollars.</p>' +
+      '<p>This is not a cryptocurrency that goes up and down. There is nothing to trade and nothing to time. One KPC was a dollar yesterday and will be a dollar next year.</p>' +
+      '<p><strong>Why it works that way.</strong> For every KPC that exists, KobPay holds real money to back it. If everybody asked for their money at once, it would be there. You do not have to take that on trust — the Ledger page shows what is held and what is owed, and anyone can look, including people who have never signed up.</p>' +
+      '<p><strong>What it means for you.</strong> If the cedi weakens against the dollar, your KobPay balance buys the same amount of imported goods as before. That is the whole point of holding dollars.</p>' },
+
+    { h: "Getting started", html:
+      '<p>Three steps, about two minutes.</p><ol>' +
+      '<li><strong>Open the app.</strong> Go to kobpay.app on your phone. There is nothing to download.</li>' +
+      '<li><strong>Sign up with your phone number.</strong> You will get a code by text. Type it in. That is your account.</li>' +
+      '<li><strong>Set a PIN.</strong> Four digits, used to approve payments. Pick something that is not your birthday and not 1234.</li></ol>' +
+      '<p>That is it. You now have a wallet with a balance of 0.00 KPC, and you can receive money from anyone straight away.</p>' +
+      '<p><strong>Add it to your home screen</strong> so it opens like any other app. On an iPhone, tap the share button in Safari and choose Add to Home Screen. On Android, tap the three dots in Chrome and choose Add to Home screen.</p>' },
+
+    { h: "Your wallet screen", html:
+      '<p>The big gold number is your money. Everything else on the screen explains it.</p>' +
+      '<table class="gtable"><thead><tr><th>What you see</th><th>What it means</th></tr></thead><tbody>' +
+      '<tr><td>The large number, in KPC</td><td>Everything you have. 40.00 KPC is forty US dollars.</td></tr>' +
+      '<tr><td>The smaller line underneath</td><td>The same amount written in dollars, so the two never disagree.</td></tr>' +
+      '<tr><td>Interest today</td><td>What your savings earned today. It reads 0.00 until you open a savings plan.</td></tr>' +
+      '<tr><td>Sent this month</td><td>Everything you have sent since the first of the month.</td></tr>' +
+      '<tr><td>Received</td><td>Everything that came in this month.</td></tr>' +
+      '<tr><td>Businesses paid</td><td>How many shops or apps you paid this month.</td></tr>' +
+      '</tbody></table>' +
+      '<p>If a tile shows an arrow and a percentage, it is comparing this month with last month. It only appears once there is a last month to compare with — in your first month there is nothing honest to say, so it says nothing.</p>' },
+
+    { h: "Sending money", html:
+      '<p class="lede">You need their phone number. That is all.</p><ol>' +
+      '<li>Tap Send.</li><li>Type their phone number, or pick them from your contacts.</li>' +
+      '<li>Type the amount.</li><li>Check the name that comes up. <strong>Read it properly.</strong> If it is not who you meant, stop.</li>' +
+      '<li>Approve with your PIN or your fingerprint.</li></ol>' +
+      '<p>It arrives immediately, and it is free. Not free-with-conditions — sending KPC to another KobPay user costs nothing, because it is a line moving in KobPay’s own records rather than money travelling between banks.</p>' +
+      '<p><strong>Before you tap send, check the name.</strong> A wrong digit sends your money to a stranger, and once it has arrived it belongs to them. KobPay shows you the recipient’s name for exactly this reason. It is the one moment in the app worth slowing down for.</p>' },
+
+    { h: "Getting paid", html:
+      '<p>Tap Receive and show someone your screen. A QR code appears. They open KobPay, tap Pay, point their camera at it, and the money comes to you. Neither of you types a number, so neither of you can get a digit wrong.</p>' +
+      '<p>If they are not with you, just give them your phone number. That is your address in KobPay — there is nothing else to remember.</p>' +
+      '<p><strong>Selling something?</strong> The Take Payments screen makes you a payment link you can send in WhatsApp. The buyer taps it, pays, and you see it arrive. The merchant fee is capped at one percent, against the two to four percent a card terminal costs.</p>' },
+
+    { h: "Putting money in, and taking it out", html:
+      '<p>There are two routes in, and two routes out.</p>' +
+      '<p><strong>Through an agent.</strong> A KobPay agent is a person with a shop or a stall, the way a mobile money agent is. You hand them cash and they send the same amount to your KobPay. To take cash out, you create a code in the app, show it to them, and they hand you notes.</p>' +
+      '<p><strong>From mobile money or a card.</strong> Tap Top up, choose how much, and pay the way you normally would. The same amount lands in your wallet as KPC. To go the other way, tap Withdraw and the money goes to your mobile money number or your bank account.</p>' +
+      '<p><strong>One honest note.</strong> The mobile money and card route is still being switched on — KobPay is finishing the approval with its payments partner. Until that is done, agents are the way in and out.</p>' +
+      '<p><strong>What it costs.</strong> Topping up and withdrawing have a fee, because the mobile money network and the bank charge KobPay to move real money. The app shows the exact amount before you confirm, never a percentage you have to work out. Sending to another KobPay user stays free.</p>' },
+
+    { h: "Saving", html:
+      '<p class="lede">Money you move into savings earns interest. Money sitting in your wallet does not.</p>' +
+      '<p><strong>How to start.</strong> Go to Savings, open a plan, give it a name and move some money in. The name matters more than it sounds — &ldquo;Laptop&rdquo; is harder to raid than &ldquo;Savings&rdquo;.</p>' +
+      '<p><strong>Set a target.</strong> The app shows a bar filling up and how far you have left. People who set a target save more than people who do not; it is simply easier to keep going when you can see the end.</p>' +
+      '<p><strong>Getting it back.</strong> You can take money out whenever you want. Some plans are locked for a set time in exchange for a better rate — break one early and you lose some of the interest you had earned. The app tells you the exact amount before you confirm.</p>' +
+      '<p><strong>Where the interest comes from.</strong> KobPay holds the money backing everyone’s KPC, and that money earns something where it sits. A share of it comes to you. The rate is tied to what is actually earned, which is why it is a real number rather than an eye-catching one.</p>' },
+
+    { h: "Investing", html:
+      '<p><strong>Nothing is listed yet, and that is deliberate.</strong> The investment part of KobPay is built and working, but the shelf is empty. What may be offered to the public is a licensed issuer&rsquo;s decision, not something an app should write for itself. When a partner confirms what may be sold, it appears here.</p>' +
+      '<p>This is how it works when something is listed. You spend KPC and receive <strong>units</strong>. Your holding is the number of units multiplied by what a unit is worth that day, and that figure moves — which is the point of an investment.</p>' +
+      '<p><strong>Why units and not KPC.</strong> One KPC is one dollar, always. That is the whole promise and everything in KobPay depends on it. An investment is supposed to change in value, so it cannot be held as KPC: the first time it gained, either the promise would break or the gain could not be recorded. Holding units sidesteps the problem. KPC is only how you get in and how you get out; in between, your money is not KPC at all.</p>' +
+      '<p><strong>Selling takes a day or two</strong>, because the money has to come back from the issuer. The price, though, is fixed the moment you ask — not the day it lands. Otherwise you would be carrying two days of market movement after you had already decided to leave.</p>' +
+      '<p>Some investments have a minimum time you must hold them. If you try to sell early the app tells you which one and how many days remain, rather than failing without explanation.</p>' },
+
+    { h: "Saving with a group", html:
+      '<p>A group of people each put in the same amount every round, and each round one person takes the whole pot. When everyone has had a turn, it ends. It is a way to reach a useful lump of money sooner than saving alone would allow: eight of you at 20 KPC a month means somebody walks away with 160 this month rather than waiting eight months to have saved it.</p>' +
+      '<p><strong>Where the money sits.</strong> Contributions do not go into the organiser&rsquo;s wallet. They go into an account belonging to the circle itself, and that account obeys the same rule as every account in KobPay: it cannot go below zero. A circle therefore cannot pay out money it has not collected. Not as a promise — as an impossibility.</p>' +
+      '<p><strong>The pot is what came in, not what was promised.</strong> If two of eight do not pay, the person receiving gets six shares. Nobody covers the gap and nobody owes it to them. This sounds harsh until you consider the alternative: a guaranteed pot means the missing money has to come from the organiser or from the other members, which is how these arrangements collapse.</p>' +
+      '<p><strong>Falling behind costs you your turn.</strong> Payout order follows your position in the circle, but only among members who are paid up. If your turn arrives while you owe an earlier round, you are passed over and the pot goes to the next person who is not behind. You do not lose your place permanently — you get it once you have caught up.</p>' +
+      '<p><strong>A late payment goes to whoever was short.</strong> When somebody eventually pays a round they missed, that money is sent directly to the person who was left short in that round, not into the current pot. Otherwise the person who was short-changed would stay down forever while somebody unaffected received extra.</p>' +
+      '<p><strong>What the app does not do.</strong> There is no debt collection, no legal recovery, no insurance fund. If somebody walks away, the consequences are that they lose their turn and their score falls. The rest rests on these being people who know each other, which is how susu has always worked.</p>' +
+      '<p><strong>Before you join one</strong>, be sure you can afford the contribution every round until the end, not just the first one. The people after you in the order are relying on it.</p>' },
+
+    { h: "Borrowing, and your score", html:
+      '<p>If you have been using KobPay for a while, you can borrow a small amount. What decides it is your score, which sits between 300 and 850. Everybody starts at 500.</p>' +
+      '<p>Six things move it, and each has a ceiling of its own so that no single one can carry the number:</p>' +
+      '<p><strong>How long you have been here</strong> (up to 60 points). Time is the cheapest signal and the hardest to fake.<br>' +
+      '<strong>How much you use it</strong> (up to 70). This counts payments rather than amounts, on purpose — three large transfers should not look like a habit the way thirty small ones do.<br>' +
+      '<strong>Whether your identity is verified</strong> (up to 60), which rises with each tier of ID you complete.<br>' +
+      '<strong>Saving</strong> (up to 80), from how many plans you hold and how much is in them — less 15 points for every plan you broke early.<br>' +
+      '<strong>Circles</strong> (up to 120, the heaviest of the six).<br>' +
+      '<strong>Disputes and fraud flags</strong>, which only ever subtract: 40 for each dispute upheld against you, 30 for each open flag.</p>' +
+      '<p><strong>Why circles count for so much.</strong> The single biggest award in the whole system — 60 points — goes to somebody who took the pot and carried on contributing afterwards. Think about what that person has just done: they have their money, several rounds remain, and nothing physically compels them to pay any of them. Paying anyway is the most informative thing anyone can do in this app, and no credit bureau has ever been able to see it.</p>' +
+      '<p>That is the reason lending here is priced off this score rather than a credit file. For most people in this market the credit file is empty. This one is not.</p>' +
+      '<p><strong>Having no trouble earns you nothing.</strong> A clean record is the starting assumption, not an achievement. Only trouble moves that line, and only downwards.</p>' +
+      '<p>Every input is shown to you, including the ones scoring zero. There is no part of it kept back.</p>' },
+
+    { h: "Cards for paying online", html:
+      '<p>A card lets you pay places that do not know what KobPay is — a streaming service, a shop abroad, anywhere that takes a card number.</p>' +
+      '<p>The idea is not one card. It is <strong>a card for each thing you pay for</strong>, each with its own spending limit.</p>' +
+      '<table class="gtable"><thead><tr><th>Kind of card</th><th>When to use it</th></tr></thead><tbody>' +
+      '<tr><td>Open, no end date</td><td>Your everyday card. Use it anywhere, for as long as you want.</td></tr>' +
+      '<tr><td>Stops after a number of days</td><td>A free trial you do not want turning into a subscription. Set it for 30 days and it dies on its own.</td></tr>' +
+      '<tr><td>Use it once, then stop</td><td>A shop you are buying from one time. The card stops working the moment the payment goes through, so it is worthless to anyone who steals it afterwards.</td></tr>' +
+      '</tbody></table>' +
+      '<p><strong>The limit is the point.</strong> If you put 15 KPC on a card, nothing can ever take more than 15 KPC from it, no matter what anyone types. A subscription that quietly doubles its price simply gets declined.</p>' +
+      '<p><strong>Right now</strong>, you can set your cards up — name them, set limits, choose how long they last — but the actual card numbers are not being issued yet. What you set up now is kept, and the numbers appear on the cards you already made.</p>' },
+
+    { h: "Your limits", html:
+      '<p>Four limits apply at once: the most you can send in one payment, the most in a day, the most in a month, and the most you may be holding at any time.</p>' +
+      '<p>That last one catches people out. You can be well within your daily limit and still be refused, because the payment would push your balance past the ceiling for your tier.</p>' +
+      '<p><strong>Basic</strong> is where every account starts, on a verified phone number alone: 120 KPC in one payment, 240 a day, and 500 held. It is deliberately cautious. It exists so somebody can try KobPay within an hour of hearing about it, without a phone number nobody has checked being able to move real money.</p>' +
+      '<p><strong>Verified</strong> needs a government photo ID with a name that matches: 600 a payment, 1,200 a day, 4,000 held.</p>' +
+      '<p><strong>Full</strong> adds proof of address: 2,000 a payment, 4,000 a day, 20,000 held.</p>' +
+      '<p><strong>Business</strong> is for registered businesses taking payments, and needs the registration plus the owner verified to Full.</p>' +
+      '<p>Nobody has to apply or wait for a decision. Each tier states which document opens it, and sending that document is the entire process. Above 5,000 KPC you will also be asked where the money came from — that is the rule in every country, not something KobPay invented.</p>' +
+      '<p><strong>Card limits are separate</strong> and sit underneath all of this. A card you capped at 15 KPC a month stays capped at 15, whatever your tier would otherwise allow.</p>' },
+
+    { h: "Keeping your money safe", html:
+      '<p class="lede">Read this section even if you skip the others.</p>' +
+      '<p><strong>Your PIN.</strong> Four digits, asked for before money leaves your account. Do not use your birthday, your year of birth, or 1234.</p>' +
+      '<p><strong>Your fingerprint or face.</strong> Go to Limits &amp; verification and tap Add this device. After that, approving a payment is your fingerprint instead of four digits.</p>' +
+      '<p>Your phone checks your fingerprint and unlocks a key that lives only on that phone. KobPay never sees your fingerprint — it is never sent anywhere, and there is no copy of it on any computer to be stolen. A password can be guessed and a PIN can be watched over your shoulder. This cannot.</p>' +
+      '<p>It also cannot be used on a fake website. A convincing copy of KobPay can ask you for your PIN and you might type it in, but your fingerprint will simply refuse to work on an address that is not really KobPay.</p>' +
+      '<p><strong>KobPay will never ask you for your PIN.</strong> Not by phone, not by text, not by WhatsApp, not by someone who says they work for KobPay. Anyone asking is stealing from you.</p>' +
+      '<p><strong>Check the address.</strong> The real app is at kobpay.app. If a link came to you in a message, type the address yourself instead of tapping it.</p>' },
+
+    { h: "Agents", html:
+      '<p>An agent is a person with a shop or a stall who turns cash into KobPay money and back, the way a mobile money agent does.</p>' +
+      '<p><strong>Putting cash in.</strong> Hand the agent your notes and give them your phone number. They send you the same amount in KPC. You get a notification; check it before you walk away.</p>' +
+      '<p><strong>Taking cash out.</strong> In the app, create a cash-out code. Show the six digits to the agent. They give you the notes and the code is used up. It expires on its own after fifteen minutes, so a screenshot of an old one is worth nothing.</p>' +
+      '<p><strong>Why the code works this way.</strong> An agent can never take money from your account. The only thing that moves your money out is a code you made, deliberately, that minute. If an agent asks for your PIN instead of a code, they are not following the rules.</p>' },
+
+    { h: "Where your money actually is", html:
+      '<p class="lede">You should not have to take anyone’s word for this, and you do not have to.</p>' +
+      '<p>Every KPC that exists is a dollar KobPay owes somebody. To back that, KobPay holds real money in real bank accounts. The Ledger page shows both numbers side by side, read from the actual records rather than typed in by hand:</p><ul>' +
+      '<li><strong>KPC in existence</strong> — everything everybody is holding, which is everything KobPay owes</li>' +
+      '<li><strong>Money held to back it</strong> — what is actually in the accounts, converted to dollars</li>' +
+      '<li><strong>Cover</strong> — the second divided by the first. Above 100% means everything owed is covered.</li></ul>' +
+      '<p>You can look at this without an account. So can a journalist, a regulator, or someone deciding whether to trust the app.</p>' +
+      '<p><strong>What it does not claim.</strong> The page says plainly that these figures are KobPay’s own, checked against KobPay’s own bank statements, and have not been examined by an independent accountant. That sentence is there on purpose. Any money app that shows you numbers without telling you who checked them is asking for more trust than it has earned.</p>' },
+
+    { h: "Questions people ask", html:
+      '<p><strong>Is this a cryptocurrency?</strong> No. There is nothing to trade and no price to watch. One KPC is one dollar, today and next year.</p>' +
+      '<p><strong>What happens if I lose my phone?</strong> Your money is in your account, not on the phone. Sign in on another phone with your number and it is all there. Remove the old device from the Limits page.</p>' +
+      '<p><strong>Can someone take money from my account?</strong> Not without your PIN or your fingerprint. Not an agent, not a shop, not someone who knows your phone number. Knowing your number only lets people send you money.</p>' +
+      '<p><strong>I sent money to the wrong person.</strong> Contact them and ask. KobPay cannot reverse a payment that has arrived, for the same reason a bank cannot. This is why the app shows you the name before you confirm.</p>' +
+      '<p><strong>What is Safe Send?</strong> The money is held in the middle instead of going straight across. The seller can see it is there but cannot spend it until you confirm you got what you paid for. Worth using for anything bought from a stranger.</p>' +
+      '<p><strong>What does it cost?</strong> Sending to another KobPay user is free. Putting money in and taking it out has a fee, shown as an exact amount before you confirm. Holding money costs nothing.</p>' }
+  ];
+
+  /* ----------------------------------------------------------------- speech */
+
+  var canSpeak = typeof window !== "undefined" && "speechSynthesis" in window &&
+                 typeof window.SpeechSynthesisUtterance === "function";
+
+  function stopSpeech() {
+    if (!canSpeak) return;
+    try { window.speechSynthesis.cancel(); } catch (e) {}
+    S.speaking = false;
+    paintListen();
+  }
+
+  function speak(text) {
+    if (!canSpeak || !text) return;
+    try {
+      window.speechSynthesis.cancel();
+      // Long passages are split: several engines silently truncate or stall
+      // on a single very long utterance.
+      var parts = text.match(/[^.!?]+[.!?]*/g) || [text];
+      var chunk = "", queue = [];
+      parts.forEach(function (p) {
+        if ((chunk + p).length > 220) { queue.push(chunk.trim()); chunk = ""; }
+        chunk += p;
+      });
+      if (chunk.trim()) queue.push(chunk.trim());
+
+      queue.forEach(function (q, i) {
+        var u = new window.SpeechSynthesisUtterance(q);
+        u.rate = 0.97;
+        u.pitch = 1;
+        if (i === queue.length - 1) {
+          u.onend = function () { S.speaking = false; paintListen(); };
+        }
+        window.speechSynthesis.speak(u);
+      });
+      S.speaking = true;
+      paintListen();
+    } catch (e) {
+      S.speaking = false;
+      paintListen();
+    }
+  }
+
+  function paintListen() {
+    var b = document.getElementById("listen");
+    if (!b) return;
+    b.setAttribute("aria-pressed", S.speaking ? "true" : "false");
+    document.getElementById("listenLabel").textContent = S.speaking ? "Stop" : "Listen";
+  }
+
+  // What the narrator reads: whatever is on screen in the current mode, taken
+  // from the DOM so it can never drift from what the reader is looking at.
+  function narrationText() {
+    if (S.mode === "guide") {
+      var sect = document.querySelectorAll(".sect")[S.guideSection];
+      return sect ? sect.textContent : "";
+    }
+    var cap = document.getElementById("caption");
+    return cap ? cap.textContent.replace(/[A-Z][A-Z\s,']{6,}$/, "") : "";
+  }
+
+  /* ----------------------------------------------------------------- render */
+
+  function renderDemo() {
+    var v = V[S.ch]();
+    document.getElementById("screen").innerHTML = v.html;
+    document.getElementById("caption").innerHTML =
+      "<h2>" + v.title + "</h2>" + v.body + (v.hint ? '<div class="try">' + esc(v.hint) + "</div>" : "");
+    document.getElementById("chapters").innerHTML = CH.map(function (c) {
+      return '<button data-ch="' + c.id + '" aria-current="' + (c.id === S.ch) + '">' + c.label + "</button>";
+    }).join("");
+    Array.prototype.forEach.call(document.querySelectorAll("#nav button"), function (b) {
+      b.setAttribute("aria-current", b.dataset.ch === S.ch ? "true" : "false");
+    });
+
+    var amt = document.getElementById("amt");
+    if (amt) {
+      amt.addEventListener("input", function () {
+        S.amount = amt.value.replace(/[^0-9.]/g, "");
+        var n = Number(S.amount), go = document.getElementById("go");
+        if (go) go.disabled = !(n > 0 && n <= S.balance);
+      });
+    }
+    var mamt = document.getElementById("mamt");
+    if (mamt) {
+      mamt.addEventListener("input", function () {
+        var cedis = Number(mamt.value.replace(/[^0-9.]/g, "")) || 0;
+        S.momoAmt = Math.round((cedis / 12.4) * 100) / 100;
+        var out = document.querySelector(".rowline .v.big");
+        if (out) out.textContent = money(S.momoAmt) + " KPC";
+        var g = document.getElementById("mgo");
+        if (g) g.disabled = !(S.momoAmt > 0);
+      });
+    }
+    var fp = document.getElementById("fp");
+    if (fp) {
+      var approve = function () {
+        if (fp.classList.contains("scanning")) return;
+        fp.classList.add("scanning");
+        setTimeout(function () {
+          fp.classList.remove("scanning"); fp.classList.add("ok");
+          setTimeout(function () {
+            S.balance = Math.round((S.balance - Number(S.amount)) * 100) / 100;
+            S.step = 3; render();
+          }, 300);
+        }, 900);
+      };
+      fp.addEventListener("click", approve);
+      fp.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); approve(); }
+      });
+    }
+  }
+
+  function renderGuide() {
+    document.getElementById("guideMode").innerHTML = GUIDE.map(function (g, i) {
+      return '<section class="sect' + (i === S.guideSection ? " on" : "") + '" data-i="' + i + '">' +
+        "<h2>" + g.h + "</h2>" + g.html + "</section>";
+    }).join("");
+  }
+
+  function render() {
+    var demo = S.mode === "demo";
+    document.getElementById("demoMode").hidden = !demo;
+    document.getElementById("guideMode").hidden = demo;
+    Array.prototype.forEach.call(document.querySelectorAll("#mode button"), function (b) {
+      b.setAttribute("aria-current", b.dataset.mode === S.mode ? "true" : "false");
+    });
+    if (demo) renderDemo(); else renderGuide();
+    paintListen();
+  }
+
+  /* ------------------------------------------------------------------ input */
+
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest("[data-mode],[data-ch],[data-act],#listen,.sect");
+    if (!t) return;
+
+    if (t.id === "listen") {
+      if (S.speaking) stopSpeech(); else speak(narrationText());
+      return;
+    }
+    if (t.dataset.mode) { stopSpeech(); S.mode = t.dataset.mode; render(); return; }
+    if (t.dataset.ch)   { stopSpeech(); S.ch = t.dataset.ch; S.step = 0; render(); return; }
+
+    if (t.classList && t.classList.contains("sect")) {
+      var i = Number(t.dataset.i);
+      if (S.guideSection !== i) {
+        S.guideSection = i;
+        Array.prototype.forEach.call(document.querySelectorAll(".sect"), function (s, j) {
+          s.classList.toggle("on", j === i);
+        });
+        if (S.speaking) speak(narrationText());
+      }
+      return;
+    }
+
+    switch (t.dataset.act) {
+      case "step": S.step = Number(t.dataset.i); break;
+      case "s1": S.step = 1; if (S.ch === "online") cards[0].spent = 12.99; break;
+      case "s2": S.step = 2; break;
+      case "back": S.step = Math.max(0, S.step - 1); break;
+      case "again": S.step = 0; S.amount = ""; S.momoAmt = ""; cards[0].spent = 0; break;
+      case "pm": S.payMode = t.dataset.m; break;
+      case "mm": S.momoMode = t.dataset.m; S.step = 0; S.momoAmt = ""; break;
+      case "mgo":
+        S.balance = Math.round((S.balance + (S.momoMode === "in" ? 1 : -1) * Number(S.momoAmt)) * 100) / 100;
+        S.step = 1; break;
+      case "freeze": S.frozen = !S.frozen; break;
+      case "card": S.openCard = Number(t.dataset.i); break;
+      case "addsave": S.saved = Math.min(500, S.saved + 20); break;
+      default: return;
+    }
+    render();
+  });
+
+  window.addEventListener("pagehide", stopSpeech);
+
+  if (canSpeak) document.getElementById("listen").hidden = false;
+  render();
+})();
+</script>
+
+</body>
+</html>
