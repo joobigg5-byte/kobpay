@@ -1,296 +1,377 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  ArrowLeft, Activity, Box, ArrowRightLeft, 
-  Search, Server, Clock, Hash, ShieldCheck, AlertCircle
-} from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { ArrowLeft, ShieldCheck, AlertTriangle, Scale, Landmark, Info } from "lucide-react";
+import { supabase } from "../lib/supabaseClient";
+import AppMenu from "../components/AppMenu";
 
-// --- PRODUCTION CONFIG ---
-// This specific node has completely open CORS and allows localhost testing.
-const RPC_URL = "https://ethereum-rpc.publicnode.com";
+// This page used to stream Ethereum mainnet: latest block, miner addresses,
+// 0.0000 ETH transfers, "Active Nodes 1,245" and "Finality: Instant" — for a
+// Postgres ledger that has no nodes and no blocks. That went. What replaced
+// it was honest but still dressed as a crypto dashboard: black headings in
+// wide uppercase, body copy set in monospaced capitals, a neon cyan accent,
+// every figure in a heavy sans.
+//
+// WHO ACTUALLY READS THIS PAGE
+//
+// A customer deciding whether their money is safe. A journalist. A regulator.
+// An investor during diligence. For all four, the look is part of the claim:
+// a reserve statement that reads like a game console invites the reaction
+// that the numbers are decoration too.
+//
+// So the treatment is now the one the rest of the app uses — Cormorant for
+// figures, sentence case for prose, monospace only on small labels, gold and
+// the two semantic colours and nothing else. Not one number, binding or
+// condition changed in this rewrite; only how it reads.
+//
+// public_stats() is anon-callable by design — this page is read by people who
+// have not signed in. It exposes totals only; nothing identifies a customer.
 
-// --- TYPES ---
-interface Block {
-  number: number;
-  hash: string;
-  miner: string;
-  timestamp: number;
-  txCount: number;
-}
+type Stats = {
+  price_usd: number;
+  holders: number;
+  in_circulation: number;
+  total_supply: number;
+  volume_24h: number;
+  transactions_24h: number;
+  apps: number;
+  merchants: number;
+  currencies_supported: number;
+  savings_book: number;
+  as_of: string;
+};
 
-interface Transaction {
-  hash: string;
-  from: string;
-  to: string;
-  value: string;
-}
+const n = (v: unknown) => (typeof v === "number" ? v : Number(v ?? 0));
+const kpc = (v: unknown) =>
+  n(v).toLocaleString(undefined, { maximumFractionDigits: 2 });
 
-export default function ExplorerProtocol() {
-  const [blocks, setBlocks] = useState<Block[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [isConnected, setIsConnected] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+type ReserveAccount = {
+  name: string; kind: string; currency: string;
+  balance: number; usd: number; as_of: string; days_old: number;
+  stale: boolean; unvalued?: boolean;
+};
+type ReserveInstrument = { name: string; issuer: string; value: number };
+type ReserveComposition = {
+  currency: string; tier: string; usd_value: number;
+  share_percent: number; cannot_value: boolean;
+};
+type ReserveHistory = { at: string; account: string; balance: number; previous: number };
+type Reserve = {
+  owed_to_customers: number;
+  owed_breakdown: { wallets: number; savings: number; escrow: number };
+  backing_total: number;
+  coverage_percent: number | null;
+  accounts: ReserveAccount[];
+  composition: ReserveComposition[];
+  instruments: ReserveInstrument[];
+  history: ReserveHistory[];
+  reconciliations_total: number;
+  first_reconciliation: string | null;
+  assurance_note: string;
+};
 
-  // --- UTILS ---
-  const formatAddress = (addr: string) => addr ? `${addr.substring(0, 8)}...${addr.substring(addr.length - 6)}` : '0x...';
-  const hexToDecimal = (hex: string) => parseInt(hex, 16);
-  const timeAgo = (timestamp: number) => {
-    const seconds = Math.floor((Date.now() / 1000) - timestamp);
-    return seconds < 60 ? `${seconds}s ago` : `${Math.floor(seconds/60)}m ago`;
-  };
+export default function ExplorerPage() {
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [reserve, setReserve] = useState<Reserve | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // --- LIVE BLOCKCHAIN FETCHING ENGINE ---
-  const fetchNetworkData = async () => {
-    try {
-      // 1. Get Latest Block Number
-      const blockNumRes = await fetch(RPC_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jsonrpc: "2.0", method: "eth_blockNumber", params: [], id: 1 })
-      });
-      
-      if (!blockNumRes.ok) throw new Error(`HTTP Error: ${blockNumRes.status}`);
-      const blockNumData = await blockNumRes.json();
-      
-      if (!blockNumData.result) throw new Error("RPC blocked the request (Rate Limit/CORS)");
-      const latestBlockHex = blockNumData.result;
-
-      // 2. Get Block Data & Transactions
-      const blockRes = await fetch(RPC_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jsonrpc: "2.0", method: "eth_getBlockByNumber", params: [latestBlockHex, true], id: 1 })
-      });
-      const blockData = await blockRes.json();
-      const rawBlock = blockData.result;
-
-      if (rawBlock) {
-        setIsConnected(true);
-        setError(null);
-
-        const newBlock: Block = {
-          number: hexToDecimal(rawBlock.number),
-          hash: rawBlock.hash,
-          miner: rawBlock.miner,
-          timestamp: hexToDecimal(rawBlock.timestamp),
-          txCount: rawBlock.transactions?.length || 0
-        };
-
-        // Update Blocks State (Keep last 10)
-        setBlocks(prev => {
-          const exists = prev.find(b => b.number === newBlock.number);
-          if (exists) return prev;
-          return [newBlock, ...prev].slice(0, 10);
-        });
-
-        // Extract and format latest 10 transactions from this block safely
-        const newTxs = (rawBlock.transactions || []).slice(0, 10).map((tx: any) => ({
-          hash: tx.hash,
-          from: tx.from,
-          to: tx.to || 'Contract Creation',
-          value: (hexToDecimal(tx.value) / 1e18).toFixed(4)
-        }));
-
-        setTransactions(newTxs);
-      }
-    } catch (err: any) {
-      console.error("Sovereign RPC Error:", err.message);
-      setIsConnected(false);
-      setError("Lost connection to network. Retrying...");
-    }
-  };
-
-  // Poll the blockchain every 12 seconds
   useEffect(() => {
-    fetchNetworkData();
-    const interval = setInterval(fetchNetworkData, 12000);
-    return () => clearInterval(interval);
+    Promise.all([
+      supabase.rpc("public_stats"),
+      supabase.rpc("public_reserve"),
+    ]).then(([a, b]) => {
+      setStats((a.data as Stats) ?? null);
+      setReserve((b.data as Reserve) ?? null);
+      setLoading(false);
+    });
   }, []);
 
-  // Filter blocks/transactions client-side based on the search query
-  const query = searchQuery.trim().toLowerCase();
-  const filteredBlocks = query
-    ? blocks.filter(b =>
-        b.number.toString().includes(query) ||
-        b.hash.toLowerCase().includes(query) ||
-        b.miner.toLowerCase().includes(query)
-      )
-    : blocks;
-  const filteredTransactions = query
-    ? transactions.filter(tx =>
-        tx.hash.toLowerCase().includes(query) ||
-        tx.from.toLowerCase().includes(query) ||
-        tx.to.toLowerCase().includes(query)
-      )
-    : transactions;
+  const backed = stats ? n(stats.total_supply) : 0;
+  const covered = reserve != null && n(reserve.coverage_percent) >= 100;
 
   return (
-    <div className="min-h-screen bg-[#0A0E14] text-white p-4 lg:p-10 font-sans">
-      <div className="max-w-[1400px] mx-auto">
-        
-        {/* --- HEADER & SEARCH --- */}
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-10">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="p-3 bg-[#111827] rounded-xl border border-[#1F2937] hover:border-[#22D3EE] transition-colors">
-              <ArrowLeft size={20} className="text-[#94A3B8]" />
-            </Link>
-            <div>
-              <h1 className="text-3xl font-black uppercase tracking-widest flex items-center gap-3">
-                <Activity className="text-[#22D3EE]" size={28} /> Sovereign Explorer
-              </h1>
-              <div className="flex items-center gap-2 mt-1.5">
-                <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-[#10B981] animate-pulse' : 'bg-[#EF4444]'}`} />
-                <span className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.2em]">
-                  {isConnected ? 'Ethereum Mainnet Reference Feed • Live' : 'RPC Disconnected'}
-                </span>
+    <div className="min-h-[100dvh] bg-ink text-warmwhite font-sans">
+      <div className="max-w-[920px] mx-auto px-5 lg:px-10 py-6 lg:py-12">
+
+        <div className="flex items-center gap-3 mb-8">
+          <Link
+            href="/"
+            className="text-silver hover:text-gold p-2.5 bg-card rounded-xl border border-hairline transition-colors"
+          >
+            <ArrowLeft size={18} />
+          </Link>
+          <AppMenu />
+          <div className="ml-1">
+            <h1 className="font-display text-2xl lg:text-4xl font-light tracking-tight leading-none">
+              The ledger
+            </h1>
+            <p className="text-[11px] text-muted mt-1.5">
+              Every KPC that exists, and what stands behind it
+            </p>
+          </div>
+        </div>
+
+        {loading ? (
+          <p className="text-[11px] font-mono text-muted tracking-wide py-24 text-center">
+            Reading the ledger&hellip;
+          </p>
+        ) : !stats ? (
+          <div className="border border-hairline rounded-2xl p-10 text-center">
+            <p className="text-sm text-silver">The ledger could not be read just now.</p>
+          </div>
+        ) : (
+          <>
+            {/* The peg is the claim everything else rests on, so it leads. */}
+            <div className="border-b border-hairline pb-8 mb-8">
+              <div className="flex flex-wrap items-end justify-between gap-8">
+                <div>
+                  <p className="text-[10px] font-mono text-muted tracking-[0.18em] uppercase mb-3">
+                    One KPC is worth
+                  </p>
+                  <p className="figure text-6xl lg:text-7xl text-gold">
+                    ${n(stats.price_usd).toFixed(2)}
+                  </p>
+                  <p className="text-[11px] text-good mt-3 flex items-center gap-1.5">
+                    <ShieldCheck size={12} /> Fixed by design, not by a market
+                  </p>
+                </div>
+                <div className="sm:text-right">
+                  <p className="text-[10px] font-mono text-muted tracking-[0.18em] uppercase mb-3">
+                    KPC in existence
+                  </p>
+                  <p className="figure text-4xl lg:text-5xl">{kpc(stats.total_supply)}</p>
+                  <p className="text-[11px] text-muted mt-2">
+                    ${kpc(backed)} of claims
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="relative w-full lg:w-[500px] group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#374151] group-focus-within:text-[#22D3EE] transition-colors" size={18} />
-            <input 
-              placeholder="Search by Address / Txn Hash / Block / Token..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#111827] border border-[#1F2937] rounded-2xl py-4 pl-12 pr-4 text-xs font-mono outline-none focus:border-[#22D3EE] text-white transition-all shadow-lg placeholder:text-[#374151]" 
-            />
-          </div>
-        </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-7 mb-10">
+              <Stat label="Held by people" value={kpc(stats.in_circulation)} suffix="KPC" />
+              <Stat label="Wallets holding KPC" value={String(n(stats.holders))} />
+              <Stat label="Moved in 24 hours" value={kpc(stats.volume_24h)} suffix="KPC" />
+              <Stat label="Payments in 24 hours" value={String(n(stats.transactions_24h))} />
+              <Stat label="Apps on the rail" value={String(n(stats.apps))} />
+              <Stat label="Businesses" value={String(n(stats.merchants))} />
+              <Stat label="Currencies priced" value={String(n(stats.currencies_supported))} />
+              <Stat label="In savings" value={kpc(stats.savings_book)} suffix="KPC" />
+            </div>
 
-        {/* --- ERROR STATE --- */}
-        {error && (
-          <div className="mb-8 p-4 bg-red-500/10 border border-red-500/50 rounded-2xl flex items-center gap-3 text-red-500 text-[10px] font-mono uppercase tracking-widest">
-            <AlertCircle size={16} /> {error}
-          </div>
+            {reserve && (
+              <div className="mb-10">
+                <h2 className="font-display text-2xl lg:text-3xl font-light tracking-tight mb-2">
+                  What backs it
+                </h2>
+                <p className="text-sm text-silver leading-relaxed mb-7 max-w-[56ch]">
+                  Every KPC is a claim on KobPay for one dollar. This is what we hold
+                  against those claims.
+                </p>
+
+                {/* Coverage leads and is the only number that can end the
+                    company. Green at 100 or above, red below — no softening. */}
+                <div className={`rounded-2xl border p-7 lg:p-9 mb-5 ${
+                  covered ? "border-good/25 bg-good/[0.04]" : "border-bad/40 bg-bad/[0.07]"
+                }`}>
+                  <p className="text-[10px] font-mono text-muted tracking-[0.18em] uppercase mb-3">
+                    Coverage
+                  </p>
+                  <p className={`figure text-6xl lg:text-7xl ${covered ? "text-good" : "text-bad"}`}>
+                    {reserve.coverage_percent == null
+                      ? "—"
+                      : `${n(reserve.coverage_percent).toFixed(2)}%`}
+                  </p>
+                  <p className="text-sm text-silver mt-4">
+                    <span className="text-warmwhite">${kpc(reserve.backing_total)}</span> held
+                    against <span className="text-warmwhite">${kpc(reserve.owed_to_customers)}</span> owed
+                  </p>
+                </div>
+
+                {/* Which currency the backing is in. Every KPC is a claim for
+                    one US dollar, so backing held in another currency moves
+                    with the exchange rate while the claim does not. An issuer
+                    publishing one total can never show that, and it is the
+                    thing most worth knowing. */}
+                {(reserve.composition ?? []).length > 0 && (
+                  <Panel
+                    title="What it is held in"
+                    note="KPC is a claim for one US dollar. Backing held in another currency moves with the exchange rate."
+                  >
+                    <div className="space-y-5 mt-5">
+                      {(reserve.composition ?? []).map((c, i) => (
+                        <div key={i}>
+                          <div className="flex justify-between items-baseline gap-3 mb-2">
+                            <p className="text-sm">
+                              <span className="font-mono tracking-wide">{c.currency}</span>
+                              <span className={`ml-2.5 text-[10px] ${
+                                c.tier === "matched" ? "text-good"
+                                : c.tier === "hard" ? "text-silver"
+                                : "text-gold"
+                              }`}>
+                                {c.tier === "matched" ? "matches the claim"
+                                  : c.tier === "hard" ? "a hard currency"
+                                  : "moves against the dollar"}
+                              </span>
+                            </p>
+                            <p className="figure text-xl shrink-0">
+                              {c.cannot_value ? "—" : `${n(c.share_percent).toFixed(1)}%`}
+                            </p>
+                          </div>
+                          <div className="h-[3px] bg-white/[0.06] rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full ${
+                                c.tier === "matched" ? "bg-good"
+                                : c.tier === "hard" ? "bg-silver"
+                                : "bg-gold"
+                              }`}
+                              style={{ width: `${Math.min(100, n(c.share_percent))}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </Panel>
+                )}
+
+                {reserve.accounts.length > 0 && (
+                  <Panel title="Where it is held">
+                    <div className="mt-4">
+                      {reserve.accounts.map((a, i) => (
+                        <div key={i} className="flex justify-between items-start gap-4 py-3.5 border-b border-hairline last:border-0">
+                          <div className="min-w-0">
+                            <p className="text-sm flex items-center gap-2">
+                              <Landmark size={12} className="text-muted shrink-0" />
+                              <span className="truncate">{a.name}</span>
+                            </p>
+                            <p className="text-[11px] text-muted mt-1 ml-[20px]">
+                              {a.kind.replace(/_/g, " ")} &middot; {a.currency}
+                            </p>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p className="figure text-xl">
+                              {a.unvalued ? <span className="text-sm text-muted">not valued</span> : `$${kpc(a.usd)}`}
+                            </p>
+                            {/* A figure nobody has refreshed in six weeks
+                                proves very little, and hiding its age is how
+                                a transparency page becomes marketing. */}
+                            <p className={`text-[11px] mt-0.5 ${a.stale ? "text-bad" : "text-muted"}`}>
+                              {a.stale ? "out of date · " : ""}
+                              {n(a.days_old) < 1 ? "checked today" : `${Math.round(n(a.days_old))} days ago`}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                      {reserve.instruments.map((inst, i) => (
+                        <div key={`i${i}`} className="flex justify-between items-start gap-4 py-3.5 border-b border-hairline last:border-0">
+                          <div className="min-w-0">
+                            <p className="text-sm truncate">{inst.name}</p>
+                            <p className="text-[11px] text-muted mt-1">held with {inst.issuer}</p>
+                          </div>
+                          <p className="figure text-xl shrink-0">${kpc(inst.value)}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </Panel>
+                )}
+
+                {/* The track record. Consistency over time is checkable in a
+                    way a single snapshot is not — and it is the part an
+                    issuer cannot manufacture later. */}
+                {reserve.reconciliations_total > 0 && (
+                  <Panel
+                    title={`Checked ${reserve.reconciliations_total} times`}
+                    note={`Since ${reserve.first_reconciliation
+                      ? new Date(reserve.first_reconciliation).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })
+                      : "—"}`}
+                  >
+                    <div className="mt-4">
+                      {reserve.history.slice(0, 6).map((h, i) => (
+                        <div key={i} className="flex justify-between items-baseline gap-4 py-2.5 border-b border-hairline last:border-0">
+                          <span className="text-[12px] text-silver truncate">
+                            <span className="font-mono text-muted mr-2">
+                              {new Date(h.at).toLocaleDateString(undefined, { day: "2-digit", month: "short" })}
+                            </span>
+                            {h.account}
+                          </span>
+                          <span className="figure text-lg shrink-0">{kpc(h.balance)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </Panel>
+                )}
+
+                {/* Said plainly. Overstating what these numbers prove is the
+                    exact failure other issuers are known for. */}
+                <Note icon={<Info size={15} />} title="How these numbers are checked">
+                  {reserve.assurance_note}
+                </Note>
+              </div>
+            )}
+
+            {/* A number nobody can check is marketing; the point of this page
+                is that these can be checked. */}
+            <Note icon={<Scale size={15} />} title="Counted, not estimated">
+              Every figure here is read from the ledger when you load the page. KobPay
+              runs a double-entry ledger: each payment writes two matching entries, and
+              no account can go below zero. Last read{" "}
+              {new Date(stats.as_of).toLocaleTimeString()}.
+            </Note>
+
+            {n(stats.total_supply) === 0 && (
+              <div className="mt-4 border border-goldline bg-gold/[0.04] rounded-2xl p-6 flex gap-3.5">
+                <AlertTriangle size={15} className="text-gold shrink-0 mt-0.5" />
+                <p className="text-[13px] text-silver leading-relaxed">
+                  These figures update with every deposit, payment and withdrawal,
+                  in real time.
+                </p>
+              </div>
+            )}
+          </>
         )}
+      </div>
+    </div>
+  );
+}
 
-        {/* --- LIVE NETWORK STATS --- */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-          {[
-            { label: "Latest Block", value: blocks.length > 0 ? `#${blocks[0].number}` : "Loading...", icon: <Box size={16}/> },
-            { label: "Network State", value: isConnected ? "Secure" : "Offline", icon: <ShieldCheck size={16} className={isConnected ? "text-[#10B981]" : "text-[#EF4444]"}/> },
-            { label: "Finality", value: "Instant", icon: <Clock size={16}/> },
-            { label: "Active Nodes", value: "1,245", icon: <Server size={16}/> },
-          ].map((stat, i) => (
-            <div key={i} className="bg-[#111827]/80 border border-[#1F2937] p-5 rounded-[1.5rem] flex flex-col gap-2 shadow-lg">
-              <span className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-[0.2em] flex items-center gap-2">
-                {stat.icon} {stat.label}
-              </span>
-              <span className="text-xl font-black font-mono text-white">{stat.value}</span>
-            </div>
-          ))}
-        </div>
+// A figure and its name. No card, no border — the number is the thing, and
+// boxing every one of eight of them flattens the hierarchy rather than
+// building one.
+function Stat({ label, value, suffix }: { label: string; value: string; suffix?: string }) {
+  return (
+    <div>
+      <p className="text-[10px] font-mono text-muted tracking-[0.16em] uppercase mb-2">
+        {label}
+      </p>
+      <p className="figure text-3xl">
+        {value}
+        {suffix && <span className="text-[11px] font-mono text-muted ml-2 align-middle">{suffix}</span>}
+      </p>
+    </div>
+  );
+}
 
-        {/* --- MAIN EXPLORER GRID --- */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          
-          {/* LATEST BLOCKS */}
-          <div className="bg-[#111827]/60 border border-[#1F2937] rounded-[2rem] overflow-hidden shadow-2xl flex flex-col">
-            <div className="p-6 border-b border-[#1F2937] bg-[#111827]">
-              <h3 className="text-sm font-black uppercase tracking-[0.2em] flex items-center gap-3">
-                <Box className="text-[#FDB813]" size={18} /> Latest Blocks
-              </h3>
-            </div>
-            <div className="p-2 flex-1 overflow-y-auto max-h-[600px] custom-scrollbar">
-              <AnimatePresence>
-                {filteredBlocks.map((block) => (
-                  <motion.div 
-                    key={block.number}
-                    initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 hover:bg-[#1F2937]/50 rounded-2xl transition-colors border border-transparent hover:border-[#374151] group"
-                  >
-                    <div className="flex items-center gap-4 mb-3 sm:mb-0">
-                      <div className="w-12 h-12 bg-[#0A0E14] rounded-xl flex items-center justify-center border border-[#1F2937] group-hover:border-[#FDB813] transition-colors shrink-0">
-                        <Box size={20} className="text-[#FDB813]" />
-                      </div>
-                      <div>
-                        <Link href={`#`} className="text-sm font-black font-mono text-[#22D3EE] hover:underline">
-                          {block.number}
-                        </Link>
-                        <p className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-widest mt-1">
-                          {timeAgo(block.timestamp)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-left sm:text-right w-full sm:w-auto bg-[#0A0E14] sm:bg-transparent p-3 sm:p-0 rounded-lg">
-                      <p className="text-[10px] font-mono text-[#94A3B8] uppercase flex items-center sm:justify-end gap-2">
-                        Miner: <span className="text-[#FDB813]">{formatAddress(block.miner)}</span>
-                      </p>
-                      <p className="text-[10px] font-mono text-white mt-1 border border-[#374151] inline-block px-2 py-0.5 rounded uppercase">
-                        {block.txCount} txns
-                      </p>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-              {blocks.length === 0 && !error && (
-                <div className="p-10 text-center text-[#94A3B8] font-mono text-xs uppercase animate-pulse">
-                  Syncing with Sovereign Node...
-                </div>
-              )}
-              {blocks.length > 0 && filteredBlocks.length === 0 && (
-                <div className="p-10 text-center text-[#94A3B8] font-mono text-xs uppercase">
-                  No blocks match "{searchQuery}"
-                </div>
-              )}
-            </div>
-          </div>
+function Panel({ title, note, children }: {
+  title: string; note?: string; children: React.ReactNode;
+}) {
+  return (
+    <div className="border border-hairline rounded-2xl p-6 lg:p-7 mb-5">
+      <h3 className="font-display text-xl font-light tracking-tight">{title}</h3>
+      {note && <p className="text-[13px] text-muted leading-relaxed mt-1.5 max-w-[52ch]">{note}</p>}
+      {children}
+    </div>
+  );
+}
 
-          {/* LATEST TRANSACTIONS */}
-          <div className="bg-[#111827]/60 border border-[#1F2937] rounded-[2rem] overflow-hidden shadow-2xl flex flex-col">
-            <div className="p-6 border-b border-[#1F2937] bg-[#111827]">
-              <h3 className="text-sm font-black uppercase tracking-[0.2em] flex items-center gap-3">
-                <ArrowRightLeft className="text-[#10B981]" size={18} /> Latest Transactions
-              </h3>
-            </div>
-            <div className="p-2 flex-1 overflow-y-auto max-h-[600px] custom-scrollbar">
-              <AnimatePresence>
-                {filteredTransactions.map((tx, idx) => (
-                  <motion.div 
-                    key={tx.hash + idx}
-                    initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
-                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 hover:bg-[#1F2937]/50 rounded-2xl transition-colors border border-transparent hover:border-[#374151] group"
-                  >
-                    <div className="flex items-center gap-4 mb-3 sm:mb-0 w-full sm:w-auto overflow-hidden">
-                      <div className="w-12 h-12 bg-[#0A0E14] rounded-xl flex items-center justify-center border border-[#1F2937] group-hover:border-[#10B981] transition-colors shrink-0">
-                        <Hash size={20} className="text-[#10B981]" />
-                      </div>
-                      <div className="overflow-hidden">
-                        <Link href={`#`} className="text-sm font-black font-mono text-[#22D3EE] hover:underline block truncate w-32 sm:w-40">
-                          {tx.hash}
-                        </Link>
-                        <p className="text-[10px] font-mono text-[#94A3B8] mt-1 flex items-center gap-2 truncate">
-                          From: <span className="text-white truncate w-20 sm:w-24 block">{formatAddress(tx.from)}</span>
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-left sm:text-right w-full sm:w-auto bg-[#0A0E14] sm:bg-transparent p-3 sm:p-0 rounded-lg shrink-0">
-                      <p className="text-[11px] font-black font-mono text-white">
-                        {tx.value} <span className="text-[#94A3B8]">ETH</span>
-                      </p>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-               {transactions.length === 0 && !error && (
-                <div className="p-10 text-center text-[#94A3B8] font-mono text-xs uppercase animate-pulse">
-                  Listening for mempool events...
-                </div>
-              )}
-              {transactions.length > 0 && filteredTransactions.length === 0 && (
-                <div className="p-10 text-center text-[#94A3B8] font-mono text-xs uppercase">
-                  No transactions match "{searchQuery}"
-                </div>
-              )}
-            </div>
-          </div>
-
-        </div>
+function Note({ icon, title, children }: {
+  icon: React.ReactNode; title: string; children: React.ReactNode;
+}) {
+  return (
+    <div className="border border-hairline rounded-2xl p-6 flex gap-3.5">
+      <span className="text-muted shrink-0 mt-0.5">{icon}</span>
+      <div>
+        <p className="text-sm mb-1.5">{title}</p>
+        <p className="text-[13px] text-silver leading-relaxed max-w-[62ch]">{children}</p>
       </div>
     </div>
   );

@@ -8,7 +8,14 @@ export const translations = {
     pay: "Pay with KPC",
     trade: "Trade",
     ecosystem: "Ecosystem",
-    infrastructure: "Sovereign Infrastructure",
+    savings: "Savings",
+    invest: "Invest",
+    circles: "Circles",
+    activity: "Activity",
+    safe: "Safe Send",
+    merchant: "Take Payments",
+    operations: "Operations",
+    infrastructure: "What you can do",
     connect: "Connect"
   },
   es: {
@@ -20,7 +27,14 @@ export const translations = {
     pay: "Pagar con KPC",
     trade: "Comerciar",
     ecosystem: "Ecosistema",
-    infrastructure: "Infraestructura Soberana",
+    savings: "Ahorros",
+    invest: "Invertir",
+    circles: "Círculos",
+    activity: "Actividad",
+    safe: "Pago Seguro",
+    merchant: "Cobrar",
+    operations: "Operaciones",
+    infrastructure: "Lo que puedes hacer",
     connect: "Conectar"
   },
   fr: {
@@ -32,7 +46,14 @@ export const translations = {
     pay: "Payer avec KPC",
     trade: "Échanger",
     ecosystem: "Écosystème",
-    infrastructure: "Infrastructure Souveraine",
+    savings: "Épargne",
+    invest: "Investir",
+    circles: "Cercles",
+    activity: "Activité",
+    safe: "Paiement Sûr",
+    merchant: "Encaisser",
+    operations: "Opérations",
+    infrastructure: "Ce que vous pouvez faire",
     connect: "Connecter"
   },
   pt: {
@@ -44,7 +65,14 @@ export const translations = {
     pay: "Pagar com KPC",
     trade: "Negociar",
     ecosystem: "Ecossistema",
-    infrastructure: "Infraestrutura Soberana",
+    savings: "Poupança",
+    invest: "Investir",
+    circles: "Círculos",
+    activity: "Atividade",
+    safe: "Pagamento Seguro",
+    merchant: "Receber",
+    operations: "Operações",
+    infrastructure: "O que você pode fazer",
     connect: "Conectar"
   },
   zh: {
@@ -56,7 +84,14 @@ export const translations = {
     pay: "使用 KPC 支付",
     trade: "交易",
     ecosystem: "生态系统",
-    infrastructure: "主权基础设施",
+    savings: "储蓄",
+    invest: "投资",
+    circles: "互助会",
+    activity: "活动",
+    safe: "安全支付",
+    merchant: "收款",
+    operations: "运营",
+    infrastructure: "你可以做什么",
     connect: "连接"
   },
   ja: {
@@ -68,7 +103,14 @@ export const translations = {
     pay: "KPCで支払う",
     trade: "トレード",
     ecosystem: "エコシステム",
-    infrastructure: "ソブリンインフラストラクチャ",
+    savings: "貯蓄",
+    invest: "投資",
+    circles: "共同貯蓄",
+    activity: "履歴",
+    safe: "安全送金",
+    merchant: "決済受付",
+    operations: "運営",
+    infrastructure: "できること",
     connect: "接続する"
   }
 } as const;
