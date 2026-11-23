@@ -13,7 +13,8 @@ import {
   ShoppingCart, BarChart2, Layers, Code, Shield, User, Globe,
   Activity, Globe2, Menu, X, ChevronDown, ChevronRight, Zap, Lock, Server, Coins,
   BarChart, PieChart, Users, HardDrive, Loader2,
-  PiggyBank, LineChart as LineChartIcon, Receipt, ShieldCheck, Store, Scale, Gauge, HandCoins
+  PiggyBank, LineChart as LineChartIcon, Receipt, ShieldCheck, Store, Scale, Gauge, HandCoins,
+  CreditCard, Bitcoin
 } from 'lucide-react';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend 
@@ -452,8 +453,19 @@ export default function KPCSovereignDashboard() {
             <NavGroup label="Money" />
             <NavItem icon={<Wallet size={18} />} label={t.wallet} href="/wallet" active={pathname === '/wallet'} onClick={() => setIsMobileMenuOpen(false)} />
             <NavItem icon={<Send size={18} />} label={t.send} href="/send" active={pathname === '/send'} onClick={() => setIsMobileMenuOpen(false)} />
+            {/* This list and the one in AppMenu are two copies of the same
+                nav, and they had already drifted before tonight: Cards was in
+                AppMenu and missing here, so a customer on the dashboard had
+                no way to reach it. Adding Send Abroad and Buy Crypto to
+                AppMenu alone repeated that — the dashboard is the page most
+                people are looking at. Both lists now carry the same entries
+                in the same order. They should be one list; see the note by
+                NavItem. */}
+            <NavItem icon={<Globe size={18} />} label="Send Abroad" href="/send-abroad" active={pathname === '/send-abroad'} onClick={() => setIsMobileMenuOpen(false)} />
+            <NavItem icon={<CreditCard size={18} />} label="Cards" href="/cards" active={pathname === '/cards'} onClick={() => setIsMobileMenuOpen(false)} />
             <NavItem icon={<PiggyBank size={18} />} label={t.savings} href="/savings" active={pathname === '/savings'} onClick={() => setIsMobileMenuOpen(false)} />
             <NavItem icon={<LineChartIcon size={18} />} label={t.invest} href="/invest" active={pathname === '/invest'} onClick={() => setIsMobileMenuOpen(false)} />
+            <NavItem icon={<Bitcoin size={18} />} label="Buy Crypto" href="/buy-crypto" active={pathname === '/buy-crypto'} onClick={() => setIsMobileMenuOpen(false)} />
             <NavItem icon={<Users size={18} />} label={t.circles} href="/circles" active={pathname === '/circles'} onClick={() => setIsMobileMenuOpen(false)} />
             <NavItem icon={<ShieldCheck size={18} />} label="Limits" href="/limits" active={pathname === '/limits'} onClick={() => setIsMobileMenuOpen(false)} />
             <NavItem icon={<Gauge size={18} />} label="Score" href="/score" active={pathname === '/score'} onClick={() => setIsMobileMenuOpen(false)} />
