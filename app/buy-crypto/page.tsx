@@ -143,12 +143,21 @@ export default function BuyCryptoPage() {
       return;
     }
     setQuoting(true);
-    supabase
-      .rpc("my_crypto_quote", {
-        p_asset: asset,
-        p_network: network,
-        p_amount_kpc: kpc,
-      })
+    // Top the price up before asking. my_crypto_quote refuses on a price
+    // older than ninety seconds, and leaving that to a cron meant the page
+    // went dark whenever the schedule lapsed. This route only goes upstream
+    // when a price is actually near expiry, and it never fails the quote —
+    // if it cannot refresh, the database refuses with its own message, which
+    // is the honest outcome.
+    fetch("/api/crypto/price", { method: "POST" })
+      .catch(() => undefined)
+      .then(() =>
+        supabase.rpc("my_crypto_quote", {
+          p_asset: asset,
+          p_network: network,
+          p_amount_kpc: kpc,
+        }),
+      )
       .then(({ data, error }) => {
         setQuoting(false);
         if (error) {
