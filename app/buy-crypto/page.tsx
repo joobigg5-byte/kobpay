@@ -49,6 +49,29 @@ type CatalogueRow = {
   network_sort: number;
 };
 
+type SellQuote = {
+  asset: string;
+  asset_name: string;
+  network_label: string;
+  you_send: number;
+  usd_price: number;
+  fee_kpc: number;
+  you_receive_kpc: number;
+  expires_at: string;
+  after_expiry: string;
+};
+
+type SellOrder = {
+  order_id: string;
+  asset: string;
+  network: string;
+  send_to: string;
+  memo: string | null;
+  send_amount: number;
+  you_receive_kpc: number;
+  expires_at: string;
+};
+
 type Quote = {
   asset: string;
   asset_name: string;
@@ -84,6 +107,7 @@ export default function BuyCryptoPage() {
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<{ coin: number; asset: string } | null>(null);
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+  const [mode, setMode] = useState<"buy" | "sell">("buy");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -256,11 +280,33 @@ export default function BuyCryptoPage() {
         </div>
 
         <h1 className="font-display text-4xl font-light tracking-tight mb-2 text-white">
-          Buy Crypto
+          {mode === "buy" ? "Buy Crypto" : "Sell Crypto"}
         </h1>
-        <p className="text-[13px] text-[#A0A0A8] mb-6">
-          Paid for with your KPC balance, sent to an address you own.
+        <p className="text-[13px] text-[#A0A0A8] mb-5">
+          {mode === "buy"
+            ? "Paid for with your KPC balance, sent to an address you own."
+            : "Send coin to the address we give you and your KPC balance goes up."}
         </p>
+
+        {/* Buy and sell on one screen rather than two pages. They share the
+            asset list, the price and the spread, and two screens holding
+            copies of those is how they end up disagreeing. */}
+        <div className="flex gap-1 p-1 bg-[#07070A] border border-[#26262E] rounded-xl mb-6">
+          {(["buy", "sell"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setMode(m)}
+              className={`flex-1 py-2.5 rounded-lg font-mono text-[10px] uppercase tracking-[0.15em] transition-colors ${
+                mode === m
+                  ? "bg-[#C9A84C] text-[#07070A] font-black"
+                  : "text-[#A0A0A8] hover:text-white"
+              }`}
+            >
+              {m === "buy" ? "Buy" : "Sell"}
+            </button>
+          ))}
+        </div>
 
         {userId && balance !== null && (
           <div className="bg-[#07070A] border border-[#26262E] p-4 rounded-xl flex justify-between items-center mb-6">
@@ -280,7 +326,7 @@ export default function BuyCryptoPage() {
               <Link href="/auth" className="text-[#C9A84C] underline">
                 sign in
               </Link>{" "}
-              to buy crypto.
+              to {mode === "buy" ? "buy" : "sell"} crypto.
             </p>
           </div>
         ) : loaded && catalogue.length === 0 ? (
@@ -289,10 +335,13 @@ export default function BuyCryptoPage() {
           <div className="bg-[#C9A84C]/10 border border-[#C9A84C]/30 p-5 rounded-xl flex items-start gap-3">
             <AlertCircle className="text-[#C9A84C] shrink-0 mt-0.5" size={16} />
             <p className="text-[12px] text-[#C9A84C] leading-relaxed">
-              Buying crypto isn&apos;t open yet. Your KPC is unaffected — you can
+              {mode === "buy" ? "Buying" : "Selling"} crypto isn&apos;t open yet.
+              Your KPC is unaffected — you can
               still send it, spend it and cash out.
             </p>
           </div>
+        ) : mode === "sell" ? (
+          <SellPanel catalogue={catalogue} />
         ) : (
           <div className="space-y-5">
             {/* The address first: the one mistake here that cannot be undone. */}
@@ -509,6 +558,342 @@ export default function BuyCryptoPage() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// SELLING IS NOT BUYING IN REVERSE
+//
+// A buy is instant. A sell waits on a blockchain, and the price moves the
+// whole time the coin is in flight. The customer has to understand three
+// things before they send anything, so all three are on the screen rather
+// than in terms nobody reads:
+//
+//   the rate holds for sixty seconds, and after that they are paid at the
+//   rate when the coin lands;
+//
+//   they are paid for what actually arrives, not for what they typed;
+//
+//   the address is for one coin on one network, and anything else sent
+//   there is gone.
+//
+// The quote is an estimate and says so. Calling it a guaranteed payout and
+// then paying something different is the kind of surprise that loses a
+// customer permanently.
+function SellPanel({ catalogue }: { catalogue: CatalogueRow[] }) {
+  const [asset, setAsset] = useState("");
+  const [network, setNetwork] = useState("");
+  const [amount, setAmount] = useState("");
+  const [quote, setQuote] = useState<SellQuote | null>(null);
+  const [quoting, setQuoting] = useState(false);
+  const [quoteError, setQuoteError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [order, setOrder] = useState<SellOrder | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const assets = useMemo(() => {
+    const seen = new Map<string, CatalogueRow>();
+    for (const r of catalogue) if (!seen.has(r.symbol)) seen.set(r.symbol, r);
+    return [...seen.values()].sort((a, b) => a.asset_sort - b.asset_sort);
+  }, [catalogue]);
+
+  const networks = useMemo(
+    () =>
+      catalogue
+        .filter((r) => r.symbol === asset)
+        .sort((a, b) => a.network_sort - b.network_sort),
+    [catalogue, asset],
+  );
+
+  const row = useMemo(
+    () => networks.find((n) => n.network_code === network) ?? null,
+    [networks, network],
+  );
+
+  useEffect(() => {
+    if (!asset && assets.length > 0) setAsset(assets[0].symbol);
+  }, [assets, asset]);
+
+  useEffect(() => {
+    setNetwork(networks[0]?.network_code ?? "");
+    setQuote(null);
+    setQuoteError(null);
+    setOrder(null);
+  }, [asset, networks]);
+
+  // Same debounce as the buy side: a quote is a round trip and a half-typed
+  // number is not a question worth asking.
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const refreshQuote = useCallback(() => {
+    const qty = Number(amount);
+    if (!asset || !network || !Number.isFinite(qty) || qty <= 0) {
+      setQuote(null);
+      setQuoteError(null);
+      return;
+    }
+    setQuoting(true);
+    fetch("/api/crypto/price", { method: "POST" })
+      .catch(() => undefined)
+      .then(() =>
+        supabase.rpc("my_crypto_sell_quote", {
+          p_asset: asset,
+          p_network: network,
+          p_asset_amount: qty,
+        }),
+      )
+      .then(({ data, error: e }) => {
+        setQuoting(false);
+        if (e) {
+          setQuote(null);
+          setQuoteError(e.message);
+          return;
+        }
+        setQuoteError(null);
+        setQuote(data as SellQuote);
+      });
+  }, [asset, network, amount]);
+
+  useEffect(() => {
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(refreshQuote, 350);
+    return () => {
+      if (timer.current) clearTimeout(timer.current);
+    };
+  }, [refreshQuote]);
+
+  const start = async () => {
+    setSubmitting(true);
+    setError(null);
+    const { data, error: e } = await supabase.rpc("my_crypto_sell", {
+      p_asset: asset,
+      p_network: network,
+      p_asset_amount: Number(amount),
+      // A key the server can recognise, so a double tap or a flaky
+      // connection cannot open two sales against one intention.
+      p_idempotency_key: `sell-${asset}-${network}-${amount}-${Date.now()
+        .toString()
+        .slice(0, -4)}`,
+    });
+    setSubmitting(false);
+    if (e) {
+      setError(e.message);
+      return;
+    }
+    setOrder(data as SellOrder);
+  };
+
+  const copy = async () => {
+    if (!order?.send_to) return;
+    try {
+      await navigator.clipboard.writeText(order.send_to);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* clipboard refused — the address is on screen to read */
+    }
+  };
+
+  if (catalogue.length === 0) {
+    return (
+      <div className="bg-[#C9A84C]/10 border border-[#C9A84C]/30 p-5 rounded-xl flex items-start gap-3">
+        <AlertCircle className="text-[#C9A84C] shrink-0 mt-0.5" size={16} />
+        <p className="text-[12px] text-[#C9A84C] leading-relaxed">
+          Selling isn&apos;t open yet.
+        </p>
+      </div>
+    );
+  }
+
+  // Once an order exists the screen is about one thing: sending to the right
+  // address. Everything else is cleared away.
+  if (order) {
+    return (
+      <div className="space-y-5">
+        <div className="bg-[#07070A] border border-[#26262E] p-5 rounded-xl space-y-4">
+          <p className="text-[10px] font-mono text-[#A0A0A8] uppercase tracking-widest">
+            Send exactly
+          </p>
+          <p className="text-2xl font-black font-mono text-white">
+            {order.send_amount} {order.asset}
+          </p>
+
+          <div className="pt-2">
+            <p className="text-[10px] font-mono text-[#A0A0A8] uppercase tracking-widest mb-2">
+              To this {order.network} address
+            </p>
+            <div className="flex items-start gap-2">
+              <code className="flex-1 text-[12px] font-mono text-[#C9A84C] break-all leading-relaxed">
+                {order.send_to}
+              </code>
+              <button
+                type="button"
+                onClick={copy}
+                title="Copy"
+                className="shrink-0 p-2 text-[#A0A0A8] hover:text-[#C9A84C] transition-colors"
+              >
+                {copied ? <CheckCircle2 size={16} /> : <Clipboard size={16} />}
+              </button>
+            </div>
+          </div>
+
+          {order.memo && (
+            <div className="pt-2">
+              <p className="text-[10px] font-mono text-[#A0A0A8] uppercase tracking-widest mb-1">
+                Memo — required
+              </p>
+              <code className="text-[12px] font-mono text-[#C9A84C] break-all">
+                {order.memo}
+              </code>
+              <p className="text-[11px] text-[#E74C3C] mt-1 leading-relaxed">
+                Sent without this memo, the deposit cannot be matched to you
+                and may not be recoverable.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* The warning that matters most, in the place it cannot be missed. */}
+        <div className="bg-[#E74C3C]/10 border border-[#E74C3C]/30 p-4 rounded-xl flex items-start gap-3 text-[#E74C3C]">
+          <AlertCircle size={18} className="shrink-0 mt-0.5" />
+          <span className="text-[12px] leading-relaxed">
+            Send only {order.asset} on {order.network}. Any other coin, or the
+            same coin on a different network, is lost permanently and cannot be
+            recovered by us or anyone else.
+          </span>
+        </div>
+
+        <div className="bg-[#16161C] border border-[#26262E] p-4 rounded-xl space-y-2">
+          <Line
+            label="You should receive"
+            value={`≈ ${order.you_receive_kpc.toLocaleString()} KPC`}
+          />
+          <p className="text-[11px] text-[#72727A] leading-relaxed pt-1">
+            An estimate, not a promise. You are paid for the amount that
+            actually arrives, at the rate when it lands if this quote has
+            expired. Your balance updates once the network confirms it.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            setOrder(null);
+            setAmount("");
+          }}
+          className="w-full py-3 bg-[#26262E] text-[#A0A0A8] rounded-xl font-mono text-[10px] uppercase tracking-[0.15em]"
+        >
+          Sell something else
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-2">
+          <label className="text-[13px] text-[#A0A0A8] ml-1">Coin</label>
+          <select
+            value={asset}
+            onChange={(e) => setAsset(e.target.value)}
+            className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C]"
+          >
+            {assets.map((a) => (
+              <option key={a.symbol} value={a.symbol}>
+                {a.symbol} — {a.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="space-y-2">
+          <label className="text-[13px] text-[#A0A0A8] ml-1">Network</label>
+          <select
+            value={network}
+            onChange={(e) => setNetwork(e.target.value)}
+            className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C]"
+          >
+            {networks.map((n) => (
+              <option key={n.network_code} value={n.network_code}>
+                {n.network_label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-[13px] text-[#A0A0A8] ml-1">
+          How much {asset || "coin"} are you selling?
+        </label>
+        <input
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          inputMode="decimal"
+          placeholder={row ? `0.${"0".repeat(Math.min(6, row.decimals - 1))}1` : "0.01"}
+          className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C] placeholder:text-[#33333C]"
+        />
+      </div>
+
+      {quoting && (
+        <p className="text-[12px] text-[#72727A] flex items-center gap-2">
+          <Loader2 size={13} className="animate-spin" /> Pricing…
+        </p>
+      )}
+
+      {quoteError && (
+        <div className="bg-[#C9A84C]/10 border border-[#C9A84C]/30 p-4 rounded-xl flex items-start gap-3">
+          <AlertCircle className="text-[#C9A84C] shrink-0 mt-0.5" size={16} />
+          <span className="text-[12px] text-[#C9A84C] leading-relaxed">
+            {quoteError}
+          </span>
+        </div>
+      )}
+
+      {quote && !quoting && (
+        <div className="bg-[#16161C] border border-[#26262E] p-4 rounded-xl space-y-2">
+          <Line label="You send" value={`${quote.you_send} ${quote.asset}`} />
+          <Line
+            label="Rate"
+            value={`1 ${quote.asset} = ${Number(quote.usd_price).toLocaleString(undefined, { maximumFractionDigits: 2 })} KPC`}
+          />
+          {quote.fee_kpc > 0 && (
+            <Line label="Fee" value={`${quote.fee_kpc} KPC`} />
+          )}
+          <div className="pt-2 border-t border-[#26262E]">
+            <Line
+              label="You receive"
+              value={`≈ ${Number(quote.you_receive_kpc).toLocaleString()} KPC`}
+            />
+          </div>
+          <p className="text-[11px] text-[#72727A] leading-relaxed pt-1">
+            {quote.after_expiry}
+          </p>
+        </div>
+      )}
+
+      {error && (
+        <div className="bg-[#E74C3C]/10 border border-[#E74C3C]/30 p-4 rounded-xl flex items-start gap-3 text-[#E74C3C]">
+          <AlertCircle size={18} className="shrink-0 mt-0.5" />
+          <span className="text-[12px] leading-relaxed">{error}</span>
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={start}
+        disabled={!quote || quoting || submitting}
+        className="w-full py-4 bg-[#C9A84C] disabled:bg-[#33333C] disabled:text-[#72727A] text-[#07070A] rounded-xl font-mono text-[11px] uppercase font-black tracking-[0.15em] flex items-center justify-center gap-2"
+      >
+        {submitting && <Loader2 size={14} className="animate-spin" />}
+        Get the deposit address
+      </button>
+
+      <p className="text-[11px] text-[#72727A] leading-relaxed flex items-start gap-2">
+        <Wallet size={13} className="shrink-0 mt-0.5" />
+        Nothing leaves your wallet here. You send the coin yourself, and your
+        KPC balance goes up once the network confirms it.
+      </p>
     </div>
   );
 }

@@ -57,7 +57,9 @@ export const NAV_GROUPS: NavGroupDef[] = [
       { tKey: "invest", label: "Invest", href: "/invest", icon: LineChart },
       // Beside Invest rather than under Paying: both are turning a balance
       // into something you hold.
-      { label: "Buy Crypto", href: "/buy-crypto", icon: Bitcoin },
+      // The route stays /buy-crypto so existing links keep working; the page
+      // does both sides now.
+      { label: "Buy & Sell Crypto", href: "/buy-crypto", icon: Bitcoin },
       { tKey: "circles", label: "Circles", href: "/circles", icon: Users },
       { label: "Limits", href: "/limits", icon: ShieldCheck },
       { label: "Score", href: "/score", icon: Gauge },
