@@ -3,6 +3,8 @@
 import React, { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "../lib/supabaseClient";
+import { browserRegion } from "../lib/region";
+import { useT } from "../lib/i18n";
 import { Phone, ShieldCheck, Loader2 } from "lucide-react";
 
 type DialCode = {
@@ -25,32 +27,20 @@ function toE164(dial: string, national: string): string {
   return `+${cc}${rest}`;
 }
 
-// The browser already knows where its owner is, near enough: "en-US" gives
-// US, "en-GB" gives GB, "fr-CA" gives CA. No IP lookup, no request, no
-// third party — and no guess dressed up as a default, because a locale with
-// no region ("en" alone) returns nothing and the field simply stays empty.
-//
-// This replaced a hardcoded +233. A Ghanaian default is invisible in Accra
-// and tells everyone else they are using somebody else's local app.
-function browserRegion(): string | null {
-  try {
-    const tags = [navigator.language, ...(navigator.languages ?? [])];
-    for (const tag of tags) {
-      const region = new Intl.Locale(tag).region;
-      if (region) return region;
-    }
-  } catch {
-    // Intl.Locale is not everywhere; an empty country box is the safe miss.
-  }
-  return null;
-}
-
 function AuthForm() {
   const searchParams = useSearchParams();
   const redirectUri = searchParams.get("redirect_uri");
 
+  const { t } = useT();
   const [dialCodes, setDialCodes] = useState<DialCode[]>([]);
   const [chargeable, setChargeable] = useState<string[] | null>(null);
+  // Empty, not Ghana.
+  //
+  // A hardcoded +233 meant every customer on earth opened the sign-up page
+  // with a Ghanaian dial code already chosen, and a New Yorker reads that
+  // as an app that is not for them. The browser's own region fills it in
+  // below when we recognise the country; otherwise it stays empty and they
+  // choose.
   const [dial, setDial] = useState("");
   const [national, setNational] = useState("");
   const [otp, setOtp] = useState("");
@@ -75,14 +65,10 @@ function AuthForm() {
         if (!data) return;
         const codes = data as DialCode[];
         setDialCodes(codes);
-
-        // Pre-select only what the browser actually told us. Unknown stays
-        // unselected rather than falling back to anywhere in particular.
         setDial((current) => {
           if (current) return current;
           const region = browserRegion();
-          const match = region ? codes.find((d) => d.country === region) : null;
-          return match ? match.dial_code : "";
+          return codes.find((c) => c.country === region)?.dial_code ?? "";
         });
       });
 
@@ -94,16 +80,9 @@ function AuthForm() {
   }, []);
 
   const handleSendCode = async () => {
-    // With no default country there may genuinely be none chosen. Say so,
-    // rather than sending an OTP to a number with no dial code in front.
-    if (!dial) {
-      setError("Choose your country first");
-      return;
-    }
-
     const digits = national.replace(/\D/g, "").replace(/^0+/, "");
     if (digits.length < 6) {
-      setError("That number looks too short");
+      setError(t("auth.tooShort", "That number looks too short"));
       return;
     }
     setIsLoading(true);
@@ -155,7 +134,7 @@ function AuthForm() {
       const signData = await signRes.json();
 
       if (!signRes.ok) {
-        setError(signData.error || "We could not finish signing you in. Please try again.");
+        setError(signData.error || t("auth.couldNotFinish", "We could not finish signing you in. Please try again."));
         setIsLoading(false);
         return;
       }
@@ -183,13 +162,13 @@ function AuthForm() {
           <ShieldCheck size={14} className="text-[#C9A84C]" />
           {redirectUri
             ? `Signing in to continue to ${new URL(redirectUri).hostname}`
-            : "Sign in to KobPay"}
+            : t("auth.title", "Sign in to KobPay")}
         </div>
 
         {step === "phone" ? (
           <>
             <label className="text-[10px] font-mono text-[#A0A0A8] uppercase tracking-widest block mb-2">
-              Country
+              {t("auth.country", "Country")}
             </label>
             <select
               value={dial}
@@ -197,23 +176,18 @@ function AuthForm() {
               className="w-full mb-4 bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C] appearance-none"
             >
               {dialCodes.length === 0 ? (
-                <option value="">Loading…</option>
+                <option value={dial}>Loading…</option>
               ) : (
-                <>
-                  <option value="" disabled>
-                    Select your country
+                dialCodes.map((d) => (
+                  <option key={d.dial_code} value={d.dial_code}>
+                    {d.country_name} ({d.dial_code})
                   </option>
-                  {dialCodes.map((d) => (
-                    <option key={d.dial_code} value={d.dial_code}>
-                      {d.country_name} ({d.dial_code})
-                    </option>
-                  ))}
-                </>
+                ))
               )}
             </select>
 
             <label className="text-[10px] font-mono text-[#A0A0A8] uppercase tracking-widest block mb-2">
-              Phone Number
+              {t("auth.phone", "Phone Number")}
             </label>
             <div className="relative mb-2">
               <Phone
@@ -228,8 +202,8 @@ function AuthForm() {
                 inputMode="tel"
                 value={national}
                 onChange={(e) => setNational(e.target.value)}
-                placeholder="Without the leading zero"
-                style={{ paddingLeft: `${dial ? 44 + dial.length * 9 : 44}px` }}
+                placeholder="24 412 3456"
+                style={{ paddingLeft: `${44 + dial.length * 9}px` }}
                 className="w-full bg-[#07070A] border border-[#33333C] rounded-xl pr-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C]"
               />
             </div>
@@ -246,7 +220,7 @@ function AuthForm() {
               className="w-full py-4 bg-[#C9A84C] disabled:bg-[#33333C] text-[#07070A] font-black font-mono text-[11px] uppercase tracking-[0.2em] rounded-xl flex items-center justify-center gap-2"
             >
               {isLoading && <Loader2 size={16} className="animate-spin" />}
-              Send Code
+              {t("auth.sendCode", "Send Code")}
             </button>
 
             {topUpNote && (
@@ -274,7 +248,7 @@ function AuthForm() {
               className="w-full py-4 bg-[#C9A84C] disabled:bg-[#33333C] text-[#07070A] font-black font-mono text-[11px] uppercase tracking-[0.2em] rounded-xl flex items-center justify-center gap-2"
             >
               {isLoading && <Loader2 size={16} className="animate-spin" />}
-              Verify &amp; Continue
+              {t("auth.verify", "Verify & Continue")}
             </button>
             <button
               onClick={() => {
@@ -284,7 +258,7 @@ function AuthForm() {
               }}
               className="w-full mt-3 text-[9px] font-mono uppercase tracking-[0.2em] text-[#72727A] hover:text-[#A0A0A8]"
             >
-              Wrong number? Go back
+              {t("auth.wrongNumber", "Wrong number? Go back")}
             </button>
           </>
         )}

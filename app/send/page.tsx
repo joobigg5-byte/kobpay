@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ArrowLeft, Send, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
+import { useT } from "../lib/i18n";
 import AppMenu from "../components/AppMenu";
 import { useKpcBalance } from "../lib/useKpcBalance";
 
@@ -12,6 +13,7 @@ import { useKpcBalance } from "../lib/useKpcBalance";
 // forces a client bailout without one, and Next fails the build rather than
 // shipping a page that cannot prerender.
 function SendForm() {
+  const { t } = useT();
   const [currentUser, setCurrentUser] = useState<{ id: string; accessToken: string } | null>(null);
   // Filled in by a scanned QR: /send?to=233244123456&amount=50. The payer
   // still sees and confirms both before anything moves.
@@ -79,14 +81,14 @@ function SendForm() {
           <AppMenu />
         </div>
 
-        <h1 className="font-display text-4xl font-light tracking-tight mb-2 text-white">Send KPC</h1>
+        <h1 className="font-display text-4xl font-light tracking-tight mb-2 text-white">{t("send.title", "Send KPC")}</h1>
         <p className="text-[13px] text-[#A0A0A8] mb-4">
           Instant, $1-pegged transfer to any KobPay user, anywhere.
         </p>
 
         {currentUser && balance !== null && (
           <div className="bg-[#07070A] border border-[#26262E] p-4 rounded-xl flex justify-between items-center mb-6">
-            <span className="text-[10px] font-mono text-[#A0A0A8] uppercase tracking-widest">Your Balance</span>
+            <span className="text-[10px] font-mono text-[#A0A0A8] uppercase tracking-widest">{t("send.yourBalance", "Your Balance")}</span>
             <span className="text-lg font-black font-mono text-[#C9A84C]">{balance.toLocaleString()} KPC</span>
           </div>
         )}
@@ -103,14 +105,9 @@ function SendForm() {
               <label className="text-[13px] text-[#A0A0A8] ml-1">
                 Recipient's Phone Number
               </label>
-              {/* The old placeholder was "+233...", which is a Ghanaian
-                  number dressed up as a format hint. What actually matters
-                  is that the country code is there at all, so ask for that
-                  in words. An example number would just be some other
-                  country's default. */}
               <input
                 type="tel"
-                placeholder="Phone number, including country code"
+                placeholder="+233..."
                 value={recipientPhone}
                 onChange={(e) => setRecipientPhone(e.target.value)}
                 disabled={isSending}
@@ -159,7 +156,7 @@ function SendForm() {
             {success && (
               <div className="bg-[#2ECC71]/10 border border-[#2ECC71]/30 p-4 rounded-xl flex items-center gap-3 text-[#2ECC71]">
                 <CheckCircle2 size={20} />
-                <span className="text-[10px] font-mono uppercase tracking-widest">Transfer Successful!</span>
+                <span className="text-[10px] font-mono uppercase tracking-widest">{t("send.success", "Transfer Successful!")}</span>
               </div>
             )}
 
@@ -179,7 +176,7 @@ function SendForm() {
             >
               Paying someone you don&apos;t know?
               <br />
-              <span className="text-[#2ECC71]">Hold it until it arrives &rarr;</span>
+              <span className="text-[#2ECC71]">{t("send.holdIt", "Hold it until it arrives →")}</span>
             </Link>
           </form>
         )}

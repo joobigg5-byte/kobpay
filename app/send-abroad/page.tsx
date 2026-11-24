@@ -7,6 +7,7 @@ import { supabase } from "../lib/supabaseClient";
 import AppMenu from "../components/AppMenu";
 import { useKpcBalance } from "../lib/useKpcBalance";
 import { useT } from "../lib/i18n";
+import { browserRegion } from "../lib/region";
 
 // SENDING TO SOMEBODY WHO DOES NOT HAVE KOBPAY.
 //
@@ -66,18 +67,6 @@ type Transfer = {
 // The browser's own region, so the country starts somewhere sensible without
 // a fixed default. A locale with no region leaves it to the first payable
 // country rather than guessing.
-function browserRegion(): string | null {
-  try {
-    const tags = [navigator.language, ...(navigator.languages ?? [])];
-    for (const tag of tags) {
-      const region = new Intl.Locale(tag).region;
-      if (region) return region;
-    }
-  } catch {
-    /* Intl.Locale is not everywhere. */
-  }
-  return null;
-}
 
 export default function SendAbroadPage() {
   const [userId, setUserId] = useState<string | null>(null);

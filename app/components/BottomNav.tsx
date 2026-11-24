@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "../lib/i18n";
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
@@ -28,16 +29,17 @@ import { Home, ArrowUpRight, QrCode, Wallet } from "lucide-react";
 //
 // Rendering into document.body removes the question entirely.
 
-type Item = { href: string; label: string; icon: React.ReactNode };
+type Item = { href: string; label: string; tKey: string; icon: React.ReactNode };
 
 const items: Item[] = [
-  { href: "/", label: "Home", icon: <Home size={18} /> },
-  { href: "/send", label: "Send", icon: <ArrowUpRight size={18} /> },
-  { href: "/pay", label: "Pay", icon: <QrCode size={18} /> },
-  { href: "/wallet", label: "Wallet", icon: <Wallet size={18} /> },
+  { href: "/", label: "Home", tKey: "nav.home", icon: <Home size={18} /> },
+  { href: "/send", label: "Send", tKey: "nav.send", icon: <ArrowUpRight size={18} /> },
+  { href: "/pay", label: "Pay", tKey: "nav.pay", icon: <QrCode size={18} /> },
+  { href: "/wallet", label: "Wallet", tKey: "nav.wallet", icon: <Wallet size={18} /> },
 ];
 
 export default function BottomNav() {
+  const { t } = useT();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
 
@@ -76,7 +78,7 @@ export default function BottomNav() {
               }`}
             >
               {item.icon}
-              {item.label}
+              {t(item.tKey, item.label)}
             </Link>
           );
         })}

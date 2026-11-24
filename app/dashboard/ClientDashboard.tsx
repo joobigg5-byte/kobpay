@@ -22,6 +22,7 @@ import {
 import toast, { Toaster } from 'react-hot-toast';
 import BuyKpcModal from '../components/BuyKpcModal';
 import { supabase } from '../lib/supabaseClient';
+import { browserRegion } from '../lib/region';
 import { NAV_AGENT, NAV_GROUPS, NAV_HOME, NAV_STAFF, navLabel } from '../lib/nav';
 import { readLang, writeLang, onLangChange } from '../lib/lang';
 
@@ -97,21 +98,6 @@ function colourFor(code: string, index: number): string {
   return CHART_COLOURS[code] ?? SPARE_COLOURS[index % SPARE_COLOURS.length];
 }
 
-// The browser knows its own region: "en-GB" is GB, "de-DE" is DE. No request
-// and no IP lookup, and a locale carrying no region simply yields nothing
-// rather than a guess.
-function browserRegion(): string | null {
-  try {
-    const tags = [navigator.language, ...(navigator.languages ?? [])];
-    for (const tag of tags) {
-      const region = new Intl.Locale(tag).region;
-      if (region) return region;
-    }
-  } catch {
-    // Intl.Locale is not everywhere; the base list is the safe miss.
-  }
-  return null;
-}
 
 // Was six invented products carrying invented metrics, scrolling across the
 // top of a live payments site:

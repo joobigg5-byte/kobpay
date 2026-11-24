@@ -7,6 +7,7 @@ import {
   ShieldCheck, LogOut, Lock, Phone,
 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
+import { useT } from "../lib/i18n";
 import AppMenu from "../components/AppMenu";
 import { formatKpcAsUsd } from "../lib/kpcPeg";
 import PinSetup from "../components/PinSetup";
@@ -41,12 +42,15 @@ const n = (v: unknown) => (typeof v === "number" ? v : Number(v ?? 0));
 const money = (v: unknown) =>
   n(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-function greeting(d = new Date()) {
+// t is passed in rather than read here: this sits outside the component,
+// where there are no hooks.
+function greeting(t: (k: string, english: string) => string, d = new Date()) {
   const h = d.getHours();
-  return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+  return h < 12 ? t("greeting.morning", "Good morning") : h < 18 ? t("greeting.afternoon", "Good afternoon") : t("greeting.evening", "Good evening");
 }
 
 export default function WalletPage() {
+  const { t } = useT();
   const [data, setData] = useState<Dash | null>(null);
   const [loading, setLoading] = useState(true);
   const [signedIn, setSignedIn] = useState(false);
@@ -95,9 +99,9 @@ export default function WalletPage() {
             KOB<span className="text-gold">PAY</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1 mx-auto">
-            <Portal href="/wallet" label="User Wallet" active />
-            {isAgent && <Portal href="/agent" label="Agent Portal" />}
-            {isStaff && <Portal href="/admin" label="Admin Dashboard" />}
+            <Portal href="/wallet" label={t("wallet.user", "User Wallet")} active />
+            {isAgent && <Portal href="/agent" label={t("wallet.agent", "Agent Portal")} />}
+            {isStaff && <Portal href="/admin" label={t("wallet.admin", "Admin Dashboard")} />}
           </nav>
           <div className="ml-auto md:ml-0 flex items-center gap-3">
             <span className="hidden sm:inline text-[10px] font-mono text-silver tracking-[0.15em]">
@@ -122,7 +126,7 @@ export default function WalletPage() {
         ) : (
           <>
             <h1 className="font-display text-3xl lg:text-[2.6rem] font-light tracking-tight mb-1">
-              {greeting()}, <em className="not-italic text-gold">{data?.name}</em>
+              {greeting(t)}, <em className="not-italic text-gold">{data?.name}</em>
             </h1>
             <p className="text-[11px] font-mono text-muted tracking-[0.08em] mb-8">
               {new Date().toLocaleDateString(undefined, {
@@ -147,10 +151,10 @@ export default function WalletPage() {
                   </p>
 
                   <div className="flex flex-wrap gap-2.5 mt-7">
-                    <Action href="/send" icon={<ArrowUpRight size={14} />} label="Send" primary />
-                    <Action href="/pay" icon={<ArrowDownLeft size={14} />} label="Receive" />
-                    <Action href="/" icon={<Plus size={14} />} label="Top up" />
-                    <Action href="/pay" icon={<CreditCard size={14} />} label="Pay" />
+                    <Action href="/send" icon={<ArrowUpRight size={14} />} label={t("wallet.send", "Send")} primary />
+                    <Action href="/pay" icon={<ArrowDownLeft size={14} />} label={t("wallet.receive", "Receive")} />
+                    <Action href="/" icon={<Plus size={14} />} label={t("wallet.topUp", "Top up")} />
+                    <Action href="/pay" icon={<CreditCard size={14} />} label={t("wallet.pay", "Pay")} />
                   </div>
                 </div>
 
@@ -165,7 +169,7 @@ export default function WalletPage() {
                   <p className="text-[9px] font-mono text-muted mt-2 tracking-wide">
                     {data?.has_savings
                       ? `${money(data?.month.interest)} KPC this month`
-                      : "Open a savings plan to earn"}
+                      : t("wallet.openSavings", "Open a savings plan to earn")}
                   </p>
                   {!data?.has_savings && (
                     <Link
@@ -180,12 +184,12 @@ export default function WalletPage() {
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 mb-8">
-              <Tile label="Sent this month" value={money(data?.month.sent)}
+              <Tile label={t("wallet.sentThisMonth", "Sent this month")} value={money(data?.month.sent)}
                     change={data?.month.sent_change_percent ?? null} invert />
-              <Tile label="Received" value={money(data?.month.received)}
+              <Tile label={t("wallet.received", "Received")} value={money(data?.month.received)}
                     change={data?.month.received_change_percent ?? null} />
-              <Tile label="Interest earned" value={money(data?.month.interest)} />
-              <Tile label="Businesses paid" value={String(n(data?.month.platforms_paid))} />
+              <Tile label={t("wallet.interestEarned", "Interest earned")} value={money(data?.month.interest)} />
+              <Tile label={t("wallet.businessesPaid", "Businesses paid")} value={String(n(data?.month.platforms_paid))} />
             </div>
 
             {hasPin === false && (
@@ -201,8 +205,8 @@ export default function WalletPage() {
             )}
 
             <div className="flex flex-wrap gap-2.5">
-              <Small href="/limits" icon={<ShieldCheck size={13} />} label="Limits & verification" />
-              <Small href="/activity" icon={<Phone size={13} />} label="Activity" />
+              <Small href="/limits" icon={<ShieldCheck size={13} />} label={t("wallet.limits", "Limits & verification")} />
+              <Small href="/activity" icon={<Phone size={13} />} label={t("wallet.activity", "Activity")} />
               {hasPin === true && (
                 <button
                   onClick={() => setPinSetup(true)}
