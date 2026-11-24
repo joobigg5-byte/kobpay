@@ -6,6 +6,7 @@ import { ArrowLeft, Globe, AlertCircle, CheckCircle2, Loader2, Clock, CreditCard
 import { supabase } from "../lib/supabaseClient";
 import AppMenu from "../components/AppMenu";
 import { useKpcBalance } from "../lib/useKpcBalance";
+import { useT } from "../lib/i18n";
 
 // SENDING TO SOMEBODY WHO DOES NOT HAVE KOBPAY.
 //
@@ -82,6 +83,7 @@ export default function SendAbroadPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const { balance } = useKpcBalance(userId);
 
+  const { t } = useT();
   const [countries, setCountries] = useState<RailCountry[]>([]);
   // Every ISO country, with whether we can pay out there today. Separate
   // from the rails list because the picker has to show the world — a list
@@ -281,7 +283,7 @@ export default function SendAbroadPage() {
         </div>
 
         <h1 className="font-display text-4xl font-light tracking-tight mb-2 text-white">
-          Send Abroad
+          {t("sendAbroad.title", "Send Abroad")}
         </h1>
         <p className="text-[13px] text-[#A0A0A8] mb-6">
           Cash into someone&apos;s mobile wallet or bank account. They need no
@@ -321,7 +323,7 @@ export default function SendAbroadPage() {
           <div className="space-y-5">
             <div className="space-y-2">
               <label className="text-[13px] text-[#A0A0A8] ml-1">
-                Where are they?
+                {t("sendAbroad.where", "Where are they?")}
               </label>
               <select
                 value={country}
@@ -331,7 +333,7 @@ export default function SendAbroadPage() {
                 {/* Present and disabled, so nothing is preselected and the
                     empty state reads as a question rather than a glitch. */}
                 <option value="" disabled>
-                  Choose a country
+                  {t("common.chooseCountry", "Choose a country")}
                 </option>
                 {/* Every country, in two groups.
 
@@ -342,7 +344,7 @@ export default function SendAbroadPage() {
                     nobody is misled, and the ones we cannot reach become the
                     most useful signal the product produces. */}
                 {open.length > 0 && (
-                  <optgroup label="Open now">
+                  <optgroup label={t("common.openNow", "Open now")}>
                     {open.map((c) => (
                       <option key={c.code} value={c.name}>
                         {c.name}
@@ -351,7 +353,7 @@ export default function SendAbroadPage() {
                   </optgroup>
                 )}
                 {waiting.length > 0 && (
-                  <optgroup label="Not open yet — tell us and we will prioritise it">
+                  <optgroup label={t("common.notOpenYet", "Not open yet — tell us and we will prioritise it")}>
                     {waiting.map((c) => (
                       <option key={c.code} value={c.name}>
                         {c.name}
@@ -382,7 +384,7 @@ export default function SendAbroadPage() {
             {chosen?.reachable && rails.length > 1 && (
               <div className="space-y-2">
                 <label className="text-[13px] text-[#A0A0A8] ml-1">
-                  How should they get it?
+                  {t("sendAbroad.how", "How should they get it?")}
                 </label>
                 <select
                   value={railCode}
@@ -401,12 +403,12 @@ export default function SendAbroadPage() {
             {chosen?.reachable && (
             <div className="space-y-2">
               <label className="text-[13px] text-[#A0A0A8] ml-1">
-                Who is it for?
+                {t("sendAbroad.who", "Who is it for?")}
               </label>
               <input
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
-                placeholder="Their name"
+                placeholder={t("sendAbroad.theirName", "Their name")}
                 className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C] placeholder:text-[#33333C]"
               />
             </div>
@@ -444,7 +446,7 @@ export default function SendAbroadPage() {
             {chosen?.reachable && (
             <div className="space-y-2">
               <label className="text-[13px] text-[#A0A0A8] ml-1">
-                How much are you sending?
+                {t("sendAbroad.howMuch", "How much are you sending?")}
               </label>
               <div className="relative">
                 <input
@@ -659,6 +661,7 @@ function CardWaiting({
   amount: string;
   onAmountChange: (v: string) => void;
 }) {
+  const { t } = useT();
   const [asking, setAsking] = useState(false);
   const [asked, setAsked] = useState(false);
   const [waitingCount, setWaitingCount] = useState<number | null>(null);
@@ -703,7 +706,7 @@ function CardWaiting({
           <CreditCard className="text-[#C9A84C] shrink-0 mt-0.5" size={18} />
           <div className="min-w-0">
             <p className="text-sm text-white font-medium">
-              Card payout to {country.name}
+              {t("sendAbroad.cardComing", "Card payout to")} {country.name}
             </p>
             <p className="text-[12px] text-[#A0A0A8] leading-relaxed mt-1">
               Straight to their debit card — no bank details, no account
@@ -718,7 +721,7 @@ function CardWaiting({
             into the provider's own field so it never reaches us at all. */}
         <div className="space-y-2 opacity-40 pointer-events-none select-none">
           <label className="text-[13px] text-[#A0A0A8] ml-1">
-            Their card number
+            {t("sendAbroad.theirCard", "Their card number")}
           </label>
           <div className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-[#33333C]">
             •••• •••• •••• ••••
@@ -733,7 +736,7 @@ function CardWaiting({
 
         <div className="space-y-2">
           <label className="text-[13px] text-[#A0A0A8] ml-1">
-            How much would you send?
+            {t("sendAbroad.wouldSend", "How much would you send?")}
           </label>
           <div className="relative">
             <input
@@ -782,7 +785,7 @@ function CardWaiting({
           className="w-full py-4 bg-[#C9A84C] disabled:bg-[#33333C] disabled:text-[#72727A] text-[#07070A] rounded-xl font-mono text-[11px] uppercase font-black tracking-[0.15em] flex items-center justify-center gap-2"
         >
           {asking && <Loader2 size={14} className="animate-spin" />}
-          Tell us you need {country.name}
+          {t("sendAbroad.tellUs", "Tell us you need")} {country.name}
         </button>
       )}
 

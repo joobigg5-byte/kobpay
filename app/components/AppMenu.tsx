@@ -9,8 +9,9 @@ import { supabase } from "../lib/supabaseClient";
 import {
   NAV_GROUPS, NAV_HOME, NAV_AGENT, NAV_STAFF, navLabel, type NavItemDef,
 } from "../lib/nav";
-import { readLang, onLangChange } from "../lib/lang";
+import { readLang, writeLang, onLangChange } from "../lib/lang";
 import type { LanguageCode } from "../translations";
+import { LANGUAGE_NAMES } from "../lib/i18n";
 
 // THE MENU ONLY EXISTED ON THE DASHBOARD.
 //
@@ -123,6 +124,34 @@ export default function AppMenu() {
               >
                 <X size={16} />
               </button>
+            </div>
+
+            {/* The language picker lived only on the dashboard, so on the
+                other eighteen pages there was no way to change it. It
+                belongs with the navigation, which is on all of them. */}
+            <div className="px-3 pt-3">
+              <p className="text-[8px] font-mono text-[#72727A] uppercase tracking-[0.25em] px-3 pb-1.5">
+                Language
+              </p>
+              <div className="flex flex-wrap gap-1 px-1">
+                {(Object.keys(LANGUAGE_NAMES) as LanguageCode[]).map((code) => (
+                  <button
+                    key={code}
+                    type="button"
+                    onClick={() => {
+                      setLang(code);
+                      writeLang(code);
+                    }}
+                    className={`px-2.5 py-1.5 rounded-lg text-[11px] transition-colors ${
+                      lang === code
+                        ? "bg-[#C9A84C]/15 text-[#C9A84C] border border-[#C9A84C]/30"
+                        : "text-[#A0A0A8] hover:text-white bg-[#26262E] border border-transparent"
+                    }`}
+                  >
+                    {LANGUAGE_NAMES[code]}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="p-3 pb-8 space-y-0.5">
