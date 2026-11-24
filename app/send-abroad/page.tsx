@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Globe, AlertCircle, CheckCircle2, Loader2, Clock } from "lucide-react";
+import { ArrowLeft, Globe, AlertCircle, CheckCircle2, Loader2, Clock, CreditCard } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import AppMenu from "../components/AppMenu";
 import { useKpcBalance } from "../lib/useKpcBalance";
@@ -34,6 +34,8 @@ type Rail = {
   max_amount: number | null;
 };
 type RailCountry = { country: string; country_name: string; rails: Rail[] };
+
+type Destination = { code: string; name: string; reachable: boolean };
 
 type Quote = {
   rail: string;
@@ -81,6 +83,11 @@ export default function SendAbroadPage() {
   const { balance } = useKpcBalance(userId);
 
   const [countries, setCountries] = useState<RailCountry[]>([]);
+  // Every ISO country, with whether we can pay out there today. Separate
+  // from the rails list because the picker has to show the world — a list
+  // of only the reachable ones made a global product look like a local one,
+  // and left someone looking for the United Kingdom with no way to say so.
+  const [destinations, setDestinations] = useState<Destination[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   const [country, setCountry] = useState("");
@@ -144,7 +151,28 @@ export default function SendAbroadPage() {
       }
       setLoaded(true);
     });
+
+    supabase
+      .from("send_destinations")
+      .select("code, name, reachable")
+      .order("name")
+      .then(({ data }) => {
+        if (Array.isArray(data)) setDestinations(data as Destination[]);
+      });
   }, []);
+
+  const open = useMemo(
+    () => destinations.filter((d) => d.reachable),
+    [destinations],
+  );
+  const waiting = useMemo(
+    () => destinations.filter((d) => !d.reachable),
+    [destinations],
+  );
+  const chosen = useMemo(
+    () => destinations.find((d) => d.name === country) ?? null,
+    [destinations, country],
+  );
 
   const rails = useMemo(
     () => countries.find((c) => c.country_name === country)?.rails ?? [],
@@ -305,24 +333,53 @@ export default function SendAbroadPage() {
                 <option value="" disabled>
                   Choose a country
                 </option>
-                {countries.map((c) => (
-                  <option key={c.country} value={c.country_name}>
-                    {c.country_name}
-                  </option>
-                ))}
+                {/* Every country, in two groups.
+
+                    Listing only the ones we can reach made a global product
+                    look like a two-country one, and gave someone looking for
+                    the United Kingdom no way to tell us. Showing all of them
+                    and saying plainly which are open is the honest version:
+                    nobody is misled, and the ones we cannot reach become the
+                    most useful signal the product produces. */}
+                {open.length > 0 && (
+                  <optgroup label="Open now">
+                    {open.map((c) => (
+                      <option key={c.code} value={c.name}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+                {waiting.length > 0 && (
+                  <optgroup label="Not open yet — tell us and we will prioritise it">
+                    {waiting.map((c) => (
+                      <option key={c.code} value={c.name}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
               </select>
-              {/* Said plainly rather than left for someone to discover by
-                  not finding their country. Each payout country needs a
-                  partner who will hand over the cash there, so the list
-                  grows by agreement, not by deploy. */}
               <p className="text-[12px] text-[#72727A] ml-1">
-                {countries.length} {countries.length === 1 ? "country" : "countries"} so far,
-                and more opening as payout partners come online. Tell us where you
-                need to send and we will prioritise it.
+                {open.length} {open.length === 1 ? "country" : "countries"} open
+                today. The rest are waiting on a payout partner — pick yours and
+                tell us, and it moves up the list.
               </p>
             </div>
 
-            {rails.length > 1 && (
+            {/* A country we cannot reach yet. The card flow is shown as it
+                will work, disabled, so it is obvious this is coming rather
+                than missing — and so the day a partner signs, the same
+                screen simply becomes live. */}
+            {chosen && !chosen.reachable && (
+              <CardWaiting
+                country={chosen}
+                amount={amount}
+                onAmountChange={setAmount}
+              />
+            )}
+
+            {chosen?.reachable && rails.length > 1 && (
               <div className="space-y-2">
                 <label className="text-[13px] text-[#A0A0A8] ml-1">
                   How should they get it?
@@ -341,6 +398,7 @@ export default function SendAbroadPage() {
               </div>
             )}
 
+            {chosen?.reachable && (
             <div className="space-y-2">
               <label className="text-[13px] text-[#A0A0A8] ml-1">
                 Who is it for?
@@ -352,6 +410,7 @@ export default function SendAbroadPage() {
                 className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C] placeholder:text-[#33333C]"
               />
             </div>
+            )}
 
             {rail && (
               <div className="space-y-2">
@@ -382,6 +441,7 @@ export default function SendAbroadPage() {
               </div>
             )}
 
+            {chosen?.reachable && (
             <div className="space-y-2">
               <label className="text-[13px] text-[#A0A0A8] ml-1">
                 How much are you sending?
@@ -402,6 +462,7 @@ export default function SendAbroadPage() {
               </div>
               <p className="text-[11px] text-[#72727A] ml-1">1 KPC = US$1.</p>
             </div>
+            )}
 
             {quoting && (
               <div className="flex items-center gap-2 text-[11px] font-mono text-[#72727A] uppercase tracking-widest">
@@ -557,14 +618,180 @@ export default function SendAbroadPage() {
               </div>
             )}
 
+            {chosen?.reachable && (
             <p className="text-[11px] text-[#72727A] leading-relaxed flex items-start gap-2 pt-1">
               <Globe size={13} className="shrink-0 mt-0.5" />
-              Only countries we can actually pay are listed. Money from a card
-              top-up has to settle before it can be sent abroad.
+              Money from a card top-up has to settle before it can be sent
+              abroad.
             </p>
+            )}
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// A COUNTRY WE CANNOT REACH YET.
+//
+// Shown as the card payout will actually look, disabled, rather than as a
+// blank space or an error. Three reasons.
+//
+// Someone who sees the real form understands this is coming, not missing.
+// A blank "not supported" reads as a product that does not do this; a card
+// field greyed out with a reason reads as a date not yet set.
+//
+// It is honest. The button cannot be pressed, nothing is collected, and the
+// copy says plainly that no card details are taken and nothing is promised.
+//
+// And it is the same screen that goes live. When a partner signs, the rail
+// turns live, chosen.reachable flips, and the customer sees the flow they
+// were already looking at — not a new one they have to learn.
+//
+// The one thing it does collect is that they wanted to send here. That is
+// the most useful fact the product produces and it was being thrown away.
+function CardWaiting({
+  country,
+  amount,
+  onAmountChange,
+}: {
+  country: Destination;
+  amount: string;
+  onAmountChange: (v: string) => void;
+}) {
+  const [asking, setAsking] = useState(false);
+  const [asked, setAsked] = useState(false);
+  const [waitingCount, setWaitingCount] = useState<number | null>(null);
+  const [failed, setFailed] = useState<string | null>(null);
+
+  // Reset when they pick a different country, or the button would still say
+  // "noted" for a place they have not asked about.
+  useEffect(() => {
+    setAsked(false);
+    setWaitingCount(null);
+    setFailed(null);
+  }, [country.code]);
+
+  const ask = async () => {
+    setAsking(true);
+    setFailed(null);
+    const n = Number(amount);
+    const { data, error } = await supabase.rpc("my_request_corridor", {
+      p_country: country.code,
+      p_destination: "card",
+      p_amount_kpc: Number.isFinite(n) && n > 0 ? n : null,
+    });
+    setAsking(false);
+    if (error) {
+      setFailed(
+        error.message.includes("signed in")
+          ? "Sign in first and we can note it against your account."
+          : "That did not save. Try again in a moment.",
+      );
+      return;
+    }
+    setAsked(true);
+    setWaitingCount(
+      (data as { people_waiting?: number } | null)?.people_waiting ?? null,
+    );
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-[#16161C] border border-[#26262E] rounded-xl p-5 space-y-4">
+        <div className="flex items-start gap-3">
+          <CreditCard className="text-[#C9A84C] shrink-0 mt-0.5" size={18} />
+          <div className="min-w-0">
+            <p className="text-sm text-white font-medium">
+              Card payout to {country.name}
+            </p>
+            <p className="text-[12px] text-[#A0A0A8] leading-relaxed mt-1">
+              Straight to their debit card — no bank details, no account
+              number, nothing for them to set up. We are finishing the payout
+              partner that makes this work in {country.name}.
+            </p>
+          </div>
+        </div>
+
+        {/* Shown exactly as it will be, and inert. Nothing typed here is
+            read, stored or sent — the real version puts the card number
+            into the provider's own field so it never reaches us at all. */}
+        <div className="space-y-2 opacity-40 pointer-events-none select-none">
+          <label className="text-[13px] text-[#A0A0A8] ml-1">
+            Their card number
+          </label>
+          <div className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-[#33333C]">
+            •••• •••• •••• ••••
+          </div>
+          <label className="text-[13px] text-[#A0A0A8] ml-1 block pt-2">
+            Their name
+          </label>
+          <div className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-[#33333C]">
+            As printed on the card
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-[13px] text-[#A0A0A8] ml-1">
+            How much would you send?
+          </label>
+          <div className="relative">
+            <input
+              type="number"
+              step="0.01"
+              inputMode="decimal"
+              value={amount}
+              onChange={(e) => onAmountChange(e.target.value)}
+              placeholder="0.00"
+              className="w-full bg-[#07070A] border border-[#33333C] rounded-xl pl-4 pr-16 py-4 text-xl font-black font-mono text-white outline-none focus:border-[#C9A84C] placeholder:text-[#33333C]"
+            />
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-[#C9A84C] tracking-widest">
+              KPC
+            </div>
+          </div>
+          <p className="text-[11px] text-[#72727A] ml-1">
+            Telling us the amount is what moves {country.name} up the list —
+            we open the corridors with the most money waiting first.
+          </p>
+        </div>
+      </div>
+
+      {failed && (
+        <p className="text-[12px] text-[#E74C3C] leading-relaxed">{failed}</p>
+      )}
+
+      {asked ? (
+        <div className="bg-[#C9A84C]/10 border border-[#C9A84C]/30 p-4 rounded-xl flex items-start gap-3">
+          <CheckCircle2 className="text-[#C9A84C] shrink-0 mt-0.5" size={16} />
+          <span className="text-[12px] text-[#C9A84C] leading-relaxed">
+            Noted — {country.name} is on the list
+            {waitingCount && waitingCount > 1
+              ? `, along with ${waitingCount - 1} other ${
+                  waitingCount - 1 === 1 ? "person" : "people"
+                }`
+              : ""}
+            . We will tell you when it opens. No date yet, and we would rather
+            not invent one.
+          </span>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={ask}
+          disabled={asking}
+          className="w-full py-4 bg-[#C9A84C] disabled:bg-[#33333C] disabled:text-[#72727A] text-[#07070A] rounded-xl font-mono text-[11px] uppercase font-black tracking-[0.15em] flex items-center justify-center gap-2"
+        >
+          {asking && <Loader2 size={14} className="animate-spin" />}
+          Tell us you need {country.name}
+        </button>
+      )}
+
+      <p className="text-[11px] text-[#72727A] leading-relaxed flex items-start gap-2">
+        <AlertCircle size={13} className="shrink-0 mt-0.5" />
+        Nothing is charged and no card details are taken. Your KPC is
+        untouched — you can still send it to other KobPay accounts and cash
+        out.
+      </p>
     </div>
   );
 }
