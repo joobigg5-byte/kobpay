@@ -126,9 +126,20 @@ export default function SendAbroadPage() {
         setCountries(list);
         setCountry((current) => {
           if (current && list.some((c) => c.country_name === current)) return current;
+          // The browser's own region, if we happen to pay out there. Nothing
+          // otherwise.
+          //
+          // This used to fall back to the first country in the list, which
+          // sorts alphabetically — so with Ghana and Nigeria live, every
+          // customer in the world opened this page preset to Ghana. That is
+          // not a default anyone chose; it is an artefact of two rows and an
+          // ORDER BY, and it made a global product look like a Ghanaian one.
+          //
+          // An empty selection is the honest state. The customer picks, and
+          // the picker says so.
           const region = browserRegion();
           const mine = region ? list.find((c) => c.country === region) : null;
-          return mine?.country_name ?? list[0]?.country_name ?? "";
+          return mine?.country_name ?? "";
         });
       }
       setLoaded(true);
@@ -289,12 +300,26 @@ export default function SendAbroadPage() {
                 onChange={(e) => setCountry(e.target.value)}
                 className="w-full bg-[#07070A] border border-[#33333C] rounded-xl px-4 py-4 text-sm font-mono text-white outline-none focus:border-[#C9A84C]"
               >
+                {/* Present and disabled, so nothing is preselected and the
+                    empty state reads as a question rather than a glitch. */}
+                <option value="" disabled>
+                  Choose a country
+                </option>
                 {countries.map((c) => (
                   <option key={c.country} value={c.country_name}>
                     {c.country_name}
                   </option>
                 ))}
               </select>
+              {/* Said plainly rather than left for someone to discover by
+                  not finding their country. Each payout country needs a
+                  partner who will hand over the cash there, so the list
+                  grows by agreement, not by deploy. */}
+              <p className="text-[12px] text-[#72727A] ml-1">
+                {countries.length} {countries.length === 1 ? "country" : "countries"} so far,
+                and more opening as payout partners come online. Tell us where you
+                need to send and we will prioritise it.
+              </p>
             </div>
 
             {rails.length > 1 && (
