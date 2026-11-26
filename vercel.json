@@ -1,7 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
-    { "path": "/api/cron/fx", "schedule": "0 6 * * *" },
-    { "path": "/api/cron/crypto-prices", "schedule": "40 7 * * *" }
+    {
+      "path": "/api/cron/fx",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/crypto-prices",
+      "schedule": "40 7 * * *"
+    },
+    {
+      "path": "/api/cron/webhooks",
+      "schedule": "15 7 * * *"
+    }
   ]
 }

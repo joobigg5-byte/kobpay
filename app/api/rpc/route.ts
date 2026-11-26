@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { supabaseAdmin } from "@/app/lib/supabaseServer";
+import { deliverQueuedWebhooks } from "@/app/lib/webhooks";
 
 // The one address the apps POST to.
 //
@@ -289,6 +290,19 @@ export async function POST(request: Request) {
     status = 200;
     body = { ok: true, result: data };
   }
+
+  // Anything the call queued for this app goes out now rather than waiting
+  // for the sweeper. after() runs once the response has been sent, so the
+  // app is not kept waiting on its own webhook — and if this fails, the
+  // cron picks the delivery up on its next pass. Nothing depends on it
+  // working.
+  after(async () => {
+    try {
+      await deliverQueuedWebhooks();
+    } catch (err) {
+      console.error("rpc: webhook kick failed", err);
+    }
+  });
 
   if (idemKey) {
     // Recorded whether it succeeded or failed: a refusal replayed as a
